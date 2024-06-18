@@ -6,6 +6,7 @@ object Constants {
     const val COUNTRYNAMECODE="countryNameCode"
     const val PHONE="phone"
     const val CONTACTS="Contacts"
+    const val USERS="Users"
 
 
     //sender

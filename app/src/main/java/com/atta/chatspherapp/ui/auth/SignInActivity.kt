@@ -37,6 +37,7 @@ class SignInActivity : AppCompatActivity() {
 
     @Inject
     lateinit var databaseReference: DatabaseReference
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivitySignInBinding.inflate(layoutInflater)
@@ -44,10 +45,10 @@ class SignInActivity : AppCompatActivity() {
         setStatusBarColor(R.color.black)
         sharedPreferencesHelper= SharedPreferencesHelper(this)
 
-//        if (auth.currentUser!=null){
-//            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
-//            finish()
-//        }
+        if (auth.currentUser!=null){
+            startActivity(Intent(this@SignInActivity, MainActivity::class.java))
+            finish()
+        }
 
 
         binding.loginBtn.setOnClickListener {
@@ -87,7 +88,7 @@ class SignInActivity : AppCompatActivity() {
                             showToast("Please register the phoneNumber.It does not exist.")
                             dialog.dismiss()
                         }
-                        
+
                     }
                 }
             }

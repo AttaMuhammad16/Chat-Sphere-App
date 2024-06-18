@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/app_background"
+    tools:context=".ui.activities.SearchUserForChatActivity">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/green"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/backImg"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_25sdp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/_3sdp"
+                android:src="@drawable/baseline_arrow_back_24" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/_5sdp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Select Random User"
+                    android:textColor="@color/white"
+                    android:fontFamily="@font/alatsi"
+                    android:textSize="@dimen/_16sdp" />
+
+                <TextView
+                    android:id="@+id/totalUsers"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0 Users"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:textSize="@dimen/_9sdp" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="wrap_content"
+                android:layout_height="1dp"
+                android:layout_gravity="center_vertical"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/searchImg"
+                android:layout_width="@dimen/_27sdp"
+                android:layout_height="@dimen/_27sdp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                app:tint="@color/white"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/baseline_search_24" />
+
+        </LinearLayout>
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:id="@+id/searchLinear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/_10sdp"
+        android:background="@drawable/search_view_background"
+        android:orientation="horizontal"
+        android:padding="@dimen/_6sdp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/toolbar"
+        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/searchBackImg"
+            android:layout_width="@dimen/_35sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginEnd="@dimen/_7sdp"
+            android:padding="@dimen/_2sdp"
+            android:paddingStart="@dimen/_5sdp"
+            android:src="@drawable/baseline_arrow_back_24" />
+
+        <EditText
+            android:id="@+id/searchEdt"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:elevation="@dimen/_200sdp"
+            android:focusable="true"
+            android:hint="Search Contact"
+            android:maxLines="1"
+            android:padding="@dimen/_5sdp"
+            android:singleLine="true"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textCursorDrawable="@null" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

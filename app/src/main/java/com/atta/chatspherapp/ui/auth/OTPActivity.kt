@@ -210,8 +210,10 @@ class OTPActivity : AppCompatActivity() {
                         val currentTime = System.currentTimeMillis()
                         userModel?.timeStamp = currentTime
                         userModel?.profileUrl = it
+                        userModel?.key=auth.currentUser!!.uid
+
                         lifecycleScope.launch {
-                            val uploadResult = mainViewModel.uploadAnyModel("Users/${auth.currentUser!!.uid}",userModel!!)
+                            val uploadResult = mainViewModel.uploadAnyModel("Users",userModel!!)
                             uploadResult.whenSuccess {
                                 startActivity(Intent(this@OTPActivity, MainActivity::class.java))
                                 finishAffinity()

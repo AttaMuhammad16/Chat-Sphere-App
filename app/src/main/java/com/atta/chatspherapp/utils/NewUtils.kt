@@ -18,8 +18,11 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.CountDownTimer
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.OpenableColumns
 import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -43,10 +46,12 @@ import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.ui.activities.EditImageActivity
+import com.atta.chatspherapp.utils.MyExtensions.logT
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -696,6 +701,17 @@ object NewUtils {
         circularReveal.start()
     }
 
+    fun showKeyBoard(context: Activity,view: View){
+        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+    }
+
+    fun hideKeyboard(context: Activity,view: View){
+        val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.hideSoftInputFromWindow(view.windowToken, 0)
+    }
+
+
 
 
     fun View.animateFromDown(duration: Long = 300) {
@@ -737,7 +753,47 @@ object NewUtils {
     }
 
     fun Activity.setStatusBarColor(color: Int) {
-        window.statusBarColor = color
+        window.statusBarColor = ContextCompat.getColor(this,color)
+    }
+
+
+    // paging adapter
+    inline fun <T, VB : ViewBinding> RecyclerView.setData(items: List<T>, crossinline bindingInflater: (LayoutInflater, ViewGroup, Boolean) -> VB, crossinline bindHolder: (binding: VB, item: T, position: Int) -> Unit) {
+        val adapter = object : RecyclerView.Adapter<DataViewHolder<VB>>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder<VB> {
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding = bindingInflater(layoutInflater, parent, false)
+                return DataViewHolder(binding)
+            }
+            override fun onBindViewHolder(holder: DataViewHolder<VB>, position: Int) {
+                bindHolder(holder.binding, items[position], position)
+            }
+            override fun getItemCount(): Int {
+                return  items.size
+            }
+        }
+        this.adapter = adapter
+    }
+
+    class DataViewHolder<VB : ViewBinding>(val binding: VB) : RecyclerView.ViewHolder(binding.root)
+
+
+
+
+    fun EditText.onTextChange(callback: (String) -> Unit){
+        this.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {
+            }
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+            override fun afterTextChanged(s: Editable?) {
+                callback(s.toString())
+            }
+        })
     }
 
 

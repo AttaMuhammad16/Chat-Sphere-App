@@ -26,8 +26,8 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-
     <application
+        android:name=".utils.App"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -35,9 +35,11 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:name=".utils.App"
         android:theme="@style/Theme.ChatSpherApp"
         tools:targetApi="31">
+        <activity
+            android:name=".ui.activities.SearchUserForChatActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.activities.ChatActivity"
             android:exported="false" />
@@ -50,11 +52,13 @@
         <activity
             android:name=".ui.activities.MainActivity"
             android:exported="true">
-<!--            <intent-filter>-->
-<!--                <action android:name="android.intent.action.MAIN" />-->
 
-<!--                <category android:name="android.intent.category.LAUNCHER" />-->
-<!--            </intent-filter>-->
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+
+
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
 
         <meta-data
@@ -70,26 +74,22 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <activity
             android:name=".ui.auth.OTPActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.auth.SignUpActivity"
-            android:exported="false" >
-        </activity>
-
+            android:exported="false"></activity>
         <activity
             android:name=".ui.auth.SignInActivity"
-            android:exported="true" >
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-
     </application>
 
 </manifest>
