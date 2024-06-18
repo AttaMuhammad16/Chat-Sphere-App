@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="end"
+    android:orientation="vertical"
+    android:layout_margin="@dimen/_5sdp"
+    android:gravity="end">
+
+    <LinearLayout
+        android:id="@+id/linearSender"
+        android:layout_width="@dimen/_200sdp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/sender_background"
+        android:orientation="vertical"
+        android:layout_marginTop="@dimen/_5sdp"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+
+            <ImageView
+                android:id="@+id/playButton"
+                android:layout_width="@dimen/_35sdp"
+                android:layout_height="@dimen/_35sdp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/baseline_play_arrow_24"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <SeekBar
+                android:id="@+id/seekBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.457"
+                app:layout_constraintStart_toEndOf="@+id/playButton"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/voiceLength"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/_5sdp"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:layout_marginBottom="@dimen/_2sdp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/playButton"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+
+            <TextView
+                android:id="@+id/voiceSendTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/black"
+                android:textSize="12sp"
+                android:layout_marginEnd="@dimen/_5sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/seekBar" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </LinearLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/feelingCard"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/feelingCardHeight"
+        android:layout_marginTop="-6dp"
+        android:backgroundTint="#E3E3E3"
+        android:visibility="gone"
+        android:layout_marginEnd="@dimen/_12sdp"
+        android:layout_marginBottom="@dimen/_3sdp"
+        android:outlineSpotShadowColor="@android:color/transparent"
+        app:cardCornerRadius="@dimen/_16sdp"
+        app:cardElevation="@dimen/_3sdp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/likeImg"
+                android:layout_width="@dimen/feelingImageSize"
+                android:layout_height="@dimen/feelingImageSize"
+                android:layout_marginTop="@dimen/_2sdp"
+                android:layout_marginBottom="@dimen/_3sdp"
+                android:layout_marginStart="@dimen/_4sdp"
+                android:layout_marginEnd="@dimen/_2sdp"
+                android:layout_gravity="center|center_vertical"
+                android:src="@drawable/ic_like" />
+
+            <ImageView
+                android:id="@+id/heartImg"
+                android:layout_width="@dimen/feelingImageSize"
+                android:layout_height="@dimen/feelingImageSize"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/_2sdp"
+                android:src="@drawable/ic_love" />
+            <ImageView
+                android:id="@+id/surpriseImg"
+                android:layout_width="@dimen/feelingImageSize"
+                android:layout_height="@dimen/feelingImageSize"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/_2sdp"
+                android:src="@drawable/surprise_img" />
+
+            <ImageView
+                android:id="@+id/happyImg"
+                android:layout_width="@dimen/feelingImageSize"
+                android:layout_height="@dimen/feelingImageSize"
+                android:layout_gravity="center_vertical"
+                android:layout_margin="@dimen/_2sdp"
+                android:src="@drawable/ic_laugh" />
+
+            <ImageView
+                android:id="@+id/angryImg"
+                android:layout_width="@dimen/feelingImageSize"
+                android:layout_height="@dimen/feelingImageSize"
+                android:layout_margin="@dimen/_2sdp"
+                android:layout_gravity="center_vertical"
+                android:src="@drawable/ic_angry" />
+
+            <TextView
+                android:id="@+id/countTv"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/_10sdp"
+                android:gravity="center|center_vertical"
+                android:textColor="@color/black"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:layout_marginStart="@dimen/_2sdp"
+                android:layout_gravity="center|center_vertical"
+                android:textSize="@dimen/_8sdp" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

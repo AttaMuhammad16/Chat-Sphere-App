@@ -18,8 +18,6 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.CountDownTimer
 import android.os.Environment
-import android.os.Handler
-import android.os.Looper
 import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
@@ -50,8 +48,9 @@ import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
 import com.atta.chatspherapp.R
-import com.atta.chatspherapp.ui.activities.EditImageActivity
-import com.atta.chatspherapp.utils.MyExtensions.logT
+import com.atta.chatspherapp.ui.activities.room.EditImageActivity
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -795,6 +794,41 @@ object NewUtils {
             }
         })
     }
+
+
+    fun ImageView.loadThumbnail(videoUrl: String , frame:Long = 2000) {
+        Glide.with(context).setDefaultRequestOptions(RequestOptions().frame(frame)).load(videoUrl).into(this)
+    }
+
+    @SuppressLint("IntentReset")
+    fun pickVideo(requestCode: Int, context: Activity) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "video/*"
+        context.startActivityForResult(intent, requestCode)
+    }
+
+    fun pickDocument(requestCode: Int, context: Activity) {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.addCategory(Intent.CATEGORY_OPENABLE)
+        intent.type = "application/*"
+        context.startActivityForResult(intent, requestCode)
+    }
+
+    fun ImageView.loadImageFromResource(resourceId: Int) {
+        Glide.with(this.context)
+            .load(resourceId)
+            .into(this)
+    }
+
+    fun formatDateFromMillis(milliseconds: Long): String {
+        val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+        val date = Date(milliseconds)
+        return dateFormat.format(date)
+    }
+
+
+
 
 
 

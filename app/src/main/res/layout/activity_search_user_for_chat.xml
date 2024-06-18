@@ -105,7 +105,7 @@
             android:background="@android:color/transparent"
             android:elevation="@dimen/_200sdp"
             android:focusable="true"
-            android:hint="Search Contact"
+            android:hint="Search"
             android:maxLines="1"
             android:padding="@dimen/_5sdp"
             android:singleLine="true"

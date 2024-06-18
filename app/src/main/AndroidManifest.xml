@@ -37,33 +37,72 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatSpherApp"
         tools:targetApi="31">
+
+        <activity
+            android:name=".ui.auth.SignInActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".ui.auth.OTPActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.auth.SignUpActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.activities.MainActivity"
+            android:exported="true"/>
+
+        <activity
+            android:name=".ui.activities.room.VideosActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ui.activities.room.PhotoViewActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.activities.SearchUserForChatActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activities.ChatActivity"
+            android:name=".ui.activities.room.ChatActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activities.ImageCropActivity"
+            android:name=".ui.activities.room.ImageCropActivity"
             android:exported="false" />
         <activity
-            android:name=".ui.activities.EditImageActivity"
+            android:name=".ui.activities.room.EditImageActivity"
             android:exported="false" />
+
         <activity
-            android:name=".ui.activities.MainActivity"
-            android:exported="true">
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
-        </activity>
+        <service
+            android:name=".service.UploadVideoService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <service
+            android:name=".service.UploadImageService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
+        <service
+            android:name=".service.UploadDocumentService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaPlayback" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -75,21 +114,7 @@
                 android:resource="@xml/file_paths" />
         </provider>
 
-        <activity
-            android:name=".ui.auth.OTPActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ui.auth.SignUpActivity"
-            android:exported="false"></activity>
-        <activity
-            android:name=".ui.auth.SignInActivity"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
     </application>
 
 </manifest>

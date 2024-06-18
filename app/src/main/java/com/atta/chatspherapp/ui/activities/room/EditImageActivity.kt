@@ -1,4 +1,4 @@
-package com.atta.chatspherapp.ui.activities
+package com.atta.chatspherapp.ui.activities.room
 
 import android.content.Intent
 import android.graphics.Bitmap
@@ -10,11 +10,8 @@ import android.os.Bundle
 import android.view.View
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivityEditImageBinding
@@ -36,7 +33,7 @@ class EditImageActivity : AppCompatActivity() {
 
         binding.cropImg.setOnClickListener {
             binding.photoView.clearCanvas()
-            val intent= Intent(this@EditImageActivity,ImageCropActivity::class.java)
+            val intent= Intent(this@EditImageActivity, ImageCropActivity::class.java)
             intent.putExtra("DATA",imageUri)
             startActivityForResult(intent,CROPE_IMAGE_REQUEST_CODE)
         }

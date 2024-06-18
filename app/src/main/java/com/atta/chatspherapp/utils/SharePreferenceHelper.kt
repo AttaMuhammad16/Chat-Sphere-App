@@ -18,7 +18,7 @@ class SharedPreferencesHelper @Inject constructor(@ApplicationContext context: C
         return prefs.getBoolean(key, defaultValue)
     }
 
-    fun putString(key:String,value:String){
+    fun saveString(key:String,value:String){
         editor.putString(key, value).apply()
     }
     fun getString(key: String, defaultValue: String): String {

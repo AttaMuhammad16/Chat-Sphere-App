@@ -196,6 +196,7 @@ class OTPActivity : AppCompatActivity() {
         val result=authViewModel.loginWithPhoneCredential(credential)
 
         result.whenSuccess {
+
             if (uri!=null&&userModel!=null){
                 lifecycleScope.launch {
 
@@ -225,6 +226,9 @@ class OTPActivity : AppCompatActivity() {
                         }
                     }
                 }
+            }else{
+                startActivity(Intent(this@OTPActivity, MainActivity::class.java))
+                finishAffinity()
             }
             showToast(it)
         }

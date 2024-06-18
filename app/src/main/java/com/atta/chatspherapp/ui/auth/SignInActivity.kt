@@ -15,7 +15,6 @@ import com.atta.chatspherapp.utils.NewUtils.processPhoneNumber
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showToast
-import com.atta.chatspherapp.utils.Paths.getPhoneNumberPath
 import com.atta.chatspherapp.utils.SharedPreferencesHelper
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
@@ -53,43 +52,39 @@ class SignInActivity : AppCompatActivity() {
 
         binding.loginBtn.setOnClickListener {
 
-            if (auth.currentUser==null) {
-                showToast("Please register your account firstly.")
-            }else{
-                val number=binding.numberEdt.text.toString()
-                binding.countryCodePicker.registerCarrierNumberEditText(binding.numberEdt)
-                val countryCode=binding.countryCodePicker.selectedCountryCode
-                val formattedNumber= processPhoneNumber(number)
-                val fullNumber="+${countryCode+formattedNumber}"
-                val selectedCountryNameCode=binding.countryCodePicker.selectedCountryNameCode
+            val number=binding.numberEdt.text.toString()
+            binding.countryCodePicker.registerCarrierNumberEditText(binding.numberEdt)
+            val countryCode=binding.countryCodePicker.selectedCountryCode
+            val formattedNumber= processPhoneNumber(number)
+            val fullNumber="+${countryCode+formattedNumber}"
+            val selectedCountryNameCode=binding.countryCodePicker.selectedCountryNameCode
 
-                if (number.isEmpty()){
-                    showToast("Enter phoneNumber", Toast.LENGTH_SHORT)
-                    binding.numberEdt.error = "Enter phoneNumber"
-                } else if (fullNumber.length<=5){
-                    showToast("Enter valid PhoneNumber", Toast.LENGTH_SHORT)
-                    binding.numberEdt.error = "Enter valid PhoneNumber"
-                } else{
+            if (number.isEmpty()){
+                showToast("Enter phoneNumber", Toast.LENGTH_SHORT)
+                binding.numberEdt.error = "Enter phoneNumber"
+            } else if (fullNumber.length<=5){
+                showToast("Enter valid PhoneNumber", Toast.LENGTH_SHORT)
+                binding.numberEdt.error = "Enter valid PhoneNumber"
+            } else{
 
-                    val dialog= showProgressDialog(this@SignInActivity,"SignIn...")
+                val dialog= showProgressDialog(this@SignInActivity,"SignIn...")
 
-                    lifecycleScope.launch {
-                        val result=mainViewModel.checkPhoneNumberExists(CONTACTS,fullNumber)
+                lifecycleScope.launch {
+                    val result=mainViewModel.checkPhoneNumberExists(CONTACTS,fullNumber)
 
-                        result.whenSuccess {
-                            sharedPreferencesHelper.putString(COUNTRYNAMECODE, selectedCountryNameCode)
-                            val intent = Intent(this@SignInActivity, OTPActivity::class.java)
-                            intent.putExtra("phoneNumber", fullNumber)
-                            startActivity(intent)
-                            dialog.dismiss()
-                        }
-
-                        result.whenError {
-                            showToast("Please register the phoneNumber.It does not exist.")
-                            dialog.dismiss()
-                        }
-
+                    result.whenSuccess {
+                        sharedPreferencesHelper.getString(COUNTRYNAMECODE, selectedCountryNameCode)
+                        val intent = Intent(this@SignInActivity, OTPActivity::class.java)
+                        intent.putExtra("phoneNumber", fullNumber)
+                        startActivity(intent)
+                        dialog.dismiss()
                     }
+
+                    result.whenError {
+                        showToast("Please register the phoneNumber.It does not exist.")
+                        dialog.dismiss()
+                    }
+
                 }
             }
         }

@@ -1,29 +1,26 @@
 package com.atta.chatspherapp.ui.activities
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivitySearchUserForChatBinding
 import com.atta.chatspherapp.databinding.UserSampleRowBinding
 import com.atta.chatspherapp.models.UserModel
+import com.atta.chatspherapp.ui.activities.room.ChatActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants.USERS
-import com.atta.chatspherapp.utils.MyExtensions.logT
 import com.atta.chatspherapp.utils.NewUtils.hideKeyboard
 import com.atta.chatspherapp.utils.NewUtils.hideWithRevealAnimation
 import com.atta.chatspherapp.utils.NewUtils.onTextChange
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showKeyBoard
-import com.atta.chatspherapp.utils.NewUtils.showSoftKeyboard
 import com.atta.chatspherapp.utils.NewUtils.showWithRevealAnimation
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -118,7 +115,11 @@ class SearchUserForChatActivity : AppCompatActivity() {
             binding.userImage.setOnClickListener{
                 zoomImage(item)
             }
-            binding.main.setOnClickListener {  }
+            binding.main.setOnClickListener {
+                val intent=Intent(this@SearchUserForChatActivity, ChatActivity::class.java)
+                intent.putExtra("userModel",item)
+                startActivity(intent)
+            }
         })
     }
 

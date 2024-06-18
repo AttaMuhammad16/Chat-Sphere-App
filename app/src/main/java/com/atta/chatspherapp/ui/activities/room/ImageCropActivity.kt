@@ -1,13 +1,10 @@
-package com.atta.chatspherapp.ui.activities
+package com.atta.chatspherapp.ui.activities.room
 
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.yalantis.ucrop.UCrop

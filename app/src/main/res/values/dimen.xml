@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="text_size">@dimen/_15sdp</dimen>
+    <dimen name="student_card_radius">@dimen/_10sdp</dimen>
+    <dimen name="student_image_size">@dimen/_40sdp</dimen>
+    <dimen name="student_details_text_padding">@dimen/_10sdp</dimen>
+    <dimen name="tool_bar_title_size">@dimen/_15sdp</dimen>
+    <dimen name="tool_bar_back_arrow_size">@dimen/_25sdp</dimen>
+    <dimen name="text_view_margin_vertical">@dimen/_2sdp</dimen>
+<!--    <dimen name="text_view_margin_horizontal">@dimen/_22sdp</dimen>-->
+<!--    <dimen name="text_view_margin_horizontal">26dp</dimen>-->
+    <dimen name="text_view_padding">15dp</dimen>
+    <dimen name="text_view_margin">13dp</dimen>
+
+    <dimen name="feelingImageSize">@dimen/_13sdp</dimen>
+    <dimen name="feelingCardHeight">@dimen/_15sdp</dimen>
+    <!--    reactionImgSize-->
+    <dimen name="reactionImgSize">@dimen/_25sdp</dimen>
+
+</resources>

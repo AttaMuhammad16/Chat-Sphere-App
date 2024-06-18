@@ -102,7 +102,7 @@ class SignUpActivity : AppCompatActivity() {
 
                 lifecycleScope.launch {
 
-                    sharedPreferencesHelper.putString(COUNTRYNAMECODE,selectedCountryNameCode)
+                    sharedPreferencesHelper.getString(COUNTRYNAMECODE,selectedCountryNameCode)
                     val key=databaseReference.push().key.toString()
                     val result=mainViewModel.uploadAnyModel("$CONTACTS/$key",ContactModel(fullNumber))
 

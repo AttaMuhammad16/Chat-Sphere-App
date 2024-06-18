@@ -18,10 +18,10 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/alatsi"
-            android:text="Chat Sphere App"
+            android:text="Chat Sphere App For Random Chat"
             android:textColor="@color/white"
             android:textSize="@dimen/_17sdp"
             tools:layout_editor_absoluteX="16dp"

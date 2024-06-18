@@ -67,7 +67,13 @@ dependencies {
     implementation 'org.naishadhparmar.zcustomcalendar:zcustomcalendar:1.0.1'
 
     implementation 'com.squareup.picasso:picasso:2.8'
-// media player
+
+    implementation 'com.google.android.exoplayer:exoplayer-core:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-dash:2.19.1'
+    implementation 'com.google.android.exoplayer:extension-cronet:2.19.1'
+    implementation 'com.google.android.exoplayer:exoplayer-ui:2.19.1'
+
+    // media player
     implementation "androidx.media3:media3-exoplayer:1.3.0"
     implementation "androidx.media3:media3-exoplayer-dash:1.3.0"
     implementation "androidx.media3:media3-ui:1.3.0"
@@ -80,7 +86,8 @@ dependencies {
 
     implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
     //    crop image
-    implementation 'com.github.yalantis:ucrop:2.2.8'
+//    implementation 'com.github.yalantis:ucrop:2.2.8'
+    implementation 'com.github.krokyze:ucropnedit:2.2.6-2'
 
 
     // retrofit
@@ -127,6 +134,10 @@ dependencies {
 
     //country code picker.
     implementation 'com.hbb20:ccp:2.1.2'
+
+    //flow layout and audio track
+    implementation 'com.nex3z:flow-layout:1.3.3'
+    implementation 'com.github.Armen101:AudioRecordView:1.0.1'
 
 
 }
