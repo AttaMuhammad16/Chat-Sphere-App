@@ -1,0 +1,135 @@
+plugins {
+    alias(libs.plugins.androidApplication)
+    alias(libs.plugins.jetbrainsKotlinAndroid)
+    id 'kotlin-parcelize'
+    id 'kotlin-kapt'
+    id('com.google.dagger.hilt.android')
+    alias(libs.plugins.googleGmsGoogleServices)
+}
+
+android {
+    namespace 'com.atta.chatspherapp'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.atta.chatspherapp"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+        multiDexEnabled = true
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+
+        coreLibraryDesugaringEnabled = true
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures{
+        viewBinding=true
+    }
+}
+
+dependencies {
+
+    implementation libs.androidx.core.ktx
+    implementation libs.androidx.appcompat
+    implementation libs.material
+    implementation libs.androidx.activity
+    implementation libs.androidx.constraintlayout
+    implementation libs.firebase.auth
+    implementation libs.firebase.database
+    implementation libs.firebase.storage
+    implementation libs.firebase.messaging
+    testImplementation libs.junit
+    androidTestImplementation libs.androidx.junit
+    androidTestImplementation libs.androidx.espresso.core
+
+
+    // circular image view
+    implementation(libs.circleimageview)
+    implementation libs.circleimageview
+    implementation 'com.applandeo:material-calendar-view:1.9.0-rc04'
+    implementation 'org.naishadhparmar.zcustomcalendar:zcustomcalendar:1.0.1'
+
+    implementation 'com.squareup.picasso:picasso:2.8'
+// media player
+    implementation "androidx.media3:media3-exoplayer:1.3.0"
+    implementation "androidx.media3:media3-exoplayer-dash:1.3.0"
+    implementation "androidx.media3:media3-ui:1.3.0"
+
+    implementation "com.google.android.exoplayer:exoplayer-core:2.19.1"
+    implementation "com.google.android.exoplayer:exoplayer-dash:2.19.1"
+    implementation "com.google.android.exoplayer:exoplayer-hls:2.19.1"
+    implementation "com.google.android.exoplayer:exoplayer-smoothstreaming:2.19.1"
+
+
+    implementation 'com.chauthai.swipereveallayout:swipe-reveal-layout:1.4.1'
+    //    crop image
+    implementation 'com.github.yalantis:ucrop:2.2.8'
+
+
+    // retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // desugaring
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.9'
+
+    // glide
+    implementation 'com.github.bumptech.glide:glide:4.16.0'
+
+    // work manager
+    implementation("androidx.work:work-runtime-ktx:2.7.1")
+    implementation 'com.github.bumptech.glide:glide:4.12.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
+
+
+    // memberProperties
+    implementation ("org.jetbrains.kotlin:kotlin-reflect:1.9.0")
+
+    // sdp
+    implementation ("com.intuit.sdp:sdp-android:1.0.6")
+    // ssp
+    implementation ("com.intuit.ssp:ssp-android:1.0.6")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.9")
+
+    // di
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    implementation 'androidx.lifecycle:lifecycle-process:2.7.0'
+
+    //hiltView model
+    implementation( "androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
+    implementation ("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+
+
+    implementation 'com.airbnb.android:lottie:4.1.0'
+    implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+
+    // for google
+    implementation ("com.google.android.gms:play-services-auth:20.7.0")
+
+    //country code picker.
+    implementation 'com.hbb20:ccp:2.1.2'
+
+
+}
+kapt {
+    correctErrorTypes = true
+}

@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "667569775396",
+    "firebase_url": "https://chat-spher-app-default-rtdb.firebaseio.com",
+    "project_id": "chat-spher-app",
+    "storage_bucket": "chat-spher-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:667569775396:android:9d48187077fc47a14049b1",
+        "android_client_info": {
+          "package_name": "com.atta.chatspherapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "667569775396-9b5g1llv3ltb8eat8um6vcsvkaiat7pm.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.atta.chatspherapp",
+            "certificate_hash": "26391a880dac3e0b5b95918c9017cc2e43e19d9a"
+          }
+        },
+        {
+          "client_id": "667569775396-922vmpt6mo6t63i38qd1em0p2uj8c043.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCE14Q_nzTNmYFYNVLoZjxDbsHl8n3IG1s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "667569775396-922vmpt6mo6t63i38qd1em0p2uj8c043.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

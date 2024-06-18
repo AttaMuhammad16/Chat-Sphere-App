@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/backgroundColor"
+    tools:context=".ui.auth.OTPActivity">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/backgroundColor">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottieAnimationView"
+            android:layout_width="@dimen/_200sdp"
+            android:layout_height="@dimen/_200sdp"
+            android:layout_margin="@dimen/_10sdp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/otp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="Verify OTP"
+            android:textColor="@color/white"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/lottieAnimationView" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:text="Enter your received OTP here"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_15sdp"
+            app:layout_constraintEnd_toEndOf="@+id/textView4"
+            app:layout_constraintStart_toStartOf="@+id/textView4"
+            app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+        <TextView
+            android:id="@+id/tvMobile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:text="000000"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_13sdp"
+            app:layout_constraintEnd_toEndOf="@+id/textView4"
+            app:layout_constraintHorizontal_bias="0.492"
+            app:layout_constraintStart_toStartOf="@+id/textView4"
+            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+        <EditText
+            android:id="@+id/etC1"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="@dimen/_30sdp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="phone"
+            android:maxLength="1"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            app:layout_constraintEnd_toStartOf="@+id/etC2"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/tvMobile" />
+
+        <EditText
+            android:id="@+id/etC2"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="phone"
+            android:maxLength="1"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/etC1"
+            app:layout_constraintEnd_toStartOf="@+id/etC3"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/etC1"
+            app:layout_constraintTop_toTopOf="@+id/etC1" />
+
+        <EditText
+            android:id="@+id/etC3"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="phone"
+            android:maxLength="1"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/etC1"
+            app:layout_constraintEnd_toStartOf="@+id/etC4"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/etC2"
+            app:layout_constraintTop_toTopOf="@+id/etC1" />
+
+        <EditText
+            android:id="@+id/etC4"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="phone"
+            android:maxLength="1"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/etC1"
+            app:layout_constraintEnd_toStartOf="@+id/etC5"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/etC3"
+            app:layout_constraintTop_toTopOf="@+id/etC1" />
+
+        <EditText
+            android:id="@+id/etC5"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginEnd="3dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="phone"
+            android:maxLength="1"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/etC1"
+            app:layout_constraintEnd_toStartOf="@+id/etC6"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/etC4"
+            app:layout_constraintTop_toTopOf="@+id/etC1" />
+
+        <EditText
+            android:id="@+id/etC6"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/border"
+            android:ems="10"
+            android:gravity="center"
+            android:inputType="phone"
+            android:maxLength="1"
+            android:textColor="@color/white"
+            android:textCursorDrawable="@null"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toBottomOf="@+id/etC1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/etC5"
+            app:layout_constraintTop_toTopOf="@+id/etC1"
+            app:layout_constraintVertical_bias="0.0" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Don't received OTP?"
+            android:textColor="@color/white"
+            app:layout_constraintEnd_toStartOf="@+id/resendTv"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintHorizontal_chainStyle="packed"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/etC6" />
+
+        <TextView
+            android:id="@+id/resendTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="false"
+            android:foreground="?attr/selectableItemBackground"
+            android:padding="@dimen/_6sdp"
+            android:text="RESEND OTP"
+            android:textColor="#9A9A9A"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="@+id/textView7"
+            app:layout_constraintEnd_toStartOf="@+id/timerTv"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/textView7"
+            app:layout_constraintTop_toTopOf="@+id/textView7" />
+
+        <TextView
+            android:id="@+id/timerTv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_5sdp"
+            android:layout_marginTop="@dimen/_5sdp"
+            android:text="59"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_18sdp"
+            app:layout_constraintBottom_toBottomOf="@+id/resendTv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/resendTv"
+            app:layout_constraintTop_toBottomOf="@+id/etC6" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnVerify"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="45dp"
+            android:layout_marginBottom="50dp"
+            android:backgroundTint="@color/button_color"
+            android:text="VERIFY"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView7"
+            app:strokeColor="@color/button_stroke_color"
+            app:strokeWidth="@dimen/_1sdp" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</ScrollView>
