@@ -2,7 +2,6 @@ package com.atta.chatspherapp.models
 
 import android.os.Parcelable
 import kotlinx.parcelize.Parcelize
-import kotlin.reflect.full.memberProperties
 
 
 @Parcelize

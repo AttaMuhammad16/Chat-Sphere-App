@@ -50,6 +50,7 @@ import com.atta.chatspherapp.utils.NewUtils.downloadAudio
 import com.atta.chatspherapp.utils.NewUtils.downloadVideo
 import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
 import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
+import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageFromResource
 import com.atta.chatspherapp.utils.NewUtils.loadThumbnail
 import com.atta.chatspherapp.utils.NewUtils.openDocument
@@ -86,6 +87,7 @@ class ChatAdapter(
     var storageViewModel: StorageViewModel,
     var userModel: UserModel,
     var auth:FirebaseAuth,
+    var myModel:UserModel,
     var longClicked: (View, Boolean, MessageModel, Int) -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -1670,27 +1672,24 @@ class ChatAdapter(
 
     override fun getItemViewType(position: Int): Int {
         val data = mylist[position]
+
         val isSender = data.senderUid == myUid
+
         return when {
             isSender -> {
                 when {
-
                     // sender text
                     data.message.isNotEmpty() -> SENDER_VIEW_SIMPLE_MESSAGE
-
                     data.voiceUrl.isNotEmpty() -> SENDER_VOICE_MESSAGE
                     data.imageUrl.isNotEmpty() -> SENDER_IMAGE_MESSAGE
                     data.videoUrl.isNotEmpty() -> SENDER_VIDEO_MESSAGE
                     data.documentUrl.isNotEmpty() -> SENDER_DOCUMENT_MESSAGE
                     else -> 0
-
                 }
             }
 
             else -> {
-
                 when {
-
                     // receiver text
                     data.message.isNotEmpty() -> RECEIVER_VIEW_SIMPLE_MESSAGE
 
@@ -1750,7 +1749,8 @@ class ChatAdapter(
     fun showReactedBottomSheet(data:MessageModel){
 
         val previousReactionPath="$chatPath/${data.key}"
-        val reactionDetailsPath="reactionsDetails/${userModel.key+auth.currentUser!!.uid}/${data.key}"
+        val reactionDetailsPath="reactionsDetails/${getSortedKeys(userModel.key,auth.currentUser!!.uid)}/${data.key}"
+
         val bottomSheetDialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.reaction_bottom_sheet, null)
         bottomSheetDialog.setContentView(view)

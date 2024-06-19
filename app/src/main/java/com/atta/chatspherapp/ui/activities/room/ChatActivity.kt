@@ -66,6 +66,8 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference
 import com.atta.chatspherapp.adapters.ChatAdapter
 import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
+import com.atta.chatspherapp.utils.Constants
+import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
@@ -130,6 +132,7 @@ class ChatActivity : AppCompatActivity() {
     var messageModel = MessageModel()
     @Inject
     lateinit var auth: FirebaseAuth
+    var myModel=UserModel()
 
 
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
@@ -147,11 +150,12 @@ class ChatActivity : AppCompatActivity() {
         mediaPlayer = MediaPlayer()
 
         userModel = intent.getParcelableExtra("userModel")
+        myModel = intent.getParcelableExtra<UserModel>("myModel")!!
         binding.toolBarTitle.text = userModel?.fullName
-        chatUploadPath = "room/${userModel?.key+auth.currentUser!!.uid}"
-        userUid=userModel!!.key
-        Picasso.get().load(userModel!!.profileUrl).placeholder(R.drawable.person).into(binding.profileImg)
+        chatUploadPath = "room/"+getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)
 
+        Picasso.get().load(userModel!!.profileUrl).placeholder(R.drawable.person).into(binding.profileImg)
+        userUid=myModel.key
 
         binding.backPressImg.setOnClickListener {
             if (binding.reactionView.visibility== View.VISIBLE){
@@ -192,7 +196,7 @@ class ChatActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this@ChatActivity)
         binding.recyclerView.layoutManager = layoutManager
 
-        adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth) { it, from, messageModel, position->
+        adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth,myModel) { it, from, messageModel, position->
 
             if (from){
 
@@ -397,9 +401,9 @@ class ChatActivity : AppCompatActivity() {
 
                     val messageModel = MessageModel(
                         key = key,
-                        senderName = userModel!!.fullName,
-                        senderImageUrl = userModel!!.profileUrl,
-                        senderPhone = userModel!!.phone,
+                        senderName = myModel.fullName,
+                        senderImageUrl = myModel.profileUrl,
+                        senderPhone = myModel.phone,
                         message = message,
                         timeStamp = System.currentTimeMillis(),
                         senderUid = userUid,
@@ -485,9 +489,9 @@ class ChatActivity : AppCompatActivity() {
 
                 val messageModel = MessageModel(
                     key=key,
-                    senderName = userModel!!.fullName,
-                    senderImageUrl = userModel!!.profileUrl,
-                    senderPhone = userModel!!.phone,
+                    senderName = myModel!!.fullName,
+                    senderImageUrl = myModel!!.profileUrl,
+                    senderPhone = myModel!!.phone,
                     timeStamp = System.currentTimeMillis(),
                     senderUid = userUid,
                     voiceUrl = uri.toString()
@@ -503,9 +507,9 @@ class ChatActivity : AppCompatActivity() {
                     lifecycleScope.launch {
                         val messageModelForUpload = MessageModel(
                             key=key,
-                            senderName = userModel!!.fullName,
-                            senderImageUrl = userModel!!.profileUrl,
-                            senderPhone = userModel!!.phone,
+                            senderName = myModel!!.fullName,
+                            senderImageUrl = myModel!!.profileUrl,
+                            senderPhone = myModel!!.phone,
                             timeStamp = System.currentTimeMillis(),
                             senderUid = userUid,
                             voiceUrl = it
@@ -652,13 +656,13 @@ class ChatActivity : AppCompatActivity() {
             intent.putExtra("userUid", userUid)
             intent.putExtra("time", time)
             intent.putExtra("key", key)
-            intent.putExtra("userModel", userModel)
+            intent.putExtra("userModel", myModel)
 
             val messageModel = MessageModel(
                 key=key,
-                senderName = userModel!!.fullName,
-                senderImageUrl = userModel!!.profileUrl,
-                senderPhone = userModel!!.phone,
+                senderName = myModel!!.fullName,
+                senderImageUrl = myModel!!.profileUrl,
+                senderPhone = myModel!!.phone,
                 timeStamp = System.currentTimeMillis(),
                 senderUid = userUid,
                 imageUrl = uri,
@@ -694,13 +698,13 @@ class ChatActivity : AppCompatActivity() {
             intent.putExtra("userUid", userUid)
             intent.putExtra("key", key)
             intent.putExtra("timestamp", time)
-            intent.putExtra("userModel",userModel)
+            intent.putExtra("userModel",myModel)
 
             val messageModel = MessageModel(
                 key=key,
-                senderName = userModel!!.fullName,
-                senderImageUrl = userModel!!.profileUrl,
-                senderPhone = userModel!!.phone,
+                senderName = myModel!!.fullName,
+                senderImageUrl = myModel!!.profileUrl,
+                senderPhone = myModel!!.phone,
                 timeStamp =time ,
                 senderUid = userUid,
                 videoUrl = uri,
@@ -739,13 +743,13 @@ class ChatActivity : AppCompatActivity() {
             intent.putExtra("docxFileName", fileName)
             intent.putExtra("key", key)
             intent.putExtra("time", time)
-            intent.putExtra("userModel",userModel)
+            intent.putExtra("userModel",myModel)
 
             val messageModel = MessageModel(
                 key = key,
-                senderName = userModel!!.fullName,
-                senderImageUrl = userModel!!.profileUrl,
-                senderPhone = userModel!!.phone,
+                senderName = myModel!!.fullName,
+                senderImageUrl = myModel!!.profileUrl,
+                senderPhone = myModel!!.phone,
                 timeStamp = time,
                 senderUid = userUid,
                 documentUrl = uri,
@@ -834,7 +838,7 @@ class ChatActivity : AppCompatActivity() {
 
         var currentReactionPath="$chatUploadPath/${messageModel.key}"
         var previousReactionPath="$chatUploadPath/${messageModel.key}"
-        val reactionDetailsPath="reactionsDetails/${userModel?.key+auth.currentUser?.uid}/${messageModel.key}/$userUid"
+        val reactionDetailsPath="reactionsDetails/${getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)}/${messageModel.key}/${auth.currentUser!!.uid}"
 
         GlobalScope.launch {
 
@@ -937,7 +941,7 @@ class ChatActivity : AppCompatActivity() {
                 }else{
                     databaseReference.child(currentReactionPath).setValue(1).await()
                 }
-                databaseReference.child(reactionDetailsPath).setValue(ReactionModel(messageModel.senderName,messageModel.senderImageUrl,userUid,selectedReaction)).await()
+                databaseReference.child(reactionDetailsPath).setValue(ReactionModel(myModel.fullName,myModel.profileUrl,auth.currentUser!!.uid,selectedReaction)).await()
 
             }
         }

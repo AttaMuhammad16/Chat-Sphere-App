@@ -14,6 +14,7 @@ import com.atta.chatspherapp.databinding.UserSampleRowBinding
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
+import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.NewUtils.hideKeyboard
 import com.atta.chatspherapp.utils.NewUtils.hideWithRevealAnimation
@@ -39,12 +40,19 @@ class SearchUserForChatActivity : AppCompatActivity() {
     lateinit var mainViewModel: MainViewModel
     var list = listOf<UserModel>()
     private val filteredList = mutableListOf<UserModel>()
+    var myModel=UserModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivitySearchUserForChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setStatusBarColor(R.color.green)
+
+
+        lifecycleScope.launch {
+            myModel=mainViewModel.getAnyData("${USERS}/${auth.currentUser!!.uid}",UserModel::class.java)!!
+        }
+
 
         binding.searchImg.setOnClickListener {
             hideWithRevealAnimation(binding.toolbar,binding.searchLinear)
@@ -107,19 +115,27 @@ class SearchUserForChatActivity : AppCompatActivity() {
     }
 
     fun setUpRecyclerView(list:List<UserModel>){
-        binding.recyclerView.setData(items = list, bindingInflater = UserSampleRowBinding::inflate, bindHolder = {binding, item, position ->
+
+        val sortedList = list.sortedByDescending { it.key == auth.currentUser!!.uid}
+
+        binding.recyclerView.setData(items = sortedList, bindingInflater = UserSampleRowBinding::inflate, bindHolder = {binding, item, position ->
 
             Picasso.get().load(item.profileUrl).placeholder(R.drawable.person).into(binding.userImage)
-            binding.userNameTv.text=item.fullName
+            binding.userNameTv.text=if (auth.currentUser!!.uid==item.key){"${item.fullName} (You)"}else{item.fullName}
             binding.statusTv.text=if (item.status.isEmpty()){"Hey there i am using Chat Sphere"}else{item.status}
             binding.userImage.setOnClickListener{
                 zoomImage(item)
             }
+
             binding.main.setOnClickListener {
-                val intent=Intent(this@SearchUserForChatActivity, ChatActivity::class.java)
-                intent.putExtra("userModel",item)
-                startActivity(intent)
+                if (myModel.fullName.isNotEmpty()){
+                    val intent=Intent(this@SearchUserForChatActivity, ChatActivity::class.java)
+                    intent.putExtra("userModel",item)
+                    intent.putExtra("myModel",myModel)
+                    startActivity(intent)
+                }
             }
+
         })
     }
 

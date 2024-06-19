@@ -827,6 +827,10 @@ object NewUtils {
         return dateFormat.format(date)
     }
 
+    fun getSortedKeys(userKey: String, currentUserKey: String): String {
+        val keys = listOf(userKey, currentUserKey).sorted()
+        return "${keys[0]}${keys[1]}"
+    }
 
 
 
