@@ -168,12 +168,14 @@ class OTPActivity : AppCompatActivity() {
         binding.btnVerify.setOnClickListener {
             if (verificationId.isNotEmpty()){
                 val dialog = showProgressDialog(this@OTPActivity, "Verifying...")
+
                 val et1 = binding.etC1.text.toString().trim()
                 val et2 = binding.etC2.text.toString().trim()
                 val et3 = binding.etC3.text.toString().trim()
                 val et4 = binding.etC4.text.toString().trim()
                 val et5 = binding.etC5.text.toString().trim()
                 val et6 = binding.etC6.text.toString().trim()
+
                 if (et1.isNotEmpty() && et2.isNotEmpty() && et3.isNotEmpty() && et4.isNotEmpty() && et5.isNotEmpty() && et6.isNotEmpty()) {
                     val otp = et1 + et2 + et3 + et4 + et5 + et6
                     val creden = PhoneAuthProvider.getCredential(verificationId, otp)
@@ -236,6 +238,5 @@ class OTPActivity : AppCompatActivity() {
             showToast(it.message.toString())
             dialog.dismiss()
         }
-
     }
 }

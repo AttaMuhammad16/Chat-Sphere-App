@@ -135,9 +135,7 @@ class SearchUserForChatActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             }
-
         })
     }
-
 
 }
