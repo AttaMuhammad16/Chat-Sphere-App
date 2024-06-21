@@ -114,12 +114,13 @@ object Module {
     }
 
 
-
     @Provides
     @Singleton
     fun provideAuthRepository(auth: FirebaseAuth): AuthRepository {
         return AuthRepositoryImpl(auth)
     }
+
+
 
 
 }

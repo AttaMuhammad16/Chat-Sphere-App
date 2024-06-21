@@ -73,6 +73,7 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
+import java.util.TimeZone
 
 
 object NewUtils {
@@ -418,11 +419,44 @@ object NewUtils {
     }
 
 
-    fun Long.toDate(pattern: String = "dd-MM-yyyy"): Date {
-        return Date(this).apply {
-            val dateFormat = SimpleDateFormat(pattern, Locale.getDefault())
-            dateFormat.format(this)
+    fun Long.toFormattedDate(pattern: String = "dd-MM-yyyy"): String {
+        val dateFormat = SimpleDateFormat(pattern, Locale.getDefault())
+        return dateFormat.format(Date(this))
+    }
+
+    fun Long.millisToTime12hFormat(): String {
+        val sdf = SimpleDateFormat("hh:mm a", Locale.getDefault())
+        return sdf.format(Date(this))
+    }
+
+    const val SECOND = 1000L
+    const val MINUTE = 60 * SECOND
+    const val HOUR = 60 * MINUTE
+    const val DAY = 24 * HOUR
+
+    fun currentDate() = System.currentTimeMillis()
+
+    fun Long.toTimeAgo(): String {
+        val time = this
+        val now = currentDate()
+        val diff = now - time
+
+        val calendar = Calendar.getInstance()
+        calendar.timeInMillis = time
+        val thenDay = calendar.get(Calendar.DAY_OF_YEAR)
+        val thenYear = calendar.get(Calendar.YEAR)
+
+        calendar.timeInMillis = now
+        val currentDay = calendar.get(Calendar.DAY_OF_YEAR)
+        val currentYear = calendar.get(Calendar.YEAR)
+
+        return when {
+            diff < MINUTE -> "Just now"
+            thenDay == currentDay && thenYear == currentYear -> SimpleDateFormat("hh:mm a", Locale.getDefault()).format(Date(this))
+            thenDay + 1 == currentDay && thenYear == currentYear -> "Yesterday"
+            else -> SimpleDateFormat("dd MMM yyyy", Locale.getDefault()).format(Date(this))
         }
+
     }
 
 

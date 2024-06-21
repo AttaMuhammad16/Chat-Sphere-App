@@ -12,5 +12,6 @@ interface MainRepository {
     suspend fun deleteAnyModel(path:String): MyResult<String>
     suspend fun <T> getAnyData(path:String, clazz: Class<T>): T?
     suspend fun checkPhoneNumberExists(path: String, phoneNumber: String): MyResult<Boolean>
+    suspend fun updateNumberOfMessages(path: String): MyResult<String>
 
 }

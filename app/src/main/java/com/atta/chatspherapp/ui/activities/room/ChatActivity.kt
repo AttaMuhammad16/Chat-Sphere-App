@@ -66,7 +66,14 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference
 import com.atta.chatspherapp.adapters.ChatAdapter
 import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
+import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.utils.Constants
+import com.atta.chatspherapp.utils.Constants.DOCUMENT
+import com.atta.chatspherapp.utils.Constants.IMAGE
+import com.atta.chatspherapp.utils.Constants.RECENTCHAT
+import com.atta.chatspherapp.utils.Constants.TEXT
+import com.atta.chatspherapp.utils.Constants.VIDEO
+import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -78,6 +85,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -133,8 +141,10 @@ class ChatActivity : AppCompatActivity() {
     @Inject
     lateinit var auth: FirebaseAuth
     var myModel=UserModel()
+    var fromRecentChat=false
 
 
+    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -150,7 +160,16 @@ class ChatActivity : AppCompatActivity() {
         mediaPlayer = MediaPlayer()
 
         userModel = intent.getParcelableExtra("userModel")
-        myModel = intent.getParcelableExtra<UserModel>("myModel")!!
+        myModel = intent.getParcelableExtra("myModel")!!
+        fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)!!
+
+        if (fromRecentChat){
+            lifecycleScope.launch(Dispatchers.IO) {
+                mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
+            }
+        }
+
+
         binding.toolBarTitle.text = userModel?.fullName
         chatUploadPath = "room/"+getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)
 
@@ -397,6 +416,11 @@ class ChatActivity : AppCompatActivity() {
             if (message.isNotEmpty()) {
                 lifecycleScope.launch {
 
+                    withContext(Dispatchers.IO){
+                        uploadToRecentChat(message,TEXT)
+                    }
+
+
                     val key=databaseReference.push().key.toString()
 
                     val messageModel = MessageModel(
@@ -475,13 +499,21 @@ class ChatActivity : AppCompatActivity() {
 
 
         binding.sendImg.setOnClickListener {
+
+
             stopRecording()
 
             binding.voiceSenderLinearLayout.visibility = View.GONE
             binding.linear02.visibility = View.VISIBLE
             animateViewHideToBottom(binding.voiceSenderLinearLayout)
 
+
+
             lifecycleScope.launch {
+                withContext(Dispatchers.IO){
+                    uploadToRecentChat("Voice", VOICE)
+                }
+
 
                 val uri=getUriOfTheFile(filePath!!)
                 val firebaseUrlResult=uploadAudioToFirebase(uri)
@@ -489,9 +521,9 @@ class ChatActivity : AppCompatActivity() {
 
                 val messageModel = MessageModel(
                     key=key,
-                    senderName = myModel!!.fullName,
-                    senderImageUrl = myModel!!.profileUrl,
-                    senderPhone = myModel!!.phone,
+                    senderName = myModel.fullName,
+                    senderImageUrl = myModel.profileUrl,
+                    senderPhone = myModel.phone,
                     timeStamp = System.currentTimeMillis(),
                     senderUid = userUid,
                     voiceUrl = uri.toString()
@@ -643,9 +675,13 @@ class ChatActivity : AppCompatActivity() {
     }
 
 
+    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("NotifyDataSetChanged")
     fun uploadImage(uri:String){
         if (uri.isNotEmpty()) {
+
+            uploadToRecentChat("Image",IMAGE)
+
             val key=databaseReference.push().key.toString()
             val time=System.currentTimeMillis()
 
@@ -686,9 +722,12 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("NotifyDataSetChanged")
     fun uploadVideo(uri:String){
         if (uri.isNotEmpty()) {
+            uploadToRecentChat("Video",VIDEO)
+
             val key=databaseReference.push().key.toString()
             val time=System.currentTimeMillis()
 
@@ -731,6 +770,7 @@ class ChatActivity : AppCompatActivity() {
     @SuppressLint("NotifyDataSetChanged")
     fun uploadDocument(uri:String, fileName:String){
         if (uri.isNotEmpty()) {
+            uploadToRecentChat(fileName, DOCUMENT)
 
             val key=databaseReference.push().key.toString()
             val time=System.currentTimeMillis()
@@ -1001,6 +1041,13 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
-
+    fun uploadToRecentChat(recentMessage:String,messageType:String){
+        lifecycleScope.launch(Dispatchers.IO) {
+            val numberOfMessages=mainViewModel.getAnyData(RECENTCHAT+"/"+userModel!!.key, RecentChatModel::class.java)?.numberOfMessages?:0
+            val recentChatModel=RecentChatModel(userModel!!.key,userModel!!,recentMessage, messageType,if (fromRecentChat){0}else{numberOfMessages+1})
+            recentChatModel.userModel.timeStamp=System.currentTimeMillis()
+            mainViewModel.uploadAnyModel(RECENTCHAT+"/"+myModel.key,recentChatModel)
+        }
+    }
 
 }

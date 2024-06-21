@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivitySignInBinding
+import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.activities.MainActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants.CONTACTS
@@ -81,7 +82,7 @@ class SignInActivity : AppCompatActivity() {
                     }
 
                     result.whenError {
-                        showToast("Please register the phoneNumber.It does not exist.")
+                        showToast("Please register your phoneNumber.It does not exist.")
                         dialog.dismiss()
                     }
 
@@ -94,5 +95,7 @@ class SignInActivity : AppCompatActivity() {
         }
 
     }
+
+
 
 }

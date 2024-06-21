@@ -3,6 +3,7 @@ package com.atta.chatspherapp.data.main
 
 import android.util.Log
 import com.atta.chatspherapp.models.ContactModel
+import com.atta.chatspherapp.utils.Constants.NUMBEROFMESSAGES
 import com.atta.chatspherapp.utils.Constants.PHONE
 import com.atta.chatspherapp.utils.MyExtensions.logT
 import com.atta.chatspherapp.utils.MyExtensions.shrink
@@ -160,6 +161,16 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
         return@withContext MyResult.Error("Does not exist.")
     }
 
+    override suspend fun updateNumberOfMessages(path: String): MyResult<String> {
+        val map=HashMap<String,Any>()
+        map[NUMBEROFMESSAGES] = 0
+        return try{
+            databaseReference.child(path).updateChildren(map).await()
+            MyResult.Success("Updated")
+        }catch (e:Exception){
+            MyResult.Error(e.message.toString())
+        }
+    }
 
 
 }

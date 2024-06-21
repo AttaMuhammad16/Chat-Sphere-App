@@ -40,6 +40,10 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
         return withContext(Dispatchers.IO){mainRepository.checkPhoneNumberExists(path,phoneNumber)}
     }
 
+    suspend fun updateNumberOfMessages(path: String): MyResult<String>{
+        return withContext(Dispatchers.IO){mainRepository.updateNumberOfMessages(path)}
+    }
+
 
 }
 
