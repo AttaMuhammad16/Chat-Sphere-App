@@ -4,32 +4,33 @@ import android.os.Bundle
 import android.util.Log
 import android.view.WindowManager
 import android.widget.Toast
+import androidx.annotation.OptIn
 import androidx.appcompat.app.AppCompatActivity
 import com.atta.chatspherapp.databinding.ActivityVideosBinding
-import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import androidx.media3.common.MediaItem
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.trackselection.DefaultTrackSelector
+import com.atta.chatspherapp.utils.NewUtils.showToast
 
 class VideosActivity : AppCompatActivity() {
-    private lateinit var player: SimpleExoPlayer
-    lateinit var videoUrl: String
+    private lateinit var player: ExoPlayer
+    private lateinit var videoUrl: String
     private var playbackPosition: Long = 0
-    lateinit var binding: ActivityVideosBinding
-    lateinit var simpleExoPlayer: SimpleExoPlayer
+    private lateinit var binding: ActivityVideosBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding= ActivityVideosBinding.inflate(layoutInflater)
+        binding = ActivityVideosBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        simpleExoPlayer= SimpleExoPlayer.Builder(this).setTrackSelector(DefaultTrackSelector(this)).build()
-        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        videoUrl=intent.getStringExtra("videoUrl")!!
+        window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
+        videoUrl = intent.getStringExtra("videoUrl")!!
         Log.i("TAG", "onCreate:$videoUrl")
 
-        if (::videoUrl.isInitialized){
+        if (::videoUrl.isInitialized) {
             initializePlayer(videoUrl)
-        }else{
+        } else {
             Toast.makeText(this@VideosActivity, "Video is missing.", Toast.LENGTH_SHORT).show()
         }
     }
@@ -59,35 +60,18 @@ class VideosActivity : AppCompatActivity() {
         player.release()
     }
 
-    fun initializePlayer(videoUrl:String) {
+    @OptIn(UnstableApi::class)
+    private fun initializePlayer(videoUrl: String) {
         try {
-            player = simpleExoPlayer
-            val mediaItem = com.google.android.exoplayer2.MediaItem.fromUri(videoUrl)
+            Toast.makeText(this@VideosActivity, "Preparing", Toast.LENGTH_SHORT).show()
+            player = ExoPlayer.Builder(this).setTrackSelector(DefaultTrackSelector(this)).build()
+            val mediaItem = MediaItem.fromUri(videoUrl)
             player.setMediaItem(mediaItem)
             binding.playerView.player = player
             player.prepare()
             player.play()
-            Toast.makeText(this@VideosActivity, "Preparing", Toast.LENGTH_SHORT).show()
-        }catch (e:Exception){
-            Log.i("TAG", "initializePlayer: ${e.message} ")
+        } catch (e: Exception) {
+            showToast(e.message.toString())
         }
     }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

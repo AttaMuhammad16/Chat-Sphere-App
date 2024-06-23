@@ -947,7 +947,9 @@ class ChatAdapter(
                             context,
                             data.videoUrl,
                             "teacher_portal_video${System.currentTimeMillis()}.mp4",
-                            downloadManager
+                            downloadManager,
+                            "Downloading Video",
+                            "Downloading Video"
                         )
                     }
                     holder.downloadFileImg.visibility = View.INVISIBLE
@@ -1048,7 +1050,9 @@ class ChatAdapter(
                             context,
                             data.videoUrl,
                             "teacher_portal_${System.currentTimeMillis()}.mp4",
-                            downloadManager
+                            downloadManager,
+                            "Downloading Video",
+                            "Downloading Video"
                         )
                     }
                     holder.downloadFileImg.visibility = View.INVISIBLE
@@ -1144,7 +1148,9 @@ class ChatAdapter(
                             context,
                             data.documentUrl,
                             data.documentFileName,
-                            downloadManager
+                            downloadManager,
+                            "Downloading Document",
+                            data.documentFileName
                         )
                     }
                 }
@@ -1231,7 +1237,9 @@ class ChatAdapter(
                             context,
                             data.documentUrl,
                             data.documentFileName,
-                            downloadManager
+                            downloadManager,
+                            "Downloading Document",
+                            data.documentFileName
                         )
                     }
                 }

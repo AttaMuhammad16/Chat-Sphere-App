@@ -44,6 +44,10 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
         return withContext(Dispatchers.IO){mainRepository.updateNumberOfMessages(path)}
     }
 
+    suspend fun uploadMap(path: String, dataMap: HashMap<String,Any>): MyResult<Boolean>{
+        return withContext(Dispatchers.IO){mainRepository.uploadMap(path, dataMap)}
+    }
+
 
 }
 

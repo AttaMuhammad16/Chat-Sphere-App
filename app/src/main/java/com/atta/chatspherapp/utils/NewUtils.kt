@@ -223,11 +223,11 @@ object NewUtils {
         context.startActivity(intent)
     }
 
-    suspend fun downloadVideo(context: Context, videoUrl: String,fileNameWithExtension:String,downloadManager:DownloadManager): Long {
+    suspend fun downloadVideo(context: Context, videoUrl: String,fileNameWithExtension:String,downloadManager:DownloadManager,title:String,description:String): Long {
         val request = DownloadManager.Request(Uri.parse(videoUrl))
         request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-        request.setTitle("Downloading Video")
-        request.setDescription("Downloading video")
+        request.setTitle(title)
+        request.setDescription(description)
         request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
         request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileNameWithExtension)
         return downloadManager.enqueue(request)

@@ -173,4 +173,15 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
     }
 
 
+    override suspend fun uploadMap(path: String, dataMap: HashMap<String,Any>): MyResult<Boolean> {
+        return try {
+            databaseReference.child(path).updateChildren(dataMap).await()
+            MyResult.Success(true)
+        } catch (e: Exception) {
+            MyResult.Error(e.message.toString())
+        }
+    }
+
+
+
 }

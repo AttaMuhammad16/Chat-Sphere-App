@@ -233,7 +233,6 @@ class ChatActivity : AppCompatActivity() {
 
                 showReactionDialog(messageModel) {selectedReaction->
                     addReactionOnDB(messageModel, selectedReaction)
-                    showToast(selectedReaction.toString())
                 }
 
                 this.messageModel = messageModel
@@ -250,6 +249,10 @@ class ChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             mainViewModel.collectAnyModel(chatUploadPath, MessageModel::class.java).collect {
+                lifecycleScope.launch(Dispatchers.IO) {
+                    mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
+                }
+
                 if (it.isNotEmpty()){
                     list=it as ArrayList
                 }
@@ -1041,13 +1044,26 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+
     fun uploadToRecentChat(recentMessage:String,messageType:String){
+
         lifecycleScope.launch(Dispatchers.IO) {
-            val numberOfMessages=mainViewModel.getAnyData(RECENTCHAT+"/"+userModel!!.key, RecentChatModel::class.java)?.numberOfMessages?:0
-            val recentChatModel=RecentChatModel(userModel!!.key,userModel!!,recentMessage, messageType,if (fromRecentChat){0}else{numberOfMessages+1})
-            recentChatModel.userModel.timeStamp=System.currentTimeMillis()
-            mainViewModel.uploadAnyModel(RECENTCHAT+"/"+myModel.key,recentChatModel)
+
+            val numberOfMessagesForReceiver=mainViewModel.getAnyData(RECENTCHAT+"/"+userModel!!.key+"/"+myModel.key, RecentChatModel::class.java)?.numberOfMessages?:0
+
+            val timeStamp=System.currentTimeMillis()
+            // who will receive
+            val recentChatModelOfReceiver=RecentChatModel(userModel!!.key,userModel!!,recentMessage, messageType,0)
+            recentChatModelOfReceiver.userModel.timeStamp=timeStamp
+            // who will send
+            val recentChatModelOfSender=RecentChatModel(myModel.key,myModel,recentMessage, messageType,numberOfMessagesForReceiver+1)
+            recentChatModelOfSender.userModel.timeStamp=timeStamp
+
+            mainViewModel.uploadAnyModel(RECENTCHAT+"/"+myModel.key,recentChatModelOfReceiver)
+            mainViewModel.uploadAnyModel(RECENTCHAT+"/"+userModel!!.key,recentChatModelOfSender)
+
         }
     }
+
 
 }
