@@ -37,7 +37,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ChatSpherApp"
         tools:targetApi="31">
-
+        <activity
+            android:name=".ui.activities.ProfileSettingActivity"
+            android:exported="false" />
         <activity
             android:name=".ui.auth.SignInActivity"
             android:exported="true">
@@ -47,7 +49,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".ui.auth.OTPActivity"
             android:exported="false" />
@@ -56,12 +57,10 @@
             android:exported="false" />
         <activity
             android:name=".ui.activities.MainActivity"
-            android:exported="true"/>
-
+            android:exported="true" />
         <activity
             android:name=".ui.activities.room.VideosActivity"
             android:exported="false" />
-
         <activity
             android:name=".ui.activities.room.PhotoViewActivity"
             android:exported="false" />
@@ -77,11 +76,10 @@
         <activity
             android:name=".ui.activities.room.EditImageActivity"
             android:exported="false" />
-
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
 
         <service
             android:name=".service.UploadVideoService"
@@ -103,7 +101,6 @@
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
 
-
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -113,8 +110,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-
     </application>
 
 </manifest>

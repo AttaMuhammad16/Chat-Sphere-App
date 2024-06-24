@@ -26,6 +26,15 @@
             android:textSize="@dimen/_17sdp"
             tools:layout_editor_absoluteX="16dp"
             tools:layout_editor_absoluteY="17dp" />
+
+        <ImageView
+            android:id="@+id/profileSettingImg"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_gravity="end"
+            android:layout_margin="@dimen/_5sdp"
+            android:src="@drawable/baseline_settings_24"
+            app:tint="@color/white" />
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView

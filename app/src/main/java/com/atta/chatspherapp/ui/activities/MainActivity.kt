@@ -15,9 +15,11 @@ import com.atta.chatspherapp.ui.activities.room.ChatActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.USERS
+import com.atta.chatspherapp.utils.MyExtensions.logT
 import com.atta.chatspherapp.utils.NewUtils.millisToTime12hFormat
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
+import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.toFormattedDate
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
 import com.google.firebase.auth.FirebaseAuth
@@ -52,10 +54,21 @@ class MainActivity : AppCompatActivity() {
             myModel=mainViewModel.getAnyData("$USERS/${auth.currentUser!!.uid}",UserModel::class.java)!!
         }
 
+        binding.profileSettingImg.setOnClickListener {
+            if (myModel.fullName.isNotEmpty()){
+                val intent=Intent(this@MainActivity,ProfileSettingActivity::class.java)
+                intent.putExtra("myModel",myModel)
+                startActivity(intent)
+            }else{
+                showToast("Something wrong or check internet connect.")
+            }
+        }
+
 
         lifecycleScope.launch {
             mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}",RecentChatModel::class.java).collect{it->
                 val sortedList = it.sortedByDescending { user -> user.userModel.timeStamp }
+
                 binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, item, position ->
 
                   Picasso.get().load(item.userModel.profileUrl).placeholder(R.drawable.person).into(binding.profileImage)
@@ -82,7 +95,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
 
 
     }
