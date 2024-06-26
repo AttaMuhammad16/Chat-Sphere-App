@@ -79,10 +79,9 @@ class UploadImageService : Service() {
             if (uri!!.isNotEmpty()) {
 
                 val imageUploadPath = intent.getStringExtra("chatUploadPath")
-                val teacherUid = intent.getStringExtra("userUid")
+                val senderUid = intent.getStringExtra("userUid")
                 val time = intent.getLongExtra("time",0)
                 val key = intent.getStringExtra("key")!!
-                val userModel = intent.getParcelableExtra<UserModel>("userModel")!!
 
                 preferencesHelper.saveString(key,uri)
 
@@ -100,11 +99,11 @@ class UploadImageService : Service() {
 
                     val messageModel = MessageModel(
                         key=key,
-                        senderName = userModel!!.fullName,
-                        senderImageUrl = userModel!!.profileUrl,
-                        senderPhone = userModel!!.phone,
+                        senderName = "",
+                        senderImageUrl = "",
+                        senderPhone = "",
                         timeStamp = time,
-                        senderUid = teacherUid!!,
+                        senderUid = senderUid!!,
                         imageUrl = it,
                     )
 

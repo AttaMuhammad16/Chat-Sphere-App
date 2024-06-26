@@ -74,6 +74,7 @@ import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.TEXT
 import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
+import com.atta.chatspherapp.utils.MyExtensions.shrink
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -142,7 +143,7 @@ class ChatActivity : AppCompatActivity() {
     lateinit var auth: FirebaseAuth
     var myModel=UserModel()
     var fromRecentChat=false
-
+    var isRecentChatUploaded=false
 
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
@@ -161,7 +162,7 @@ class ChatActivity : AppCompatActivity() {
 
         userModel = intent.getParcelableExtra("userModel")
         myModel = intent.getParcelableExtra("myModel")!!
-        fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)!!
+        fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
 
         if (fromRecentChat){
             lifecycleScope.launch(Dispatchers.IO) {
@@ -242,24 +243,31 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-
         binding.recyclerView.adapter = adapter
         layoutManager.stackFromEnd=true
 
-
         lifecycleScope.launch {
+
             mainViewModel.collectAnyModel(chatUploadPath, MessageModel::class.java).collect {
+
                 lifecycleScope.launch(Dispatchers.IO) {
-                    mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
+                    mainViewModel.isRecentChatUploaded.collect{
+                        if (it){
+                            mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
+                        }
+                        mainViewModel.isRecentChatUploaded.value=false
+                    }
                 }
 
                 if (it.isNotEmpty()){
                     list=it as ArrayList
                 }
+
                 adapter.setList(it)
                 adapter.notifyDataSetChanged()
                 setAdapter(adapter)
             }
+
         }
 
 
@@ -428,9 +436,9 @@ class ChatActivity : AppCompatActivity() {
 
                     val messageModel = MessageModel(
                         key = key,
-                        senderName = myModel.fullName,
-                        senderImageUrl = myModel.profileUrl,
-                        senderPhone = myModel.phone,
+                        senderName = "",
+                        senderImageUrl = "",
+                        senderPhone = "",
                         message = message,
                         timeStamp = System.currentTimeMillis(),
                         senderUid = userUid,
@@ -524,9 +532,9 @@ class ChatActivity : AppCompatActivity() {
 
                 val messageModel = MessageModel(
                     key=key,
-                    senderName = myModel.fullName,
-                    senderImageUrl = myModel.profileUrl,
-                    senderPhone = myModel.phone,
+                    senderName = "",
+                    senderImageUrl = "",
+                    senderPhone = "",
                     timeStamp = System.currentTimeMillis(),
                     senderUid = userUid,
                     voiceUrl = uri.toString()
@@ -542,9 +550,9 @@ class ChatActivity : AppCompatActivity() {
                     lifecycleScope.launch {
                         val messageModelForUpload = MessageModel(
                             key=key,
-                            senderName = myModel!!.fullName,
-                            senderImageUrl = myModel!!.profileUrl,
-                            senderPhone = myModel!!.phone,
+                            senderName = "",
+                            senderImageUrl = "",
+                            senderPhone = "",
                             timeStamp = System.currentTimeMillis(),
                             senderUid = userUid,
                             voiceUrl = it
@@ -695,13 +703,12 @@ class ChatActivity : AppCompatActivity() {
             intent.putExtra("userUid", userUid)
             intent.putExtra("time", time)
             intent.putExtra("key", key)
-            intent.putExtra("userModel", myModel)
 
             val messageModel = MessageModel(
                 key=key,
-                senderName = myModel!!.fullName,
-                senderImageUrl = myModel!!.profileUrl,
-                senderPhone = myModel!!.phone,
+                senderName = "",
+                senderImageUrl = "",
+                senderPhone = "",
                 timeStamp = System.currentTimeMillis(),
                 senderUid = userUid,
                 imageUrl = uri,
@@ -740,13 +747,12 @@ class ChatActivity : AppCompatActivity() {
             intent.putExtra("userUid", userUid)
             intent.putExtra("key", key)
             intent.putExtra("timestamp", time)
-            intent.putExtra("userModel",myModel)
 
             val messageModel = MessageModel(
                 key=key,
-                senderName = myModel!!.fullName,
-                senderImageUrl = myModel!!.profileUrl,
-                senderPhone = myModel!!.phone,
+                senderName = "",
+                senderImageUrl = "",
+                senderPhone = "",
                 timeStamp =time ,
                 senderUid = userUid,
                 videoUrl = uri,
@@ -786,13 +792,12 @@ class ChatActivity : AppCompatActivity() {
             intent.putExtra("docxFileName", fileName)
             intent.putExtra("key", key)
             intent.putExtra("time", time)
-            intent.putExtra("userModel",myModel)
 
             val messageModel = MessageModel(
                 key = key,
-                senderName = myModel!!.fullName,
-                senderImageUrl = myModel!!.profileUrl,
-                senderPhone = myModel!!.phone,
+                senderName = "",
+                senderImageUrl = "",
+                senderPhone = "",
                 timeStamp = time,
                 senderUid = userUid,
                 documentUrl = uri,
@@ -984,7 +989,7 @@ class ChatActivity : AppCompatActivity() {
                 }else{
                     databaseReference.child(currentReactionPath).setValue(1).await()
                 }
-                databaseReference.child(reactionDetailsPath).setValue(ReactionModel(auth.currentUser!!.uid,selectedReaction)).await()
+                databaseReference.child(reactionDetailsPath).setValue(ReactionModel(auth.currentUser!!.uid,selectedReaction).shrink()).await()
             }
         }
     }
@@ -1005,9 +1010,9 @@ class ChatActivity : AppCompatActivity() {
                     }
 
                     scope.launch {
+
                         if (data.imageUrl.isNotEmpty()) {
                             storageViewModel.deleteDocumentToFirebaseStorage(data.imageUrl)
-
                         } else if (data.videoUrl.isNotEmpty()) {
                             storageViewModel.deleteDocumentToFirebaseStorage(data.videoUrl)
 
@@ -1017,6 +1022,7 @@ class ChatActivity : AppCompatActivity() {
                         } else if (data.voiceUrl.isNotEmpty()) {
                             storageViewModel.deleteDocumentToFirebaseStorage(data.voiceUrl)
                         }
+
                     }
 
                 } else if (it == 2) {
@@ -1058,6 +1064,7 @@ class ChatActivity : AppCompatActivity() {
 
             mainViewModel.uploadAnyModel(RECENTCHAT+"/"+myModel.key,recentChatModelOfReceiver)
             mainViewModel.uploadAnyModel(RECENTCHAT+"/"+userModel!!.key,recentChatModelOfSender)
+            mainViewModel.isRecentChatUploaded.value=true
 
         }
     }

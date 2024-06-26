@@ -59,6 +59,9 @@ dependencies {
     androidTestImplementation libs.androidx.espresso.core
 
 
+
+
+
     // circular image view
     implementation(libs.circleimageview)
     implementation libs.circleimageview
@@ -95,6 +98,12 @@ dependencies {
     // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    // for FCM
+    implementation 'com.github.jd-alexander:library:1.1.0'
+    implementation 'com.squareup.okhttp3:okhttp:4.12.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.12.0'
+
 
     // desugaring
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.9'

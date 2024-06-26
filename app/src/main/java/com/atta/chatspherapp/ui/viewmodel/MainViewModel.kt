@@ -8,13 +8,15 @@ import com.atta.chatspherapp.utils.MyResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val authRepository: AuthRepository, private val storageRepository: StorageRepository, private val mainRepository: MainRepository):ViewModel() {
-
+    var isRecentChatUploaded:MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     fun <T> collectAnyModel(path: String, clazz: Class<T>, numberOfItems: Int = 0): Flow<List<T>>{
         return mainRepository.collectAnyModel(path, clazz, numberOfItems)

@@ -91,10 +91,9 @@ class UploadVideoService : Service() {
         if (uri?.isNotEmpty()!=null) {
 
             val videoUploadPath = intent.getStringExtra("chatUploadPath")
-            val teacherUid = intent.getStringExtra("userUid")
+            val senderUid = intent.getStringExtra("userUid")
             val key = intent.getStringExtra("key")!!
             val timestamp = intent.getLongExtra("timestamp",0)
-            val userModel = intent.getParcelableExtra<UserModel>("userModel",)
 
             CoroutineScope(Dispatchers.IO).launch {
 
@@ -114,11 +113,11 @@ class UploadVideoService : Service() {
 
                     val messageModel = MessageModel(
                         key=key,
-                        senderName = userModel!!.fullName,
-                        senderImageUrl = userModel!!.profileUrl,
-                        senderPhone = userModel!!.phone,
+                        senderName = "",
+                        senderImageUrl = "",
+                        senderPhone = "",
                         timeStamp =timestamp ,
-                        senderUid = teacherUid!!,
+                        senderUid = senderUid!!,
                         videoUrl = it,
                     )
 

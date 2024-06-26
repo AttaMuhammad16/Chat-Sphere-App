@@ -28,6 +28,7 @@
                 android:layout_width="@dimen/tool_bar_back_arrow_size"
                 android:layout_height="@dimen/tool_bar_back_arrow_size"
                 android:layout_gravity="center_vertical"
+                app:tint="@color/white"
                 android:src="@drawable/baseline_arrow_back_24" />
 
             <de.hdodenhof.circleimageview.CircleImageView

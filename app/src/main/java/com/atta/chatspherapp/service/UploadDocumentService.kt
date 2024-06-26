@@ -78,11 +78,10 @@ class UploadDocumentService : Service() {
             val uri = intent!!.getStringExtra("docxUri")
             if (uri!!.isNotEmpty()) {
                 val documentUploadPath = intent.getStringExtra("chatUploadPath")
-                val teacherUid = intent.getStringExtra("userUid")
+                val senderUid = intent.getStringExtra("userUid")
                 val fileName = intent.getStringExtra("docxFileName")
                 val key = intent.getStringExtra("key")!!
                 val time = intent.getLongExtra("time",0)
-                val userModel = intent.getParcelableExtra<UserModel>("userModel")
 
                 val result = uploadDocumentToFirebaseStorage(Uri.parse(uri)) {
                     updateNotification(it.toString(), fileName!!)
@@ -98,11 +97,11 @@ class UploadDocumentService : Service() {
 
                     val messageModel = MessageModel(
                         key = key,
-                        senderName = userModel!!.fullName,
-                        senderImageUrl = userModel!!.profileUrl,
-                        senderPhone = userModel!!.phone,
+                        senderName = "",
+                        senderImageUrl = "",
+                        senderPhone = "",
                         timeStamp = time,
-                        senderUid = teacherUid!!,
+                        senderUid = senderUid!!,
                         documentUrl = it,
                         documentFileName = fileName!!
                     )
