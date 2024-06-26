@@ -141,6 +141,8 @@ dependencies {
     implementation 'com.nex3z:flow-layout:1.3.3'
     implementation 'com.github.Armen101:AudioRecordView:1.0.1'
 
+    // ripple effect
+    implementation 'com.ebay.customrippleview:customrippleview:1.1'
 
 }
 kapt {

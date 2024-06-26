@@ -53,8 +53,9 @@ data class MessageModel (
 
 
 data class ReactionModel(
+    var senderKey:String="",
+    var reactionId:Int=0,
     var senderName:String="",
     var senderImageUrl:String="",
-    var senderKey:String="",
-    var reactionId:Int=0
+
 )

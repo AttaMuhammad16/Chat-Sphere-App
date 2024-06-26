@@ -19,6 +19,7 @@ import com.atta.chatspherapp.utils.MyExtensions.logT
 import com.atta.chatspherapp.utils.NewUtils.millisToTime12hFormat
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
+import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.toFormattedDate
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
@@ -26,6 +27,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -64,28 +66,44 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
         lifecycleScope.launch {
+            val progress= showProgressDialog(this@MainActivity,"Loading...")
+
             mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}",RecentChatModel::class.java).collect{it->
-                val sortedList = it.sortedByDescending { user -> user.userModel.timeStamp }
 
-                binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, item, position ->
+                for (i in it){
+                    val model=mainViewModel.getAnyData("$USERS/${i.key}",UserModel::class.java)
+                    if (model!=null){
+                        i.userModel=model
+                    }
+                }
 
-                  Picasso.get().load(item.userModel.profileUrl).placeholder(R.drawable.person).into(binding.profileImage)
+                if (it.isNotEmpty()){
+                    progress.dismiss()
+                }else{
+                    delay(4000)
+                    progress.dismiss()
+                }
 
-                    binding.nameTv.text=item.userModel.fullName
-                    binding.recentMessage.text=item.recentMessage
-                    binding.lastMessageTime.text=item.userModel.timeStamp.toTimeAgo()
+                val sortedList = it.sortedByDescending { recentModel -> recentModel.timeStamp }
 
-                    if (item.numberOfMessages != 0) {
+                binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position ->
+
+                  Picasso.get().load(recentModel.userModel.profileUrl).placeholder(R.drawable.person).into(binding.profileImage)
+
+                    binding.nameTv.text=recentModel.userModel.fullName
+                    binding.recentMessage.text=recentModel.recentMessage
+                    binding.lastMessageTime.text=recentModel.timeStamp.toTimeAgo()
+
+                    if (recentModel.numberOfMessages != 0) {
                         binding.msgCounterTv.visibility=View.VISIBLE
-                        binding.msgCounterTv.text=item.numberOfMessages.toString()
+                        binding.msgCounterTv.text=recentModel.numberOfMessages.toString()
                     }
 
                     binding.mainConstraint.setOnClickListener {
                         if (myModel.fullName.isNotEmpty()){
                             val intent=Intent(this@MainActivity, ChatActivity::class.java)
-                            intent.putExtra("userModel",item.userModel)
+                            intent.putExtra("userModel",recentModel.userModel)
                             intent.putExtra("myModel",myModel)
                             intent.putExtra("fromRecentChat",true)
                             startActivity(intent)

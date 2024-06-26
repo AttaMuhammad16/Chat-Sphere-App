@@ -46,6 +46,7 @@ import com.atta.chatspherapp.utils.Constants.SENDER_IMAGE_MESSAGE
 import com.atta.chatspherapp.utils.Constants.SENDER_VIDEO_MESSAGE
 import com.atta.chatspherapp.utils.Constants.SENDER_VIEW_SIMPLE_MESSAGE
 import com.atta.chatspherapp.utils.Constants.SENDER_VOICE_MESSAGE
+import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.NewUtils.downloadAudio
 import com.atta.chatspherapp.utils.NewUtils.downloadVideo
 import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
@@ -1664,15 +1665,10 @@ class ChatAdapter(
                         holder.angryImg.visibility = View.VISIBLE
                     }
                 }
-
-
-
             }
-
 
         }
     }
-
 
     override fun getItemCount(): Int {
         return mylist.size
@@ -1767,6 +1763,11 @@ class ChatAdapter(
 
         scope.launch {
             mainViewModel.collectAnyModel(reactionDetailsPath , ReactionModel::class.java).collect{
+                for (i in it){
+                    val model=mainViewModel.getAnyData("$USERS/${i.senderKey}",UserModel::class.java)!!
+                    i.senderName=model.fullName
+                    i.senderImageUrl=model.profileUrl
+                }
 
                 val sortedList = it.sortedByDescending { it.senderKey == myUid}
 

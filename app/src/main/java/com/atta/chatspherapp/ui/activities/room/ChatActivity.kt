@@ -984,8 +984,7 @@ class ChatActivity : AppCompatActivity() {
                 }else{
                     databaseReference.child(currentReactionPath).setValue(1).await()
                 }
-                databaseReference.child(reactionDetailsPath).setValue(ReactionModel(myModel.fullName,myModel.profileUrl,auth.currentUser!!.uid,selectedReaction)).await()
-
+                databaseReference.child(reactionDetailsPath).setValue(ReactionModel(auth.currentUser!!.uid,selectedReaction)).await()
             }
         }
     }
@@ -1053,11 +1052,9 @@ class ChatActivity : AppCompatActivity() {
 
             val timeStamp=System.currentTimeMillis()
             // who will receive
-            val recentChatModelOfReceiver=RecentChatModel(userModel!!.key,userModel!!,recentMessage, messageType,0)
-            recentChatModelOfReceiver.userModel.timeStamp=timeStamp
+            val recentChatModelOfReceiver=RecentChatModel(userModel!!.key,recentMessage, messageType,0,timeStamp)
             // who will send
-            val recentChatModelOfSender=RecentChatModel(myModel.key,myModel,recentMessage, messageType,numberOfMessagesForReceiver+1)
-            recentChatModelOfSender.userModel.timeStamp=timeStamp
+            val recentChatModelOfSender=RecentChatModel(myModel.key,recentMessage, messageType,numberOfMessagesForReceiver+1,timeStamp)
 
             mainViewModel.uploadAnyModel(RECENTCHAT+"/"+myModel.key,recentChatModelOfReceiver)
             mainViewModel.uploadAnyModel(RECENTCHAT+"/"+userModel!!.key,recentChatModelOfSender)
