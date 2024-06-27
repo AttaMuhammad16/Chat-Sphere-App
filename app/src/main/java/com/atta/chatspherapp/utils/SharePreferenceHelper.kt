@@ -26,6 +26,14 @@ class SharedPreferencesHelper @Inject constructor(@ApplicationContext context: C
     }
 
 
+    fun saveLong(key:String,value:Long){
+        editor.putLong(key, value).apply()
+    }
+    fun getLong(key: String, defaultValue: Long): Long {
+        return prefs.getLong(key,defaultValue)
+    }
+
+
 
     fun clear() {
         editor.clear().apply()

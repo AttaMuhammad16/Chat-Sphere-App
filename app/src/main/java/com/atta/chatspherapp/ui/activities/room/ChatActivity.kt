@@ -75,7 +75,9 @@ import com.atta.chatspherapp.utils.Constants.TEXT
 import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.MyExtensions.shrink
+import com.atta.chatspherapp.utils.NewUtils.getAccessToken
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
+import com.atta.chatspherapp.utils.SendNotification
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
@@ -192,17 +194,6 @@ class ChatActivity : AppCompatActivity() {
         binding.recyclerView.setOnClickListener{
             hideReactionViews()
         }
-
-
-
-//        userUid=preferencesHelper.getString(Constants.TEACHER_KEY,"")
-//        lifecycleScope.launch {
-//            val teachersModelResult=mainViewModel.getAnyModelByKey("teachers/$userUid")
-//            teachersModelResult.whenSuccess {
-//                teacherModel = it as TeachersModel
-//                userUid=teacherModel.key
-//            }
-//        }
 
 
 //      download manager
@@ -468,16 +459,25 @@ class ChatActivity : AppCompatActivity() {
                     binding.imgRefConstraint.visibility= View.GONE
                     binding.voiceRefConstraint.visibility= View.GONE
 
-                    val r = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
+                    val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
 
-                    r.whenSuccess {
+                    messageUploadResult.whenSuccess {
+                        lifecycleScope.launch {
+                            myModel.apply {
+                                val accessToken= getAccessToken(this@ChatActivity)
+                                if (!accessToken.isNullOrEmpty()){
+                                    SendNotification.sendMessageNotification(fullName,message,userModel!!.token,accessToken)
+                                }else{
+                                    showToast("your access token is null")
+                                }
+                            }
+                        }
                     }
 
-                    r.whenError {
+                    messageUploadResult.whenError {
                         showToast(it.toString())
                         Log.i("TAG", "onCreate:${it.message} ")
                     }
-
                     binding.recyclerView.scrollToPosition(list.size - 1)
                 }
 

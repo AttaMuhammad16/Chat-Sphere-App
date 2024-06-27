@@ -49,12 +49,14 @@ import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.ui.activities.room.EditImageActivity
+import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
+import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
@@ -72,6 +74,7 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -869,15 +872,27 @@ object NewUtils {
         return "${keys[0]}${keys[1]}"
     }
 
+    fun convertDateStringToMillis(dateString: String): Long {
+        val dateFormat = SimpleDateFormat("EEE MMM dd HH:mm:ss 'GMT'Z yyyy", Locale.ENGLISH)
+        dateFormat.timeZone = TimeZone.getTimeZone("GMT")
+        val date = dateFormat.parse(dateString)
+        return date?.time ?: 0L
+    }
 
-
-
-
-
-
-
-
-
+    suspend fun getAccessToken(context: Context): String? {
+        return withContext(Dispatchers.IO) {
+            try {
+                val SCOPES = listOf("https://www.googleapis.com/auth/firebase.messaging")
+                val inputStream: InputStream = context.resources.openRawResource(R.raw.serviceaccount)
+                val googleCredentials: GoogleCredentials = GoogleCredentials.fromStream(inputStream).createScoped(SCOPES)
+                val token=googleCredentials.refreshAccessToken()
+                token.tokenValue
+            } catch (e: Exception) {
+                Log.i("TAG", "getAccessToken: ${e.localizedMessage}")
+                null
+            }
+        }
+    }
 
 
 

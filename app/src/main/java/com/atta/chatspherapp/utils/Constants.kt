@@ -14,7 +14,7 @@ object Constants {
     const val VIDEO="video"
     const val DOCUMENT="document"
     const val NUMBEROFMESSAGES="numberOfMessages"
-    const val FCMTOENNODE="fcmToken"
+    const val FCMTOENNODE="token"
 
 
     //sender

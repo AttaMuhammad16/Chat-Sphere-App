@@ -17,18 +17,22 @@ import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.USERS
+import com.atta.chatspherapp.utils.NewUtils.getAccessToken
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
 import com.atta.chatspherapp.utils.SendNotification
+import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.FileInputStream
 import java.io.IOException
 import java.io.InputStream
@@ -61,15 +65,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-
-        lifecycleScope.launch {
-            SendNotification.sendMessageNotification("Atta Muhammad","Hello how are you ","dkGr5dC8T3GYq0bzaCYwZJ:APA91bHjbu_kmBC24Hgd6dDn7jXn29_KqDTRhyBZicg_KfyuN4VJHWerlQQJlNtuZ2UXx9bRi5hmtopW3rMm9Rl6zovxYGVm3qZV6rKbdpeHiQ61NBhVyRL8H7OyNrwt1nJlvEwFLtJB")
-//            Log.i("TAG", "onCreate:${getAccessToken(this@MainActivity)} ")
-        }
-
-
-
-
 
 
         binding.chatCard.setOnClickListener{
@@ -138,16 +133,8 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-
     }
 
-//    @Throws(IOException::class)
-//    private fun getAccessToken(context: Context): String {
-//        val SCOPES = listOf("https://www.googleapis.com/auth/firebase.messaging")
-//        val inputStream: InputStream = context.resources.openRawResource(R.raw.serviceaccount)
-//        val googleCredentials: GoogleCredentials = GoogleCredentials.fromStream(inputStream).createScoped(SCOPES)
-//        googleCredentials.refreshIfExpired()
-//        return googleCredentials.accessToken.tokenValue
-//    }
+
 
 }

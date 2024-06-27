@@ -4,7 +4,6 @@ import android.app.Activity
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModel
 import com.atta.chatspherapp.data.auth.email.AuthRepositoryWithEmail
-import com.atta.chatspherapp.data.auth.googleauth.AuthRepositoryWithGoogle
 import com.atta.chatspherapp.data.auth.phone.AuthRepositoryWithPhone
 import com.atta.chatspherapp.utils.MyResult
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
@@ -19,7 +18,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class AuthViewModel @Inject constructor(private val authRepositoryWithEmail: AuthRepositoryWithEmail, private val authRepositoryWithPhone: AuthRepositoryWithPhone, private val authRepositoryWithGoogle: AuthRepositoryWithGoogle) : ViewModel() {
+class AuthViewModel @Inject constructor(private val authRepositoryWithEmail: AuthRepositoryWithEmail, private val authRepositoryWithPhone: AuthRepositoryWithPhone) : ViewModel() {
 
     // Firebase Auth (with email)
     suspend fun signUpWithEmailAndPassword(email:String,password:String): MyResult<String> {
@@ -45,14 +44,6 @@ class AuthViewModel @Inject constructor(private val authRepositoryWithEmail: Aut
     }
 
 
-    // google
-    fun signInWithGoogle(activity: AppCompatActivity, account: GoogleSignInAccount?, callback:(task: Task<AuthResult>) ->Unit){
-        authRepositoryWithGoogle.signInWithGoogle(activity, account, callback)
-    }
-
-    fun requestGoogleSignIn(activity: AppCompatActivity, serverClientId:String){
-        authRepositoryWithGoogle.requestGoogleSignIn(activity, serverClientId)
-    }
 
 
 }
