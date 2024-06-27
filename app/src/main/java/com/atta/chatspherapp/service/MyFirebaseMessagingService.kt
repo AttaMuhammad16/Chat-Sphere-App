@@ -65,7 +65,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         val intent = Intent(this, MainActivity::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
         val pendingIntent = PendingIntent.getActivity(this, 4, intent, PendingIntent.FLAG_IMMUTABLE)
-        showNotification(1832, "Chat Sphere App", pendingIntent, this, title, messageBody)
+        showNotification(System.currentTimeMillis().toInt(), "Chat Sphere App", pendingIntent, this, title, messageBody)
     }
 
 

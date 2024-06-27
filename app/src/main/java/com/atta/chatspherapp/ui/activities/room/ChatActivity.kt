@@ -66,6 +66,7 @@ import com.google.firebase.database.DatabaseReference
 import com.google.firebase.storage.StorageReference
 import com.atta.chatspherapp.adapters.ChatAdapter
 import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
+import com.atta.chatspherapp.managers.NotificationManager.Companion.clearNotifications
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
@@ -169,6 +170,7 @@ class ChatActivity : AppCompatActivity() {
         if (fromRecentChat){
             lifecycleScope.launch(Dispatchers.IO) {
                 mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
+                clearNotifications(this@ChatActivity)
             }
         }
 
