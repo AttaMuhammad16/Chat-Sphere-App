@@ -13,9 +13,10 @@ import java.io.IOException
 
 object SendNotification {
 
-    var accessToken = "ya29.c.c0AY_VpZh_PtBTg0A3ibOuPPRJgec3B-cf2KbILc5QB_UxQS8fnvKwKqYuiZAQIEDZzzuDT23JjzAWwPHkrmz6l9ibQngXnb5e62XDS82yDfjSiESeoZAuc9O_iUcfU02oalmkwDmI7iuMrXA_oPTlbDu-HMRK_beoM9gHEAS-x8qQa_DI_ip6BL-hBSEuK3QZ8KGtoONfA1qhhqXxdhplm3N8jJKptOqdOktRyeB8RJ_NmIdOjhftqq2AKn0SyVmA3mTqSMGi-mAlk0brLWKaTEV7-jpkzTpXAg8BdyqpIUtxreFOuUKHLu1CQtxch8HpYOj3hX9TleD2yTf4QUWG43vr0wDauR3rtWKmEXjyHfKUcv5llAQsC_TyE385Aci15z_fv7n3-mmRirac8_Q5i5-mMq8o0Xo3bly0YB-XxmYwXZ3eyOjQWvvQX6goxUVQRr6jtsdnxpSQMRFqFvUR1YUhQ9OS_O6OxwVYJdJW6ti439m9RguYx6iOz0hjdYcpzsYmfldwf1uMyx40iRvYmB3XYo00ow63xdnffXcIsm8ybMwUjZOFqOm4fhQmk8iMzk6mruW2Yen64pfV5YZi-Yuhg8dF4sp72pno16dxdn5q12ZxMY1xzFV_1p7-Yheald7RMwOkw0az1c26xiixrern4s_paF4wfpF-Zn_k1Q7ymczSU2v4Qh_y-IaRiOXze8rJ_4-9J8Smtqxdzqrv-7XW90hbIlsnIRXhs3rl6cUBbRypBIufOF6tn3b7qs6B6vJ6ioSbBXvd4bioRZRtJIidpgt1ssg7oJUeZa7-vQS-3t4XtIms8X_9nnF0cIwzrhakSyb5Wm92I6wy0ad78XMyufl8hFdMyyfuwntQ8UmwX_gYe29z9cWlmI8r6jM8Uigcb-fIhq0gcJ5z3VdkRfY4WarYZobc9ZueqFzcYBVhJhVhf0nm7R6JSe0lc9xFovgoBfcnk_8_x7r85vsx6yaV65gy8s1q7gkxahU24FXXk2RYpfm6_nh"
+//    access token expire in every 12 hour
+    var accessToken = "ya29.c.c0AY_VpZhiVCG-ba-0GIXcu5ss0iSa2svwHTCTPAFa09H1nZSW1JzwkvhBfwwPLLtaGNxKhmuBWJe41pqj-O272pUSvGulYQw8ffrsNFpATp92n51-w-mEBCSyWGASjBDKyYi7wLPVZd9LtES1lM-1M_SUpUh5HU_SS6B6FckMw0Emt1GXOCIfCnbXEaFqEMqWkuciiHYcaDx9EHhs8AfMIozxN6V5D_ZQjIRlD8To_-OUutdjQErpppEpTjY8d91bOk-06C6BUfLMrFVTO03tiuGO1LQvMMO5M_j_Y0LwDSy7sW6--K1ceKGtCg1BgyArB0H2VyaEwqh14lAAsZzkoiyuHxqJeXkb0qSa93Wr0_F7DblOyAANslylZAN387PpfarB2kwzWBjmruzaqFsj2RqvM0515JYijOXylFWaJqM31g1jni84r245O2SzyoiBeo1s9avnUvbBOa6mg-Z-71p0XtbcZptVc6O_Qbgrds0yxrtaB_a0fk96hWtnmvM98Xh8SdzIsl3SwhpFvbZZoZv9g9cif1kSbIBqnZ8kUR7USncYz3QystOhVj-qk0Q_dm409OnJ4gXFf121__1XIYiMwWYfRV-hyp-mBiFfsl5ksgpYetsa8j0qvQoFsMbx7pbcYXe4ZmbpYU6pmFcqaa_hQQQVZggbroc__4_75h9zvpBhROa9ntv7IvrO-cm62snQyQgWVc97ctg67OQgVX7dg7VIwISv7WcQFvzJ4nht-jezMp4m20stbsMk06c_UoWQo8wdZsplpmo7r_-vr45g5_qRQZWsvfwmzbkd33oB4thYe9c8XuB8k_4XyIFzjiole6m9Xi0uB4mW6bgIwajzsiIyIzx-c1t85ekooIxfWcJtqR2Sv7rbdyr1bdzxOwIBZbo9WeZ48qtwJf9R_gOOeyVYwy2ZwOd65Q0gI8rO1pb5d0v6_oO2xw4_ouo-6I_BrQp0O81nRV8aadMZ72BxtwFyrdY8Baey3dton7bJl29so9QrfOt"
 
-    suspend fun sendNotification(
+    suspend fun sendMessageNotification(
         userName: String,
         message: String,
         token: String,
@@ -31,7 +32,7 @@ object SendNotification {
         val jsonData = JSONObject().apply {
             put("title", userName)
             put("body", message)
-            put("click_action", "target_2")
+            put("click_action", "target_main")
         }
 
         val wholeObj = JSONObject().apply {

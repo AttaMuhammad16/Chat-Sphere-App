@@ -56,6 +56,9 @@ import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.Firebase
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.storage
@@ -865,9 +868,6 @@ object NewUtils {
         val keys = listOf(userKey, currentUserKey).sorted()
         return "${keys[0]}${keys[1]}"
     }
-
-
-
 
 
 

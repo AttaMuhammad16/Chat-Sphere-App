@@ -57,7 +57,11 @@
             android:exported="false" />
         <activity
             android:name=".ui.activities.MainActivity"
-            android:exported="true" />
+            android:exported="true" >
+            <intent-filter>
+                <action android:name="target_main" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".ui.activities.room.VideosActivity"
             android:exported="false" />
@@ -110,6 +114,26 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+
+        <service
+            android:name=".service.MyFirebaseMessagingService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_icon"
+            android:resource="@drawable/ic_launcher_foreground" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_color"
+            android:resource="@color/green" />
+        <meta-data
+            android:name="com.google.firebase.messaging.default_notification_channel_id"
+            android:value="Chat Sphere App" />
+
     </application>
 
 </manifest>

@@ -47,8 +47,8 @@ data class MessageModel (
 //    id
     var referenceMessageId:String="",
 //    for voice
-    var referenceVoiceUrl:String=""
-
+    var referenceVoiceUrl:String="",
+    var fcmToken:String=""
 ): Parcelable
 
 

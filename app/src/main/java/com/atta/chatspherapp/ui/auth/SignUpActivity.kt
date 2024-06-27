@@ -103,23 +103,14 @@ class SignUpActivity : AppCompatActivity() {
                 lifecycleScope.launch {
 
                     sharedPreferencesHelper.getString(COUNTRYNAMECODE,selectedCountryNameCode)
-                    val key=databaseReference.push().key.toString()
-                    val result=mainViewModel.uploadAnyModel("$CONTACTS/$key",ContactModel(fullNumber))
 
-                    result.whenSuccess {
-                        val userModel= UserModel("",name,fullNumber,"","",0,"")
-                        val intent=Intent(this@SignUpActivity, OTPActivity::class.java)
-                        intent.putExtra("userModel",userModel)
-                        intent.putExtra("uri",uri.toString())
-                        startActivity(intent)
-                        finish()
-                        dialog.dismiss()
-                    }
-
-                    result.whenError {
-                        showToast(it.message.toString())
-                        dialog.dismiss()
-                    }
+                    val userModel= UserModel("",name,fullNumber,"","",0,"")
+                    val intent=Intent(this@SignUpActivity, OTPActivity::class.java)
+                    intent.putExtra("userModel",userModel)
+                    intent.putExtra("uri",uri.toString())
+                    startActivity(intent)
+                    finish()
+                    dialog.dismiss()
 
                }
             }

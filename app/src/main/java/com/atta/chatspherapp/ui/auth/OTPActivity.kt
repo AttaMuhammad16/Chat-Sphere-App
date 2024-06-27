@@ -10,6 +10,7 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivityOtpactivityBinding
+import com.atta.chatspherapp.models.ContactModel
 import com.atta.chatspherapp.ui.activities.MainActivity
 import com.atta.chatspherapp.ui.viewmodel.AuthViewModel
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
@@ -19,6 +20,7 @@ import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.startCountdownTimer
 import com.atta.chatspherapp.models.UserModel
+import com.atta.chatspherapp.utils.Constants.CONTACTS
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthProvider
@@ -210,10 +212,17 @@ class OTPActivity : AppCompatActivity() {
                     }
 
                     urlResult.whenSuccess {it->
+                        val key=auth.currentUser!!.uid
                         val currentTime = System.currentTimeMillis()
                         userModel?.timeStamp = currentTime
                         userModel?.profileUrl = it
-                        userModel?.key=auth.currentUser!!.uid
+                        userModel?.key=key
+
+                        if (!userModel?.phone.isNullOrEmpty()){
+                            lifecycleScope.launch {
+                                mainViewModel.uploadAnyModel("$CONTACTS/$key", ContactModel(userModel!!.phone))
+                            }
+                        }
 
                         lifecycleScope.launch {
                             val uploadResult = mainViewModel.uploadAnyModel("Users",userModel!!)
