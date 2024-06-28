@@ -15,6 +15,8 @@ object Constants {
     const val DOCUMENT="document"
     const val NUMBEROFMESSAGES="numberOfMessages"
     const val FCMTOENNODE="token"
+    const val ACTIVITYSTATEOFTHEUSER="activityState"
+    const val CHATTINGWITH="chattingWith"
 
 
     //sender

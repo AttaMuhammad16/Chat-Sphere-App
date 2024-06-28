@@ -3,6 +3,7 @@ package com.atta.chatspherapp.data.main
 
 import android.util.Log
 import com.atta.chatspherapp.models.ContactModel
+import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.utils.Constants.NUMBEROFMESSAGES
 import com.atta.chatspherapp.utils.Constants.PHONE
 import com.atta.chatspherapp.utils.MyExtensions.logT
@@ -180,6 +181,23 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
         } catch (e: Exception) {
             MyResult.Error(e.message.toString())
         }
+    }
+
+    override suspend fun getAnyModelFlow(path: String,userModel: UserModel): Flow<UserModel>  = callbackFlow{
+        val childRef = databaseReference.child(path)
+        val valueEventListener = object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val model = snapshot.getValue(userModel::class.java)
+                if (model!=null){
+                    trySend(model).isSuccess
+                }
+            }
+            override fun onCancelled(error: DatabaseError) {
+                close(error.toException())
+            }
+        }
+        childRef.addValueEventListener(valueEventListener)
+        awaitClose { childRef.removeEventListener(valueEventListener) }
     }
 
 

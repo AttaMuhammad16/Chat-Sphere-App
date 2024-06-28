@@ -394,11 +394,6 @@ class ChatAdapter(
         }
 
 
-//        holder.itemView.setOnLongClickListener { v ->
-//            showEmojiDialogOnLongClick(data,position,v)
-//            true
-//        }
-
         holder.itemView.setOnLongClickListener { v ->
             longClicked.invoke(v,true,data,position)
             true
@@ -421,94 +416,93 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                if (data.referenceMessageSenderName.isNotEmpty()){
+                if (data.senderUid==myUid){
+                    holder.messageOwnerNameTv.text="you"
+                }else{
+                    holder.messageOwnerNameTv.text=data.referenceMessageSenderName
+                }
 
+                if(data.referenceMessage.isNotEmpty()){
                     holder.reference_card.visibility=View.VISIBLE
 
-                    if (data.senderUid==myUid){
-                        holder.messageOwnerNameTv.text="you"
-                    }else{
-                        holder.messageOwnerNameTv.text=data.referenceMessageSenderName
-                    }
+                    holder.referenceMessageTv.visibility=View.VISIBLE
+                    holder.refMessageLinear.visibility=View.VISIBLE
+                    holder.documentImg.visibility=View.GONE
 
-                    if(data.referenceMessage.isNotEmpty()){
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
+                    holder.refImgCard.visibility=View.GONE
 
-                        holder.referenceMessageTv.visibility=View.VISIBLE
-                        holder.refMessageLinear.visibility=View.VISIBLE
-                        holder.documentImg.visibility=View.GONE
+                    holder.referenceMessageTv.text=data.referenceMessage
 
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
-                        holder.refImgCard.visibility=View.GONE
-
-                        holder.referenceMessageTv.text=data.referenceMessage
-
-                    }else if (data.referenceImgUrl.isNotEmpty()){
-
-                        holder.referenceMessageTv.visibility=View.GONE
-                        holder.refMessageLinear.visibility=View.GONE
-                        holder.documentImg.visibility=View.GONE
-
-                        holder.photoLinear.visibility=View.VISIBLE
-                        holder.referenceImage.visibility=View.VISIBLE
-                        holder.refImgCard.visibility=View.VISIBLE
-                        holder.refImgType.setImageResource(R.drawable.photo)
-                        holder.refType.text="photo"
-                        Glide.with(context).load(data.referenceImgUrl).placeholder(R.drawable.photo).into(holder.referenceImage)
-
-                    }else if (data.referenceVideoUrl.isNotEmpty()){
-
-                        holder.referenceMessageTv.visibility=View.GONE
-                        holder.refMessageLinear.visibility=View.GONE
-                        holder.documentImg.visibility=View.GONE
-
-                        holder.photoLinear.visibility=View.VISIBLE
-                        holder.referenceImage.visibility=View.VISIBLE
-                        holder.refImgCard.visibility=View.VISIBLE
-
-                        holder.refImgType.setImageResource(R.drawable.video)
-                        holder.refType.text="video"
-                        holder.referenceImage.loadThumbnail(data.referenceVideoUrl)
-
-                    }else if (data.referenceDocumentName.isNotEmpty()){
-
-                        holder.referenceMessageTv.text=data.referenceDocumentName
-                        holder.documentImg.setImageResource(R.drawable.file)
-
-                        holder.refMessageLinear.visibility=View.VISIBLE
-                        holder.referenceMessageTv.visibility=View.VISIBLE
-                        holder.documentImg.visibility=View.VISIBLE
-
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
-                        holder.refImgCard.visibility=View.GONE
+                }else if (data.referenceImgUrl.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
 
 
-                    }else if(data.referenceVoiceUrl.isNotEmpty()){
+                    holder.referenceMessageTv.visibility=View.GONE
+                    holder.refMessageLinear.visibility=View.GONE
+                    holder.documentImg.visibility=View.GONE
 
-                        holder.referenceMessageTv.text="Voice message"
-                        holder.documentImg.setImageResource(R.drawable.baseline_keyboard_voice_24)
+                    holder.photoLinear.visibility=View.VISIBLE
+                    holder.referenceImage.visibility=View.VISIBLE
+                    holder.refImgCard.visibility=View.VISIBLE
+                    holder.refImgType.setImageResource(R.drawable.photo)
+                    holder.refType.text="photo"
+                    Glide.with(context).load(data.referenceImgUrl).placeholder(R.drawable.photo).into(holder.referenceImage)
 
-                        holder.refMessageLinear.visibility=View.VISIBLE
-                        holder.referenceMessageTv.visibility=View.VISIBLE
-                        holder.documentImg.visibility=View.VISIBLE
+                }else if (data.referenceVideoUrl.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
+
+                    holder.referenceMessageTv.visibility=View.GONE
+                    holder.refMessageLinear.visibility=View.GONE
+                    holder.documentImg.visibility=View.GONE
+
+                    holder.photoLinear.visibility=View.VISIBLE
+                    holder.referenceImage.visibility=View.VISIBLE
+                    holder.refImgCard.visibility=View.VISIBLE
+
+                    holder.refImgType.setImageResource(R.drawable.video)
+                    holder.refType.text="video"
+                    holder.referenceImage.loadThumbnail(data.referenceVideoUrl)
+
+                }else if (data.referenceDocumentName.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
+
+                    holder.referenceMessageTv.text=data.referenceDocumentName
+                    holder.documentImg.setImageResource(R.drawable.file)
+
+                    holder.refMessageLinear.visibility=View.VISIBLE
+                    holder.referenceMessageTv.visibility=View.VISIBLE
+                    holder.documentImg.visibility=View.VISIBLE
+
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
+                    holder.refImgCard.visibility=View.GONE
 
 
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
-                        holder.refImgCard.visibility=View.GONE
+                }else if(data.referenceVoiceUrl.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
 
-                    }else{
+                    holder.referenceMessageTv.text="Voice message"
+                    holder.documentImg.setImageResource(R.drawable.baseline_keyboard_voice_24)
 
-                        holder.referenceMessageTv.visibility=View.GONE
-                        holder.refMessageLinear.visibility=View.GONE
-                        holder.documentImg.visibility=View.GONE
+                    holder.refMessageLinear.visibility=View.VISIBLE
+                    holder.referenceMessageTv.visibility=View.VISIBLE
+                    holder.documentImg.visibility=View.VISIBLE
 
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
 
-                    }
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
+                    holder.refImgCard.visibility=View.GONE
+
                 }else{
+
+                    holder.referenceMessageTv.visibility=View.GONE
+                    holder.refMessageLinear.visibility=View.GONE
+                    holder.documentImg.visibility=View.GONE
+
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
                     holder.reference_card.visibility=View.GONE
                 }
 
@@ -579,8 +573,8 @@ class ChatAdapter(
                         holder.angryImg.visibility = View.VISIBLE
                     }
                 }
-
             }
+
             is ReceiverViewHolder -> {
 
                 holder.receiverMessageText.text = data.message
@@ -590,98 +584,95 @@ class ChatAdapter(
                 holder.feelingCard.setOnClickListener{
                     showReactedBottomSheet(data)
                 }
+                if (data.senderUid==myUid){
+                    holder.messageOwnerNameTv.text="you"
+                }else{
+                    holder.messageOwnerNameTv.text=data.referenceMessageSenderName
+                }
 
-
-                if (data.referenceMessageSenderName.isNotEmpty()){
-
+                if(data.referenceMessage.isNotEmpty()){
                     holder.reference_card.visibility=View.VISIBLE
 
-                    if (data.senderUid==myUid){
-                        holder.messageOwnerNameTv.text="you"
-                    }else{
-                        holder.messageOwnerNameTv.text=data.referenceMessageSenderName
-                    }
+                    holder.referenceMessageTv.visibility=View.VISIBLE
+                    holder.refMessageLinear.visibility=View.VISIBLE
+                    holder.documentImg.visibility=View.GONE
 
-                    if(data.referenceMessage.isNotEmpty()){
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
+                    holder.refImgCard.visibility=View.GONE
 
-                        holder.referenceMessageTv.visibility=View.VISIBLE
-                        holder.refMessageLinear.visibility=View.VISIBLE
-                        holder.documentImg.visibility=View.GONE
+                    holder.referenceMessageTv.text=data.referenceMessage
 
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
-                        holder.refImgCard.visibility=View.GONE
+                }else if (data.referenceImgUrl.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
 
-                        holder.referenceMessageTv.text=data.referenceMessage
+                    holder.referenceMessageTv.visibility=View.GONE
+                    holder.refMessageLinear.visibility=View.GONE
+                    holder.documentImg.visibility=View.GONE
 
-                    }else if (data.referenceImgUrl.isNotEmpty()){
+                    holder.photoLinear.visibility=View.VISIBLE
+                    holder.referenceImage.visibility=View.VISIBLE
+                    holder.refImgCard.visibility=View.VISIBLE
+                    holder.refImgType.setImageResource(R.drawable.photo)
+                    holder.refType.text="photo"
+                    Glide.with(context).load(data.referenceImgUrl).placeholder(R.drawable.photo).into(holder.referenceImage)
 
-                        holder.referenceMessageTv.visibility=View.GONE
-                        holder.refMessageLinear.visibility=View.GONE
-                        holder.documentImg.visibility=View.GONE
+                }else if (data.referenceVideoUrl.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
 
-                        holder.photoLinear.visibility=View.VISIBLE
-                        holder.referenceImage.visibility=View.VISIBLE
-                        holder.refImgCard.visibility=View.VISIBLE
-                        holder.refImgType.setImageResource(R.drawable.photo)
-                        holder.refType.text="photo"
-                        Glide.with(context).load(data.referenceImgUrl).placeholder(R.drawable.photo).into(holder.referenceImage)
+                    holder.referenceMessageTv.visibility=View.GONE
+                    holder.refMessageLinear.visibility=View.GONE
+                    holder.documentImg.visibility=View.GONE
 
-                    }else if (data.referenceVideoUrl.isNotEmpty()){
+                    holder.photoLinear.visibility=View.VISIBLE
+                    holder.referenceImage.visibility=View.VISIBLE
+                    holder.refImgCard.visibility=View.VISIBLE
 
-                        holder.referenceMessageTv.visibility=View.GONE
-                        holder.refMessageLinear.visibility=View.GONE
-                        holder.documentImg.visibility=View.GONE
+                    holder.refImgType.setImageResource(R.drawable.video)
+                    holder.refType.text="video"
+                    holder.referenceImage.loadThumbnail(data.referenceVideoUrl)
 
-                        holder.photoLinear.visibility=View.VISIBLE
-                        holder.referenceImage.visibility=View.VISIBLE
-                        holder.refImgCard.visibility=View.VISIBLE
+                }else if (data.referenceDocumentName.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
 
-                        holder.refImgType.setImageResource(R.drawable.video)
-                        holder.refType.text="video"
-                        holder.referenceImage.loadThumbnail(data.referenceVideoUrl)
+                    holder.referenceMessageTv.text=data.referenceDocumentName
+                    holder.documentImg.setImageResource(R.drawable.file)
 
-                    }else if (data.referenceDocumentName.isNotEmpty()){
+                    holder.refMessageLinear.visibility=View.VISIBLE
+                    holder.referenceMessageTv.visibility=View.VISIBLE
+                    holder.documentImg.visibility=View.VISIBLE
 
-                        holder.referenceMessageTv.text=data.referenceDocumentName
-                        holder.documentImg.setImageResource(R.drawable.file)
-
-                        holder.refMessageLinear.visibility=View.VISIBLE
-                        holder.referenceMessageTv.visibility=View.VISIBLE
-                        holder.documentImg.visibility=View.VISIBLE
-
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
-                        holder.refImgCard.visibility=View.GONE
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
+                    holder.refImgCard.visibility=View.GONE
 
 
-                    }else if(data.referenceVoiceUrl.isNotEmpty()){
+                }else if(data.referenceVoiceUrl.isNotEmpty()){
+                    holder.reference_card.visibility=View.VISIBLE
 
-                        holder.referenceMessageTv.text="Voice message"
-                        holder.documentImg.setImageResource(R.drawable.baseline_keyboard_voice_24)
+                    holder.referenceMessageTv.text="Voice message"
+                    holder.documentImg.setImageResource(R.drawable.baseline_keyboard_voice_24)
 
-                        holder.refMessageLinear.visibility=View.VISIBLE
-                        holder.referenceMessageTv.visibility=View.VISIBLE
-                        holder.documentImg.visibility=View.VISIBLE
+                    holder.refMessageLinear.visibility=View.VISIBLE
+                    holder.referenceMessageTv.visibility=View.VISIBLE
+                    holder.documentImg.visibility=View.VISIBLE
 
 
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
-                        holder.refImgCard.visibility=View.GONE
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
+                    holder.refImgCard.visibility=View.GONE
 
-                    }else{
-
-                        holder.referenceMessageTv.visibility=View.GONE
-                        holder.refMessageLinear.visibility=View.GONE
-                        holder.documentImg.visibility=View.GONE
-
-                        holder.photoLinear.visibility=View.GONE
-                        holder.referenceImage.visibility=View.GONE
-
-                    }
                 }else{
+
+                    holder.referenceMessageTv.visibility=View.GONE
+                    holder.refMessageLinear.visibility=View.GONE
+                    holder.documentImg.visibility=View.GONE
+
+                    holder.photoLinear.visibility=View.GONE
+                    holder.referenceImage.visibility=View.GONE
                     holder.reference_card.visibility=View.GONE
                 }
+
 
 
 

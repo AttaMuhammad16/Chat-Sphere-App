@@ -12,5 +12,7 @@ data class UserModel(
     var coverUrl: String = "",
     var timeStamp: Long = 0,
     var token: String = "",
+    var activityState:Boolean=false,
+    var chattingWith:String="",
     var status:String=""
 ) : Parcelable

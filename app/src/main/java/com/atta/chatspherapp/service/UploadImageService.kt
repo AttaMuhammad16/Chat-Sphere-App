@@ -20,8 +20,14 @@ import com.atta.chatspherapp.data.main.MainRepository
 import com.atta.chatspherapp.models.MessageModel
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
+import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.MyResult
+import com.atta.chatspherapp.utils.NewUtils.getAccessToken
+import com.atta.chatspherapp.utils.NewUtils.showToast
+import com.atta.chatspherapp.utils.SendNotification
 import com.atta.chatspherapp.utils.SharedPreferencesHelper
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +35,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -45,6 +52,11 @@ class UploadImageService : Service() {
     lateinit var storageReference: StorageReference
     @Inject
     lateinit var mainRepository: MainRepository
+
+    @Inject
+    lateinit var mainViewModel: MainViewModel
+    @Inject
+    lateinit var auth:FirebaseAuth
 
     lateinit var preferencesHelper: SharedPreferencesHelper
 
@@ -82,6 +94,8 @@ class UploadImageService : Service() {
                 val senderUid = intent.getStringExtra("userUid")
                 val time = intent.getLongExtra("time",0)
                 val key = intent.getStringExtra("key")!!
+                val myModel = intent.getParcelableExtra<UserModel>("myModel")!!
+                val userModel = intent.getParcelableExtra<UserModel>("userModel")!!
 
                 preferencesHelper.saveString(key,uri)
 
@@ -113,6 +127,9 @@ class UploadImageService : Service() {
                             Log.i("TAG", "onStartCommand:$it")
                         }
                         uploadResult.whenSuccess {
+//                            CoroutineScope(Dispatchers.IO).launch {
+//                                sendNotification("Image",myModel,userModel)
+//                            }
                             stopSelf()
                             deleteNotification(notificationManager)
                         }
@@ -198,6 +215,29 @@ class UploadImageService : Service() {
             MyResult.Error(e.message ?: "Unknown error occurred")
         }
     }
+
+
+//    suspend fun sendNotification(message: String,myModel:UserModel,userModel: UserModel) {
+//        mainViewModel.isUserInActivity.collect {
+//            if (!it&&myModel.key!=userModel.chattingWith) {
+//                withContext(Dispatchers.IO){
+//                    val accessToken = getAccessToken(this@UploadImageService)
+//                    if (!accessToken.isNullOrEmpty()) {
+//                        SendNotification.sendMessageNotification(
+//                            myModel.fullName,
+//                            message,
+//                            userModel.token,
+//                            accessToken
+//                        )
+//                    } else {
+//                        showToast("your access token is not found")
+//                    }
+//                }
+//            }
+//        }
+//    }
+
+
 
 
 

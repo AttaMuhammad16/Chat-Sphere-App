@@ -1,9 +1,11 @@
 package com.atta.chatspherapp.ui.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.atta.chatspherapp.data.auth.AuthRepository
 import com.atta.chatspherapp.data.main.MainRepository
 import com.atta.chatspherapp.data.storage.StorageRepository
+import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.utils.MyResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +19,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private val authRepository: AuthRepository, private val storageRepository: StorageRepository, private val mainRepository: MainRepository):ViewModel() {
     var isRecentChatUploaded:MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private var _isUserInActivity:MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
 
     fun <T> collectAnyModel(path: String, clazz: Class<T>, numberOfItems: Int = 0): Flow<List<T>>{
         return mainRepository.collectAnyModel(path, clazz, numberOfItems)
@@ -48,6 +52,14 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
 
     suspend fun uploadMap(path: String, dataMap: HashMap<String,Any>): MyResult<Boolean>{
         return withContext(Dispatchers.IO){mainRepository.uploadMap(path, dataMap)}
+    }
+
+    suspend fun getAnyModelFlow(path: String,userModel: UserModel){
+        val model=mainRepository.getAnyModelFlow(path, userModel)
+        model.collect{
+            Log.i("TAG", "getAnyModelFlow:$it")
+            _isUserInActivity.value=it.activityState
+        }
     }
 
 

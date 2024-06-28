@@ -69,10 +69,13 @@ import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
 import com.atta.chatspherapp.managers.NotificationManager.Companion.clearNotifications
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.utils.Constants
+import com.atta.chatspherapp.utils.Constants.ACTIVITYSTATEOFTHEUSER
+import com.atta.chatspherapp.utils.Constants.CHATTINGWITH
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
 import com.atta.chatspherapp.utils.Constants.IMAGE
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.TEXT
+import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.MyExtensions.shrink
@@ -146,7 +149,7 @@ class ChatActivity : AppCompatActivity() {
     lateinit var auth: FirebaseAuth
     var myModel=UserModel()
     var fromRecentChat=false
-    var isRecentChatUploaded=false
+    var userActivityState:Boolean=false
 
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
@@ -166,6 +169,13 @@ class ChatActivity : AppCompatActivity() {
         userModel = intent.getParcelableExtra("userModel")
         myModel = intent.getParcelableExtra("myModel")!!
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
+
+        lifecycleScope.launch {
+            updateActivityState(true,userModel!!.key)
+            mainViewModel.getAnyModelFlow(USERS+"/"+userModel?.key,UserModel())
+        }
+
+
 
         if (fromRecentChat){
             lifecycleScope.launch(Dispatchers.IO) {
@@ -236,21 +246,28 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
+        lifecycleScope.launch(Dispatchers.IO) {
+            mainViewModel.isRecentChatUploaded.collect{
+                if (it){
+                    mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
+                    val isUserAvailable=mainViewModel.isUserInActivity.value
+                    if (isUserAvailable){
+                        mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+userModel!!.key+"/"+myModel.key)
+                    }
+                    mainViewModel.isRecentChatUploaded.value=false
+                }
+            }
+        }
+
+
+
+
         binding.recyclerView.adapter = adapter
         layoutManager.stackFromEnd=true
 
         lifecycleScope.launch {
 
             mainViewModel.collectAnyModel(chatUploadPath, MessageModel::class.java).collect {
-
-                lifecycleScope.launch(Dispatchers.IO) {
-                    mainViewModel.isRecentChatUploaded.collect{
-                        if (it){
-                            mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
-                        }
-                        mainViewModel.isRecentChatUploaded.value=false
-                    }
-                }
 
                 if (it.isNotEmpty()){
                     list=it as ArrayList
@@ -260,9 +277,7 @@ class ChatActivity : AppCompatActivity() {
                 adapter.notifyDataSetChanged()
                 setAdapter(adapter)
             }
-
         }
-
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -323,7 +338,7 @@ class ChatActivity : AppCompatActivity() {
                 binding.voiceRefConstraint.visibility= View.GONE
 
                 binding.refMessageTv.text=messageModel.message
-                binding.nameTv.text=messageModel.senderName
+                binding.nameTv.text=myModel.fullName
 
             }else if (messageModel.imageUrl.isNotEmpty()){
 
@@ -332,7 +347,7 @@ class ChatActivity : AppCompatActivity() {
                 binding.documentImg.visibility= View.GONE
                 binding.voiceRefConstraint.visibility= View.GONE
 
-                binding.refNameForImg.text=messageModel.senderName
+                binding.refNameForImg.text=myModel.fullName
                 Glide.with(this@ChatActivity).load(messageModel.imageUrl).placeholder(R.drawable.photo).into(binding.refImg)
                 binding.referenceImageType.setImageResource(R.drawable.photo)
                 binding.typeTv.text="photo"
@@ -344,7 +359,7 @@ class ChatActivity : AppCompatActivity() {
                 binding.documentImg.visibility= View.GONE
                 binding.voiceRefConstraint.visibility= View.GONE
 
-                binding.refNameForImg.text=messageModel.senderName
+                binding.refNameForImg.text=myModel.fullName
                 binding.referenceImageType.setImageResource(R.drawable.video)
                 binding.typeTv.text="video"
                 binding.refImg.loadThumbnail(messageModel.videoUrl)
@@ -361,7 +376,7 @@ class ChatActivity : AppCompatActivity() {
             }else if (messageModel.voiceUrl.isNotEmpty()){
 
                 binding.voiceRefConstraint.visibility= View.VISIBLE
-                binding.refNameForVoice.text=messageModel.senderName
+                binding.refNameForVoice.text=myModel.fullName
 
                 binding.imgRefConstraint.visibility= View.GONE
                 binding.tvRefLinear.visibility= View.GONE
@@ -399,7 +414,6 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-
         binding.attachment.setOnClickListener {
             pickDocument(pickDocumentRequestCode,this@ChatActivity)
         }
@@ -414,6 +428,7 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
+
         binding.voiceAndSendImage.setOnClickListener {
             val message = binding.messageBox.text.toString()
 
@@ -422,6 +437,7 @@ class ChatActivity : AppCompatActivity() {
 
                     withContext(Dispatchers.IO){
                         uploadToRecentChat(message,TEXT)
+                        sendNotification(message)
                     }
 
 
@@ -439,7 +455,7 @@ class ChatActivity : AppCompatActivity() {
                         imageUrl = "",
                         voiceUrl = "",
                         documentUrl = "",
-                        referenceMessageSenderName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.senderName.isNotEmpty()){referenceMessageModel.senderName} else{""},
+                        referenceMessageSenderName = myModel.fullName,
                         referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
                         referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
                         referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
@@ -464,16 +480,7 @@ class ChatActivity : AppCompatActivity() {
                     val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
 
                     messageUploadResult.whenSuccess {
-                        lifecycleScope.launch {
-                            myModel.apply {
-                                val accessToken= getAccessToken(this@ChatActivity)
-                                if (!accessToken.isNullOrEmpty()){
-                                    SendNotification.sendMessageNotification(fullName,message,userModel!!.token,accessToken)
-                                }else{
-                                    showToast("your access token is null")
-                                }
-                            }
-                        }
+
                     }
 
                     messageUploadResult.whenError {
@@ -560,6 +567,7 @@ class ChatActivity : AppCompatActivity() {
                             voiceUrl = it
                         )
                         mainViewModel.uploadAnyModel(chatUploadPath, messageModelForUpload)
+                        sendNotification("Voice")
                         adapter.notifyDataSetChanged()
                     }
                 }
@@ -705,6 +713,8 @@ class ChatActivity : AppCompatActivity() {
             intent.putExtra("userUid", userUid)
             intent.putExtra("time", time)
             intent.putExtra("key", key)
+            intent.putExtra("myModel", myModel)
+            intent.putExtra("userModel", userModel)
 
             val messageModel = MessageModel(
                 key=key,
@@ -721,8 +731,6 @@ class ChatActivity : AppCompatActivity() {
             list.add(messageModel)
             adapter.setList(list)
             adapter.notifyDataSetChanged()
-
-
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ContextCompat.startForegroundService(this, intent)
@@ -766,7 +774,6 @@ class ChatActivity : AppCompatActivity() {
             list.add(messageModel)
             adapter.setList(list)
             adapter.notifyDataSetChanged()
-
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ContextCompat.startForegroundService(this, intent)
@@ -1071,5 +1078,46 @@ class ChatActivity : AppCompatActivity() {
         }
     }
 
+    fun sendNotification(message:String){
+        lifecycleScope.launch {
+            mainViewModel.isUserInActivity.collect{
+                Log.i("isUserInActivity", "sendNotification called $it")
+                if (!it&&myModel.chattingWith!=userModel!!.chattingWith) {
+                    myModel.apply {
+                        val accessToken= getAccessToken(this@ChatActivity)
+                        if (!accessToken.isNullOrEmpty()){
+                            SendNotification.sendMessageNotification(fullName,message,userModel!!.token,accessToken)
+                        }else{
+                            showToast("your access token is not found")
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fun updateActivityState(bol:Boolean,chattingWithKey:String=""){
+        lifecycleScope.launch(Dispatchers.IO) {
+            val map=HashMap<String,Any>()
+            map[ACTIVITYSTATEOFTHEUSER] = bol
+            map[CHATTINGWITH] = chattingWithKey
+            mainViewModel.uploadMap(USERS+"/"+myModel.key,map)
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        updateActivityState(false)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        updateActivityState(false)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        updateActivityState(true,userModel!!.key)
+    }
 
 }
