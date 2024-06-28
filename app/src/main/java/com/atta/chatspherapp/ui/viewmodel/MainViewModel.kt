@@ -19,8 +19,12 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(private val authRepository: AuthRepository, private val storageRepository: StorageRepository, private val mainRepository: MainRepository):ViewModel() {
     var isRecentChatUploaded:MutableStateFlow<Boolean> = MutableStateFlow(false)
+
     private var _isUserInActivity:MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
+
+//    private var userChattingId:MutableStateFlow<Boolean> = MutableStateFlow(false)
+//    val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
 
     fun <T> collectAnyModel(path: String, clazz: Class<T>, numberOfItems: Int = 0): Flow<List<T>>{
         return mainRepository.collectAnyModel(path, clazz, numberOfItems)
@@ -57,7 +61,6 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
     suspend fun getAnyModelFlow(path: String,userModel: UserModel){
         val model=mainRepository.getAnyModelFlow(path, userModel)
         model.collect{
-            Log.i("TAG", "getAnyModelFlow:$it")
             _isUserInActivity.value=it.activityState
         }
     }

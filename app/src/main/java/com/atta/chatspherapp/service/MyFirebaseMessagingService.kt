@@ -68,6 +68,4 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
         showNotification(System.currentTimeMillis().toInt(), "Chat Sphere App", pendingIntent, this, title, messageBody)
     }
 
-
-
 }

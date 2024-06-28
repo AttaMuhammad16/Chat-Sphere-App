@@ -170,11 +170,11 @@ class ChatActivity : AppCompatActivity() {
         myModel = intent.getParcelableExtra("myModel")!!
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
 
+
         lifecycleScope.launch {
             updateActivityState(true,userModel!!.key)
             mainViewModel.getAnyModelFlow(USERS+"/"+userModel?.key,UserModel())
         }
-
 
 
         if (fromRecentChat){
@@ -183,7 +183,6 @@ class ChatActivity : AppCompatActivity() {
                 clearNotifications(this@ChatActivity)
             }
         }
-
 
         binding.toolBarTitle.text = userModel?.fullName
         chatUploadPath = "room/"+getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)
@@ -437,9 +436,7 @@ class ChatActivity : AppCompatActivity() {
 
                     withContext(Dispatchers.IO){
                         uploadToRecentChat(message,TEXT)
-                        sendNotification(message)
                     }
-
 
                     val key=databaseReference.push().key.toString()
 
@@ -1031,11 +1028,9 @@ class ChatActivity : AppCompatActivity() {
                         } else if (data.voiceUrl.isNotEmpty()) {
                             storageViewModel.deleteDocumentToFirebaseStorage(data.voiceUrl)
                         }
-
                     }
 
                 } else if (it == 2) {
-
                     scope.launch {
                         val map = HashMap<String, Any>()
                         map["deleteMessageFromMe"] = true
@@ -1043,7 +1038,6 @@ class ChatActivity : AppCompatActivity() {
                         showToast( "message deleted.")
                     }
                 }
-
             } else { // will run for receiver
 
                 scope.launch {
@@ -1063,6 +1057,8 @@ class ChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
 
+            sendNotification(recentMessage)
+
             val numberOfMessagesForReceiver=mainViewModel.getAnyData(RECENTCHAT+"/"+userModel!!.key+"/"+myModel.key, RecentChatModel::class.java)?.numberOfMessages?:0
 
             val timeStamp=System.currentTimeMillis()
@@ -1080,9 +1076,11 @@ class ChatActivity : AppCompatActivity() {
 
     fun sendNotification(message:String){
         lifecycleScope.launch {
-            mainViewModel.isUserInActivity.collect{
-                Log.i("isUserInActivity", "sendNotification called $it")
-                if (!it&&myModel.chattingWith!=userModel!!.chattingWith) {
+            val bol=mainViewModel.isUserInActivity.value
+            Log.i("TAG", "chatting id :${myModel.chattingWith}")
+            Log.i("TAG", "user id :${userModel!!.key}")
+            if (!bol) {
+                if (myModel.chattingWith!=userModel!!.chattingWith){
                     myModel.apply {
                         val accessToken= getAccessToken(this@ChatActivity)
                         if (!accessToken.isNullOrEmpty()){
@@ -1091,6 +1089,8 @@ class ChatActivity : AppCompatActivity() {
                             showToast("your access token is not found")
                         }
                     }
+                }else{
+                    Log.i("TAG", "notification not send ids are same")
                 }
             }
         }

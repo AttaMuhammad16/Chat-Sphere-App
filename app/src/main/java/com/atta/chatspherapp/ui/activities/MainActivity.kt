@@ -47,7 +47,7 @@ class MainActivity : AppCompatActivity() {
     lateinit var binding:ActivityMainBinding
     @Inject
     lateinit var mainViewModel: MainViewModel
-    var myModel=UserModel()
+    var myModel:UserModel?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,11 +72,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            myModel=mainViewModel.getAnyData("$USERS/${auth.currentUser!!.uid}",UserModel::class.java)!!
+            myModel=mainViewModel.getAnyData("$USERS/${auth.currentUser!!.uid}",UserModel::class.java)
         }
 
         binding.profileSettingImg.setOnClickListener {
-            if (myModel.fullName.isNotEmpty()){
+            if (myModel!=null){
                 val intent=Intent(this@MainActivity,ProfileSettingActivity::class.java)
                 intent.putExtra("myModel",myModel)
                 startActivity(intent)
@@ -120,7 +120,7 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     binding.mainConstraint.setOnClickListener {
-                        if (myModel.fullName.isNotEmpty()){
+                        if (myModel!=null){
                             val intent=Intent(this@MainActivity, ChatActivity::class.java)
                             intent.putExtra("userModel",recentModel.userModel)
                             intent.putExtra("myModel",myModel)

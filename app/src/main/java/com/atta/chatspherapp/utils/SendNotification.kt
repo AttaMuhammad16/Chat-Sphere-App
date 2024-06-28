@@ -61,6 +61,7 @@ object SendNotification {
             .addHeader("Authorization", "Bearer $accessToken")
             .addHeader("Content-Type", "application/json")
             .build()
+
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 println("Failed to send notification: ${e.message}")
@@ -77,6 +78,7 @@ object SendNotification {
                 }
             }
         })
+
     }
 
 

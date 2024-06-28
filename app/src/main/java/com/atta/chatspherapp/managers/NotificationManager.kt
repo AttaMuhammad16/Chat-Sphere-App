@@ -18,17 +18,22 @@ import com.atta.chatspherapp.R
 class NotificationManager {
 
     companion object {
+
         private const val GROUP_KEY_CHAT = "com.chatspherapp.CHAT"
         private const val SUMMARY_ID = 0
         private val messages = mutableListOf<String>()
 
+
         @SuppressLint("MissingPermission")
         fun showNotification(id: Int, channelId: String, pendingIntent: PendingIntent?, context: Context, title: String, message: String) {
+
             val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 val channel = NotificationChannel(channelId, "Chat Sphere Messages Notification", NotificationManager.IMPORTANCE_HIGH)
                 notificationManager.createNotificationChannel(channel)
             }
+
             // Add the new message to the list
             messages.add("""
                $title
@@ -40,6 +45,7 @@ class NotificationManager {
             for (msg in messages) {
                 inboxStyle.addLine(msg)
             }
+
             inboxStyle.setSummaryText("${messages.size} new messages")
 
             val summaryNotification = NotificationCompat.Builder(context, channelId)
@@ -50,6 +56,7 @@ class NotificationManager {
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setGroup(GROUP_KEY_CHAT)
                 .setGroupSummary(true)
+                .setContentIntent(pendingIntent)
                 .build()
 
             // Notify the summary notification
