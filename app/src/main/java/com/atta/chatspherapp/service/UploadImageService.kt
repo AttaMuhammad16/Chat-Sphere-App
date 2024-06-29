@@ -201,7 +201,7 @@ class UploadImageService : Service() {
 
     suspend fun uploadImageToFirebaseStorage(uri: Uri, percentage: (Int) -> Unit): MyResult<String> {
         return try {
-            val uploadTask = storageReference.child(System.currentTimeMillis().toString()).putFile(uri)
+            val uploadTask = storageReference.child("chatImages/${System.currentTimeMillis()}").putFile(uri)
 
             uploadTask.addOnProgressListener { taskSnapshot ->
                 val progress = ((100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount).toInt()
@@ -217,25 +217,6 @@ class UploadImageService : Service() {
     }
 
 
-//    suspend fun sendNotification(message: String,myModel:UserModel,userModel: UserModel) {
-//        mainViewModel.isUserInActivity.collect {
-//            if (!it&&myModel.key!=userModel.chattingWith) {
-//                withContext(Dispatchers.IO){
-//                    val accessToken = getAccessToken(this@UploadImageService)
-//                    if (!accessToken.isNullOrEmpty()) {
-//                        SendNotification.sendMessageNotification(
-//                            myModel.fullName,
-//                            message,
-//                            userModel.token,
-//                            accessToken
-//                        )
-//                    } else {
-//                        showToast("your access token is not found")
-//                    }
-//                }
-//            }
-//        }
-//    }
 
 
 

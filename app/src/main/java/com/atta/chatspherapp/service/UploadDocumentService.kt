@@ -184,7 +184,7 @@ class UploadDocumentService : Service() {
 
     suspend fun uploadDocumentToFirebaseStorage(uri: Uri, percentage: (Int) -> Unit): MyResult<String> {
         return try {
-            val uploadTask = storageReference.child(System.currentTimeMillis().toString()).putFile(uri)
+            val uploadTask = storageReference.child("documents/${System.currentTimeMillis()}").putFile(uri)
 
             uploadTask.addOnProgressListener { taskSnapshot ->
                 val progress = ((100.0 * taskSnapshot.bytesTransferred) / taskSnapshot.totalByteCount).toInt()

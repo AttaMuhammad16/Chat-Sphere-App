@@ -11,7 +11,7 @@ import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivityOtpactivityBinding
 import com.atta.chatspherapp.models.ContactModel
-import com.atta.chatspherapp.ui.activities.MainActivity
+import com.atta.chatspherapp.ui.activities.recentchat.MainActivity
 import com.atta.chatspherapp.ui.viewmodel.AuthViewModel
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.ui.viewmodel.StorageViewModel

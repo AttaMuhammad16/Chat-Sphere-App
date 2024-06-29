@@ -9,6 +9,8 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.DownloadManager
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -29,6 +31,7 @@ import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.animation.Animation
+import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
@@ -481,7 +484,7 @@ object NewUtils {
     ): MyResult<String> {
         return try {
             val storageReference = Firebase.storage.reference
-            val uploadTask = storageReference.child("${System.currentTimeMillis()}.mp4").putFile(videoUri)
+            val uploadTask = storageReference.child("chatVideos/${System.currentTimeMillis()}.mp4").putFile(videoUri)
             uploadTask.addOnProgressListener { taskSnapshot ->
                 val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount).toInt()
                 progressCallBack(progress)
@@ -861,6 +864,15 @@ object NewUtils {
             .into(this)
     }
 
+    fun ImageView.loadImageViaLink(url:String) {
+        Glide.with(this.context)
+            .load(url)
+            .placeholder(R.drawable.person)
+            .into(this)
+    }
+
+
+
     fun formatDateFromMillis(milliseconds: Long): String {
         val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
         val date = Date(milliseconds)
@@ -894,6 +906,30 @@ object NewUtils {
         }
     }
 
+
+    fun Context.copyContentText(data:String,view:View){
+        val text = data
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val clip = ClipData.newPlainText("message copied", text)
+        clipboard.setPrimaryClip(clip)
+
+        val zoomInAnimation = ScaleAnimation(1f, 1.2f, 1f, 1.2f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        zoomInAnimation.duration = 300
+        zoomInAnimation.fillAfter = true
+        zoomInAnimation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation) {}
+            override fun onAnimationEnd(animation: Animation) {
+                val zoomOutAnimation = ScaleAnimation(1.2f, 1f, 1.2f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                zoomOutAnimation.duration = 300
+                zoomOutAnimation.fillAfter = true
+                view.startAnimation(zoomOutAnimation)
+                view.visibility=View.GONE
+            }
+            override fun onAnimationRepeat(animation: Animation) {}
+        })
+        view.startAnimation(zoomInAnimation)
+        showToast("message copied.")
+    }
 
 
 }

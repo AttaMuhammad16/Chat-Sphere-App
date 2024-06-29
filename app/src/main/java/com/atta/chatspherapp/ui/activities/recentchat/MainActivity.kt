@@ -1,9 +1,7 @@
-package com.atta.chatspherapp.ui.activities
+package com.atta.chatspherapp.ui.activities.recentchat
 
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -12,31 +10,25 @@ import com.atta.chatspherapp.databinding.ActivityMainBinding
 import com.atta.chatspherapp.databinding.RecentChatSampleRowBinding
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.models.UserModel
+import com.atta.chatspherapp.ui.activities.searchanyuser.SearchUserForChatActivity
+import com.atta.chatspherapp.ui.activities.profile.ProfileSettingActivity
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.USERS
-import com.atta.chatspherapp.utils.NewUtils.getAccessToken
+import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
-import com.atta.chatspherapp.utils.SendNotification
-import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.FileInputStream
-import java.io.IOException
-import java.io.InputStream
-import java.util.Arrays
 import javax.inject.Inject
 
 
@@ -68,8 +60,9 @@ class MainActivity : AppCompatActivity() {
 
 
         binding.chatCard.setOnClickListener{
-            startActivity(Intent(this@MainActivity,SearchUserForChatActivity::class.java))
+            startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
         }
+
 
         lifecycleScope.launch {
             myModel=mainViewModel.getAnyData("$USERS/${auth.currentUser!!.uid}",UserModel::class.java)
@@ -77,7 +70,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.profileSettingImg.setOnClickListener {
             if (myModel!=null){
-                val intent=Intent(this@MainActivity,ProfileSettingActivity::class.java)
+                val intent=Intent(this@MainActivity, ProfileSettingActivity::class.java)
                 intent.putExtra("myModel",myModel)
                 startActivity(intent)
             }else{
@@ -107,8 +100,7 @@ class MainActivity : AppCompatActivity() {
                 val sortedList = it.sortedByDescending { recentModel -> recentModel.timeStamp }
 
                 binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position ->
-
-                  Picasso.get().load(recentModel.userModel.profileUrl).placeholder(R.drawable.person).into(binding.profileImage)
+                    binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
 
                     binding.nameTv.text=recentModel.userModel.fullName
                     binding.recentMessage.text=recentModel.recentMessage
@@ -128,7 +120,6 @@ class MainActivity : AppCompatActivity() {
                             startActivity(intent)
                         }
                     }
-
                 }
             }
         }

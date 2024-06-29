@@ -7,7 +7,7 @@
     android:background="@color/very_very_light_cement"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".ui.activities.profile.ProfileSettingActivity">
+    tools:context=".ui.activities.profile.SeeUserProfileActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:layout_width="match_parent"
@@ -18,8 +18,8 @@
             android:id="@+id/backImg"
             android:layout_width="@dimen/_30sdp"
             android:layout_height="@dimen/_30sdp"
-            android:src="@drawable/baseline_arrow_back_24"
             android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/baseline_arrow_back_24"
             app:tint="@color/white" />
 
         <TextView
@@ -63,15 +63,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/cameraImg"
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
-                        android:layout_marginBottom="@dimen/_10sdp"
-                        android:src="@drawable/baseline_camera_alt_24"
-                        app:layout_constraintBottom_toBottomOf="@+id/profileImg"
-                        app:layout_constraintEnd_toEndOf="@+id/profileImg"
-                        app:tint="@color/very_light_grey" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout
@@ -116,14 +107,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/_13sdp" />
-
-                            <ImageView
-                                android:layout_width="@dimen/_25sdp"
-                                android:layout_height="@dimen/_25sdp"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/outline_edit_24"
-                                app:tint="@color/green" />
+                                android:textSize="@dimen/_15sdp" />
 
                         </LinearLayout>
                     </LinearLayout>
@@ -175,15 +159,9 @@
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
+                                android:text="Hey there! i am using chat sphere"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/_13sdp" />
-
-                            <ImageView
-                                android:layout_width="@dimen/_25sdp"
-                                android:layout_height="@dimen/_25sdp"
-                                android:layout_gravity="center_vertical"
-                                android:src="@drawable/outline_edit_24"
-                                app:tint="@color/green" />
+                                android:textSize="@dimen/_15sdp" />
 
                         </LinearLayout>
                     </LinearLayout>
@@ -195,6 +173,7 @@
                     android:background="@color/gray" />
 
                 <LinearLayout
+                    android:id="@+id/phoneLinear"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/_10sdp"
@@ -235,7 +214,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"
                                 android:textColor="@color/black"
-                                android:textSize="@dimen/_13sdp" />
+                                android:textSize="@dimen/_15sdp" />
 
                         </LinearLayout>
                     </LinearLayout>

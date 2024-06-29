@@ -1,4 +1,4 @@
-package com.atta.chatspherapp.ui.activities
+package com.atta.chatspherapp.ui.activities.profile
 
 import android.app.Activity
 import android.content.Intent
@@ -16,6 +16,7 @@ import com.atta.chatspherapp.databinding.ActivityProfileSettingBinding
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.ui.viewmodel.StorageViewModel
+import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.pickImageFromGallery
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
@@ -49,7 +50,7 @@ class ProfileSettingActivity : AppCompatActivity() {
 
         myModel?.apply {
             val s=if (status.isNotEmpty()){status}else{"Available"}
-            Picasso.get().load(profileUrl).placeholder(R.drawable.person).into(binding.profileImg)
+            binding.profileImg.loadImageViaLink(profileUrl)
             binding.userNameTv.text=fullName
             binding.statusTv.text=s
             binding.phoneNumberTv.text=phone

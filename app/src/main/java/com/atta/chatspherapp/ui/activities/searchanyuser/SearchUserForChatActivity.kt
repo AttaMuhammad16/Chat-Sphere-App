@@ -1,4 +1,4 @@
-package com.atta.chatspherapp.ui.activities
+package com.atta.chatspherapp.ui.activities.searchanyuser
 
 import android.content.Intent
 import android.os.Bundle
@@ -14,10 +14,10 @@ import com.atta.chatspherapp.databinding.UserSampleRowBinding
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
-import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.NewUtils.hideKeyboard
 import com.atta.chatspherapp.utils.NewUtils.hideWithRevealAnimation
+import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.onTextChange
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
@@ -110,7 +110,7 @@ class SearchUserForChatActivity : AppCompatActivity() {
 
         val userNumberTv = alert.findViewById<TextView>(R.id.numberTv)
         val userImage = alert.findViewById<ImageView>(R.id.imageView)
-        Picasso.get().load(userModel.profileUrl).placeholder(R.drawable.person).into(userImage)
+        userImage?.loadImageViaLink(userModel.profileUrl)
         userNumberTv?.text = userModel.phone
     }
 
@@ -119,8 +119,7 @@ class SearchUserForChatActivity : AppCompatActivity() {
         val sortedList = list.sortedByDescending { it.key == auth.currentUser!!.uid}
 
         binding.recyclerView.setData(items = sortedList, bindingInflater = UserSampleRowBinding::inflate, bindHolder = {binding, item, position ->
-
-            Picasso.get().load(item.profileUrl).placeholder(R.drawable.person).into(binding.userImage)
+            binding.userImage.loadImageViaLink(item.profileUrl)
             binding.userNameTv.text=if (auth.currentUser!!.uid==item.key){"${item.fullName} (You)"}else{item.fullName}
             binding.statusTv.text=if (item.status.isEmpty()){"Hey there i am using Chat Sphere"}else{item.status}
             binding.userImage.setOnClickListener{

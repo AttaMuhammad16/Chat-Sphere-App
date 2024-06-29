@@ -7,8 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivitySignInBinding
-import com.atta.chatspherapp.models.UserModel
-import com.atta.chatspherapp.ui.activities.MainActivity
+import com.atta.chatspherapp.ui.activities.recentchat.MainActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants.CONTACTS
 import com.atta.chatspherapp.utils.Constants.COUNTRYNAMECODE
@@ -21,7 +20,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
-import java.lang.ref.Reference
 import javax.inject.Inject
 
 

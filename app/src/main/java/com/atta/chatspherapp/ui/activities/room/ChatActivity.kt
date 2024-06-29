@@ -3,6 +3,8 @@ package com.atta.chatspherapp.ui.activities.room
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.DownloadManager
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -37,7 +39,7 @@ import com.atta.chatspherapp.managers.MyNotificationManager
 import com.atta.chatspherapp.models.MessageModel
 import com.atta.chatspherapp.models.ReactionModel
 import com.atta.chatspherapp.models.UserModel
-import com.atta.chatspherapp.service.DownloadReceiver
+import com.atta.chatspherapp.receiver.DownloadReceiver
 import com.atta.chatspherapp.service.UploadDocumentService
 import com.atta.chatspherapp.service.UploadImageService
 import com.atta.chatspherapp.service.UploadVideoService
@@ -68,7 +70,7 @@ import com.atta.chatspherapp.adapters.ChatAdapter
 import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
 import com.atta.chatspherapp.managers.NotificationManager.Companion.clearNotifications
 import com.atta.chatspherapp.models.RecentChatModel
-import com.atta.chatspherapp.utils.Constants
+import com.atta.chatspherapp.ui.activities.profile.SeeUserProfileActivity
 import com.atta.chatspherapp.utils.Constants.ACTIVITYSTATEOFTHEUSER
 import com.atta.chatspherapp.utils.Constants.CHATTINGWITH
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
@@ -81,9 +83,9 @@ import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.MyExtensions.shrink
 import com.atta.chatspherapp.utils.NewUtils.getAccessToken
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
+import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.SendNotification
 import com.google.firebase.auth.FirebaseAuth
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -171,9 +173,16 @@ class ChatActivity : AppCompatActivity() {
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
 
 
-        lifecycleScope.launch {
-            updateActivityState(true,userModel!!.key)
+        lifecycleScope.launch(Dispatchers.IO) {
+            myModel.chattingWith=userModel!!.key
+            updateActivityStateAndChatKey(true,userModel!!.key)
             mainViewModel.getAnyModelFlow(USERS+"/"+userModel?.key,UserModel())
+        }
+
+        lifecycleScope.launch {
+            mainViewModel.userFlow.collect{
+                userModel?.chattingWith=it.chattingWith
+            }
         }
 
 
@@ -187,7 +196,7 @@ class ChatActivity : AppCompatActivity() {
         binding.toolBarTitle.text = userModel?.fullName
         chatUploadPath = "room/"+getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)
 
-        Picasso.get().load(userModel!!.profileUrl).placeholder(R.drawable.person).into(binding.profileImg)
+        binding.profileImg.loadImageViaLink(userModel!!.profileUrl)
         userUid=myModel.key
 
         binding.backPressImg.setOnClickListener {
@@ -203,6 +212,12 @@ class ChatActivity : AppCompatActivity() {
         }
 
         binding.recyclerView.setOnClickListener{
+            hideReactionViews()
+        }
+        binding.toolBarTitle.setOnClickListener {
+            val intent=Intent(this@ChatActivity,SeeUserProfileActivity::class.java)
+            intent.putExtra("userModel",userModel)
+            startActivity(intent)
             hideReactionViews()
         }
 
@@ -231,34 +246,48 @@ class ChatActivity : AppCompatActivity() {
                 floatingView.layoutParams = layoutParams
 
                 floatingView.visibility = View.VISIBLE
-                binding.copyMessageImg.visibility= View.VISIBLE
+
+                if (messageModel.message.isNotEmpty()){
+                    binding.copyMessageImg.visibility= View.VISIBLE
+                }else{
+                    binding.copyMessageImg.visibility= View.GONE
+                }
+
                 binding.deleteMessageImg.visibility= View.VISIBLE
+
+                binding.copyMessageImg.setOnClickListener {
+                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                    val clip = ClipData.newPlainText("message copied", messageModel.message)
+                    clipboard.setPrimaryClip(clip)
+                    hideReactionViews()
+                    showToast("message copied.")
+                }
 
                 showReactionDialog(messageModel) {selectedReaction->
                     addReactionOnDB(messageModel, selectedReaction)
                 }
-
                 this.messageModel = messageModel
-
             }else {
                 hideReactionViews()
             }
+
         }
+
 
         lifecycleScope.launch(Dispatchers.IO) {
             mainViewModel.isRecentChatUploaded.collect{
                 if (it){
                     mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
-                    val isUserAvailable=mainViewModel.isUserInActivity.value
-                    if (isUserAvailable){
-                        mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+userModel!!.key+"/"+myModel.key)
+                    val isChatting=mainViewModel.isUserInActivity.value
+                    if (myModel.key==userModel!!.chattingWith){
+                        if (isChatting){
+                            mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+userModel!!.key+"/"+myModel.key)
+                        }
                     }
                     mainViewModel.isRecentChatUploaded.value=false
                 }
             }
         }
-
-
 
 
         binding.recyclerView.adapter = adapter
@@ -1076,27 +1105,22 @@ class ChatActivity : AppCompatActivity() {
 
     fun sendNotification(message:String){
         lifecycleScope.launch {
-            val bol=mainViewModel.isUserInActivity.value
-            Log.i("TAG", "chatting id :${myModel.chattingWith}")
-            Log.i("TAG", "user id :${userModel!!.key}")
-            if (!bol) {
-                if (myModel.chattingWith!=userModel!!.chattingWith){
-                    myModel.apply {
-                        val accessToken= getAccessToken(this@ChatActivity)
-                        if (!accessToken.isNullOrEmpty()){
-                            SendNotification.sendMessageNotification(fullName,message,userModel!!.token,accessToken)
-                        }else{
-                            showToast("your access token is not found")
-                        }
+            Log.i("TAG", "my model chatting id :${myModel.chattingWith}")
+            Log.i("TAG", "user model chatting id :${userModel!!.chattingWith}")
+            if (myModel.key!=userModel!!.chattingWith){
+                myModel.apply {
+                    val accessToken= getAccessToken(this@ChatActivity)
+                    if (!accessToken.isNullOrEmpty()){
+                        SendNotification.sendMessageNotification(fullName,message,userModel!!.token,accessToken)
+                    }else{
+                        showToast("your access token is not found")
                     }
-                }else{
-                    Log.i("TAG", "notification not send ids are same")
                 }
             }
         }
     }
 
-    fun updateActivityState(bol:Boolean,chattingWithKey:String=""){
+    fun updateActivityStateAndChatKey(bol:Boolean, chattingWithKey:String=""){
         lifecycleScope.launch(Dispatchers.IO) {
             val map=HashMap<String,Any>()
             map[ACTIVITYSTATEOFTHEUSER] = bol
@@ -1107,17 +1131,17 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
-        updateActivityState(false)
+        updateActivityStateAndChatKey(false)
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        updateActivityState(false)
+        updateActivityStateAndChatKey(false)
     }
 
     override fun onResume() {
         super.onResume()
-        updateActivityState(true,userModel!!.key)
+        updateActivityStateAndChatKey(true,userModel!!.key)
     }
 
 }

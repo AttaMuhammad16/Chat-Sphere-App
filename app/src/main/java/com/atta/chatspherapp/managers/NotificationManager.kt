@@ -7,12 +7,14 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Context.NOTIFICATION_SERVICE
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.atta.chatspherapp.R
+import com.atta.chatspherapp.receiver.NotificationDismissedReceiver
 
 
 class NotificationManager {
@@ -45,6 +47,10 @@ class NotificationManager {
             for (msg in messages) {
                 inboxStyle.addLine(msg)
             }
+            val dismissIntent = Intent(context, NotificationDismissedReceiver::class.java)
+            dismissIntent.putExtra("isFromNotification","yes")
+            val dismissPendingIntent = PendingIntent.getBroadcast(context, 0, dismissIntent, PendingIntent.FLAG_IMMUTABLE)
+
 
             inboxStyle.setSummaryText("${messages.size} new messages")
 
@@ -57,6 +63,7 @@ class NotificationManager {
                 .setGroup(GROUP_KEY_CHAT)
                 .setGroupSummary(true)
                 .setContentIntent(pendingIntent)
+                .setDeleteIntent(dismissPendingIntent)
                 .build()
 
             // Notify the summary notification

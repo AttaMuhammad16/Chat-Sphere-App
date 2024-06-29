@@ -11,6 +11,7 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,6 +54,7 @@ import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
 import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageFromResource
+import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.loadThumbnail
 import com.atta.chatspherapp.utils.NewUtils.openDocument
 import com.atta.chatspherapp.utils.NewUtils.setData
@@ -416,6 +418,9 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
+
+
+
                 if (data.senderUid==myUid){
                     holder.messageOwnerNameTv.text="you"
                 }else{
@@ -507,16 +512,7 @@ class ChatAdapter(
                 }
 
 
-                holder.reference_card.setOnClickListener {
-                    if (data.referenceMessageId.isNotEmpty()){
-                        scrollToMessage(data.referenceMessageId,position)
-                    }
-                }
 
-//                holder.reference_card.setOnLongClickListener {
-//                    showEmojiDialogOnLongClick(data,position,it)
-//                    true
-//                }
 
 
                 holder.reference_card.setOnLongClickListener { v ->
@@ -524,9 +520,17 @@ class ChatAdapter(
                     true
                 }
 
-                holder.reference_card.setOnClickListener { v ->
-                    longClicked.invoke(v,false,data,position)
+                holder.reference_card.setOnClickListener {
+                    if (data.referenceMessageId.isNotEmpty()){
+                        scrollToMessage(data.referenceMessageId,position)
+                    }else{
+                        showToast(context,"Reference id not found")
+                    }
                 }
+
+//                holder.reference_card.setOnClickListener { v ->
+//                    longClicked.invoke(v,false,data,position)
+//                }
 
                 holder.feelingCard.visibility = View.GONE
                 holder.countTv.visibility = View.GONE
@@ -584,6 +588,9 @@ class ChatAdapter(
                 holder.feelingCard.setOnClickListener{
                     showReactedBottomSheet(data)
                 }
+
+
+
                 if (data.senderUid==myUid){
                     holder.messageOwnerNameTv.text="you"
                 }else{
@@ -674,27 +681,24 @@ class ChatAdapter(
                 }
 
 
-
-
-                holder.reference_card.setOnClickListener {
-                    if (data.referenceMessageId.isNotEmpty()){
-                        scrollToMessage(data.referenceMessageId,position)
-                    }
-                }
-
-//                holder.reference_card.setOnLongClickListener {
-//                    showEmojiDialogOnLongClick(data,position,it)
-//                    true
-//                }
-
                 holder.reference_card.setOnLongClickListener { v ->
                     longClicked.invoke(v,true,data,position)
                     true
                 }
 
-                holder.reference_card.setOnClickListener { v ->
-                    longClicked.invoke(v,false,data,position)
+                holder.reference_card.setOnClickListener {
+                    if (data.referenceMessageId.isNotEmpty()){
+                        scrollToMessage(data.referenceMessageId,position)
+                    }else{
+                        showToast(context,"Reference id not found")
+                    }
                 }
+
+
+//                holder.reference_card.setOnClickListener { v ->
+//                    longClicked.invoke(v,false,data,position)
+//                }
+
 
 
                 holder.feelingCard.visibility = View.GONE
@@ -1764,7 +1768,7 @@ class ChatAdapter(
 
                 recyclerView.setData(sortedList, ReactionSampleRowBinding::inflate){ binding, item, position ->
 
-                    Picasso.get().load(item.senderImageUrl).placeholder(R.drawable.person).into(binding.userImg)
+                    binding.userImg.loadImageViaLink(item.senderImageUrl)
                     binding.userName.text=item.senderName
 
                     if (item.senderKey==myUid){
@@ -1837,44 +1841,50 @@ class ChatAdapter(
 
 
     // scroll to reference message
-    fun scrollToMessage(referenceKey: String,currentItemPosition:Int) {
+    fun scrollToMessage(referenceKey: String, currentItemPosition: Int) {
         val position = mylist.indexOfFirst { it.key == referenceKey }
-        if (position!=-1){
+        Log.i("TAG", "scrollToMessage:$position")
+        if (position != -1) {
             layoutManager.smoothScrollToPosition(recyclerView, RecyclerView.State(), position)
             highlightMessage(position)
+        }else{
+            Log.i("TAG", "scrollToMessage:$position")
         }
     }
-
 
     private fun highlightMessage(position: Int) {
         recyclerView.post {
             val viewHolder = recyclerView.findViewHolderForAdapterPosition(position)
             if (viewHolder != null && viewHolder.itemView.isAttachedToWindow) {
-                val background = ContextCompat.getColor(context, R.color.very_light_grey)
-                val animator = ObjectAnimator.ofArgb(viewHolder.itemView, "backgroundColor", Color.TRANSPARENT, background)
+                val backgroundColor = ContextCompat.getColor(context, R.color.very_light_grey)
+                val animator = ObjectAnimator.ofArgb(viewHolder.itemView, "backgroundColor", Color.TRANSPARENT, backgroundColor)
                 animator.duration = 1000
                 animator.interpolator = AccelerateDecelerateInterpolator()
                 animator.addListener(object : Animator.AnimatorListener {
                     override fun onAnimationStart(animation: Animator) {
-//                      hkjl
+                        // Do something if needed
                     }
+
                     override fun onAnimationEnd(animation: Animator) {
-                        val reverseAnimator = ObjectAnimator.ofArgb(viewHolder.itemView, "backgroundColor", background, Color.TRANSPARENT)
+                        val reverseAnimator = ObjectAnimator.ofArgb(viewHolder.itemView, "backgroundColor", backgroundColor, Color.TRANSPARENT)
                         reverseAnimator.duration = 1000
                         reverseAnimator.interpolator = AccelerateDecelerateInterpolator()
                         reverseAnimator.start()
                     }
+
                     override fun onAnimationCancel(animation: Animator) {
-//                      jb
+                        // Do something if needed
                     }
+
                     override fun onAnimationRepeat(animation: Animator) {
-//                       hj
+                        // Do something if needed
                     }
                 })
                 animator.start()
             }
         }
     }
+
 
 
     private fun stopCurrentMediaPlayer(data: MessageModel,isCompleted:Boolean=false) {

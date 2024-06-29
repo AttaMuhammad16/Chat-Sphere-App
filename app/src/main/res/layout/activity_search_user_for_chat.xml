@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_background"
-    tools:context=".ui.activities.SearchUserForChatActivity">
+    tools:context=".ui.activities.searchanyuser.SearchUserForChatActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
@@ -29,6 +29,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="@dimen/_3sdp"
                 app:tint="@color/white"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/baseline_arrow_back_24" />
 
             <LinearLayout
@@ -67,6 +68,7 @@
                 android:layout_height="@dimen/_27sdp"
                 android:layout_marginEnd="@dimen/_5sdp"
                 app:tint="@color/white"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/baseline_search_24" />
 
@@ -95,6 +97,7 @@
             android:layout_marginEnd="@dimen/_7sdp"
             android:padding="@dimen/_2sdp"
             android:paddingStart="@dimen/_5sdp"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
             app:tint="@color/white"
             android:src="@drawable/baseline_arrow_back_24" />
 

@@ -1,4 +1,4 @@
-package com.atta.chatspherapp.service
+package com.atta.chatspherapp.receiver
 
 import android.annotation.SuppressLint
 import android.app.DownloadManager
@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import com.atta.chatspherapp.adapters.ChatAdapter.Companion.videoUri
+
 
 class DownloadReceiver : BroadcastReceiver() {
     @SuppressLint("Range")
@@ -24,5 +25,4 @@ class DownloadReceiver : BroadcastReceiver() {
             Toast.makeText(context, "Download Not completed yet.", Toast.LENGTH_SHORT).show()
         }
     }
-
 }

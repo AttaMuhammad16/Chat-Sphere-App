@@ -1,4 +1,4 @@
-package com.atta.chatspherapp.ui.activities
+package com.atta.chatspherapp.ui.activities.room
 
 import android.content.Context
 import android.graphics.Bitmap

@@ -28,6 +28,7 @@
                 android:layout_width="@dimen/tool_bar_back_arrow_size"
                 android:layout_height="@dimen/tool_bar_back_arrow_size"
                 android:layout_gravity="center_vertical"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
                 app:tint="@color/white"
                 android:src="@drawable/baseline_arrow_back_24" />
 
@@ -55,6 +56,7 @@
                 android:layout_width="@dimen/_21sdp"
                 android:layout_height="@dimen/_21sdp"
                 android:layout_gravity="center_vertical"
+                android:background="?attr/selectableItemBackground"
                 android:layout_marginEnd="@dimen/_5sdp"
                 android:src="@drawable/baseline_content_copy_24"
                 android:visibility="gone"

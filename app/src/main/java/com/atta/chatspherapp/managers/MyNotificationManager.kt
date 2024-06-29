@@ -1,22 +1,11 @@
 package com.atta.chatspherapp.managers
 
 import android.app.Activity
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.os.Build
 import androidx.activity.result.ActivityResultLauncher
-import androidx.core.app.NotificationCompat
-import androidx.core.app.RemoteInput
 import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import com.atta.chatspherapp.R
-import com.atta.chatspherapp.ui.activities.MainActivity
 
 class MyNotificationManager(private val context: Context , requestPermissionLauncher: ActivityResultLauncher<String>?=null) {
 

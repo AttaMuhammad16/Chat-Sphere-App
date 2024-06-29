@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:background="@color/app_background"
     android:layout_height="match_parent"
-    tools:context=".ui.activities.MainActivity">
+    tools:context=".ui.activities.recentchat.MainActivity">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar2"
@@ -32,6 +32,7 @@
             android:layout_width="@dimen/_25sdp"
             android:layout_height="@dimen/_25sdp"
             android:layout_gravity="end"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
             android:layout_margin="@dimen/_5sdp"
             android:src="@drawable/baseline_settings_24"
             app:tint="@color/white" />

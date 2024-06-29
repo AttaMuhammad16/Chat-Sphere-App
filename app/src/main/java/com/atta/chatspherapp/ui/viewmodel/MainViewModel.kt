@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import java.lang.Thread.State
 import javax.inject.Inject
 
 
@@ -23,8 +24,10 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
     private var _isUserInActivity:MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
 
-//    private var userChattingId:MutableStateFlow<Boolean> = MutableStateFlow(false)
-//    val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
+    private var _userFlow:MutableStateFlow<UserModel> = MutableStateFlow(UserModel())
+    val userFlow:StateFlow<UserModel> = _userFlow
+
+
 
     fun <T> collectAnyModel(path: String, clazz: Class<T>, numberOfItems: Int = 0): Flow<List<T>>{
         return mainRepository.collectAnyModel(path, clazz, numberOfItems)
@@ -62,6 +65,8 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
         val model=mainRepository.getAnyModelFlow(path, userModel)
         model.collect{
             _isUserInActivity.value=it.activityState
+            _userFlow.value=it
+            Log.i("_userFlow", "getAnyModelFlow:${userFlow.value} ")
         }
     }
 
