@@ -612,7 +612,7 @@ class ChatActivity : AppCompatActivity() {
 
     fun startRecording() {
         binding.audioTracker.recreate()
-        filePath = "${filesDir?.absolutePath}/chatsphere.3gp"
+        filePath = "${filesDir?.absolutePath}/${System.currentTimeMillis()}.3gp"
         try {
             Toast.makeText(this@ChatActivity, "Recording Started", Toast.LENGTH_SHORT).show()
             mediaRecorder!!.apply {

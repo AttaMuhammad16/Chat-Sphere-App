@@ -500,7 +500,7 @@ object NewUtils {
 
 
     suspend fun uploadAudioToFirebase(uri: Uri): MyResult<String> {
-        val fileName = "downloaded_audio.3gp"
+        val fileName = "${System.currentTimeMillis()}.3gp"
         return try {
             val storageRef = Firebase.storage.reference.child("audios/$fileName")
             storageRef.putFile(uri).await()
