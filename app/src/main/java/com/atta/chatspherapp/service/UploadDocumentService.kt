@@ -169,7 +169,7 @@ class UploadDocumentService : Service() {
             }
             setContentTitle(contentText)
             setContentText("$percent % uploaded")
-            setSmallIcon(R.drawable.alarm)
+            setSmallIcon(R.drawable.app_icon)
             setAutoCancel(true)
             setOngoing(true)
             setProgress(100,percent.toInt(),false)
