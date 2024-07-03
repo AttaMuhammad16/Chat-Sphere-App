@@ -412,14 +412,11 @@ class ChatAdapter(
             is SenderViewHolder -> {
 
                 holder.senderMessageText.text = data.message
-                holder.senderTime.text = data.timeStamp.getFormattedDateAndTime("hh:mm a")
+                holder.senderTime.text = data.formattedTime
 
                 holder.feelingCard.setOnClickListener{
                     showReactedBottomSheet(data)
                 }
-
-
-
 
                 if (data.senderUid==myUid){
                     holder.messageOwnerNameTv.text="you"
@@ -582,14 +579,12 @@ class ChatAdapter(
             is ReceiverViewHolder -> {
 
                 holder.receiverMessageText.text = data.message
-                holder.receiverTime.text = data.timeStamp.getFormattedDateAndTime()
+                holder.receiverTime.text = data.formattedTime
 
 
                 holder.feelingCard.setOnClickListener{
                     showReactedBottomSheet(data)
                 }
-
-
 
                 if (data.senderUid==myUid){
                     holder.messageOwnerNameTv.text="you"
@@ -756,7 +751,7 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.senderTime.text = data.timeStamp.getFormattedDateAndTime()
+                holder.senderTime.text = data.formattedTime
                 val uri = preferencesHelper.getString(data.key, "1")
 
                 if (uri.isNotEmpty() && uri!="1"){
@@ -839,7 +834,7 @@ class ChatAdapter(
                 }
 
                 Glide.with(context).load(data.imageUrl).into(holder.receiverImageView)
-                holder.receiverTime.text = data.timeStamp.getFormattedDateAndTime()
+                holder.receiverTime.text = data.formattedTime
 
                 holder.receiverImageView.setOnClickListener {
                     val intent = Intent(context, PhotoViewActivity::class.java)
@@ -908,7 +903,7 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.senderTime.text = data.timeStamp.getFormattedDateAndTime()
+                holder.senderTime.text = data.formattedTime
 
                 val uri = preferencesHelper.getString(data.key, "1")
 
@@ -1018,7 +1013,7 @@ class ChatAdapter(
                 }
                 holder.receiverThumbnailImageView.loadThumbnail(data.videoUrl)
 
-                holder.receiverTime.text = data.timeStamp.getFormattedDateAndTime()
+                holder.receiverTime.text = data.formattedTime
                 val uri = preferencesHelper.getString(data.key, "1")
 
                 if (uri.isNotEmpty() && uri != "1") {
@@ -1122,7 +1117,7 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.send_time_tv.text = data.timeStamp.getFormattedDateAndTime()
+                holder.send_time_tv.text = data.formattedTime
                 holder.file_name_tv.text = data.documentFileName
 
                 val uri = preferencesHelper.getString(data.key, "1")
@@ -1212,7 +1207,7 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.receiver_timeTv.text = data.timeStamp.getFormattedDateAndTime()
+                holder.receiver_timeTv.text = data.formattedTime
                 holder.file_name_tv.text = data.documentFileName
                 val uri = preferencesHelper.getString(data.key, "1")
 
@@ -1325,7 +1320,7 @@ class ChatAdapter(
 
                 holder.apply {
 
-                    voiceSendTime.text = data.timeStamp.getFormattedDateAndTime("hh:mm a")
+                    voiceSendTime.text = data.formattedTime
                     seekBar.max = 100
 
                     playButton.setOnClickListener {
@@ -1482,7 +1477,7 @@ class ChatAdapter(
 
                 val localUri = preferencesHelper.getString(data.key,"")
 
-                holder.voiceSendTime.text =data.timeStamp.getFormattedDateAndTime()
+                holder.voiceSendTime.text =data.formattedTime
 
                 holder.seekBar.setOnLongClickListener { v ->
                     longClicked.invoke(v,true,data,position)

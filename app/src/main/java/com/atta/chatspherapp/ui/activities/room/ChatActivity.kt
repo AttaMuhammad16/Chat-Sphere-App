@@ -17,6 +17,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
@@ -82,6 +83,7 @@ import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.MyExtensions.shrink
 import com.atta.chatspherapp.utils.NewUtils.getAccessToken
+import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.SendNotification
@@ -91,6 +93,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -300,23 +303,33 @@ class ChatActivity : AppCompatActivity() {
                 if (it.isNotEmpty()){
                     list=it as ArrayList
                 }
+                val updatedList = it.map { message ->
+                    message.copy(formattedTime = message.timeStamp.getFormattedDateAndTime("hh:mm a"))
+                }
 
-                adapter.setList(it)
+                adapter.setList(updatedList)
                 adapter.notifyDataSetChanged()
                 setAdapter(adapter)
             }
         }
 
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            private var hideDateJob: Job? = null
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                CoroutineScope(Dispatchers.Main).launch {
+                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
                     binding.dateTv.visibility = View.VISIBLE
-                    delay(2000)
-                    binding.dateTv.visibility = View.GONE
+                }
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    hideDateJob?.cancel()
+                    hideDateJob = lifecycleScope.launch {
+                        delay(3000)
+                        binding.dateTv.visibility = View.GONE
+                    }
                 }
             }
         })
+
 
         binding.deleteMessageImg.setOnClickListener {
             hideReactionViews()
@@ -527,6 +540,7 @@ class ChatActivity : AppCompatActivity() {
 
 
         binding.deleteImg.setOnClickListener {
+            binding.chronometer.base = SystemClock.elapsedRealtime()
             animateViewHideToBottom(binding.voiceSenderLinearLayout)
             binding.voiceSenderLinearLayout.visibility = View.GONE
             binding.linear02.visibility = View.VISIBLE
@@ -553,13 +567,10 @@ class ChatActivity : AppCompatActivity() {
             binding.linear02.visibility = View.VISIBLE
             animateViewHideToBottom(binding.voiceSenderLinearLayout)
 
-
-
             lifecycleScope.launch {
                 withContext(Dispatchers.IO){
                     uploadToRecentChat("Voice", VOICE)
                 }
-
 
                 val uri=getUriOfTheFile(filePath!!)
                 val firebaseUrlResult=uploadAudioToFirebase(uri)
@@ -612,6 +623,8 @@ class ChatActivity : AppCompatActivity() {
 
     fun startRecording() {
         binding.audioTracker.recreate()
+        binding.chronometer.base = SystemClock.elapsedRealtime()
+        binding.chronometer.start()
         filePath = "${filesDir?.absolutePath}/${System.currentTimeMillis()}.3gp"
         try {
             Toast.makeText(this@ChatActivity, "Recording Started", Toast.LENGTH_SHORT).show()
@@ -1116,6 +1129,8 @@ class ChatActivity : AppCompatActivity() {
                         showToast("your access token is not found")
                     }
                 }
+            }else{
+                Log.i("TAG", "you ids are same")
             }
         }
     }
