@@ -217,6 +217,7 @@ class ChatActivity : AppCompatActivity() {
         binding.recyclerView.setOnClickListener{
             hideReactionViews()
         }
+
         binding.toolBarTitle.setOnClickListener {
             val intent=Intent(this@ChatActivity,SeeUserProfileActivity::class.java)
             intent.putExtra("userModel",userModel)
@@ -291,7 +292,6 @@ class ChatActivity : AppCompatActivity() {
                 }
             }
         }
-
 
         binding.recyclerView.adapter = adapter
         layoutManager.stackFromEnd=true

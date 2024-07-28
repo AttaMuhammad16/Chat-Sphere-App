@@ -16,6 +16,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.ProgressBar
@@ -321,6 +322,7 @@ class ChatAdapter(
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.sender_simple_text_sample_row, parent, false)
                 SenderViewHolder(view)
             }
+
             RECEIVER_VIEW_SIMPLE_MESSAGE -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.receiver_simple_text_sample_row, parent, false)
                 ReceiverViewHolder(view)
@@ -336,11 +338,11 @@ class ChatAdapter(
                 VoiceReceiverViewHolder(view)
             }
 
-
             SENDER_IMAGE_MESSAGE -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.sender_image_sample_row, parent, false)
                 ImageSenderViewHolder(view)
             }
+
             RECEIVER_IMAGE_MESSAGE -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.receiver_image_sample_row, parent, false)
                 ImageReceiverViewHolder(view)
@@ -356,7 +358,6 @@ class ChatAdapter(
                 VideoReceiverViewHolder(view)
             }
 
-
             SENDER_DOCUMENT_MESSAGE -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.sender_document_sample_row, parent, false)
                 DocumentSenderViewHolder(view)
@@ -370,12 +371,20 @@ class ChatAdapter(
         }
     }
 
-
+    private val animatedPositions = mutableSetOf<Int>()
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged", "SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val data = mylist[position]
         date.text=formatDateFromMillis(data.timeStamp)
+
+        if (!animatedPositions.contains(position)) {
+            // Load and apply the animation
+            val animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left)
+            holder.itemView.startAnimation(animation)
+            // Add the position to the set
+            animatedPositions.add(position)
+        }
 
         if (position!=0){
             val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
@@ -394,7 +403,6 @@ class ChatAdapter(
                 }
             }
         }
-
 
         holder.itemView.setOnLongClickListener { v ->
             longClicked.invoke(v,true,data,position)
