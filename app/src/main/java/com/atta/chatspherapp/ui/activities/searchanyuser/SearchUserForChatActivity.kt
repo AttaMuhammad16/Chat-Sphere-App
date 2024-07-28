@@ -3,6 +3,7 @@ package com.atta.chatspherapp.ui.activities.searchanyuser
 import android.content.Intent
 import android.os.Bundle
 import android.view.WindowManager
+import android.view.animation.AnimationUtils
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
@@ -118,7 +119,10 @@ class SearchUserForChatActivity : AppCompatActivity() {
 
         val sortedList = list.sortedByDescending { it.key == auth.currentUser!!.uid}
 
-        binding.recyclerView.setData(items = sortedList, bindingInflater = UserSampleRowBinding::inflate, bindHolder = {binding, item, position ->
+        binding.recyclerView.setData(items = sortedList, bindingInflater = UserSampleRowBinding::inflate, bindHolder = {binding, item, position ,holder->
+            val animation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left)
+            holder.itemView.startAnimation(animation)
+
             binding.userImage.loadImageViaLink(item.profileUrl)
             binding.userNameTv.text=if (auth.currentUser!!.uid==item.key){"${item.fullName} (You)"}else{item.fullName}
             binding.statusTv.text=if (item.status.isEmpty()){"Hey there i am using Chat Sphere"}else{item.status}

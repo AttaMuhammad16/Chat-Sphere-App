@@ -3,6 +3,7 @@ package com.atta.chatspherapp.ui.activities.recentchat
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
@@ -99,7 +100,11 @@ class MainActivity : AppCompatActivity() {
 
                 val sortedList = it.sortedByDescending { recentModel -> recentModel.timeStamp }
 
-                binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position ->
+                binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position,holder->
+
+                    val animation = AnimationUtils.loadAnimation(this@MainActivity, android.R.anim.slide_in_left)
+                    holder.itemView.startAnimation(animation)
+
                     binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
 
                     binding.nameTv.text=recentModel.userModel.fullName

@@ -800,7 +800,7 @@ object NewUtils {
 
 
     // paging adapter
-    inline fun <T, VB : ViewBinding> RecyclerView.setData(items: List<T>, crossinline bindingInflater: (LayoutInflater, ViewGroup, Boolean) -> VB, crossinline bindHolder: (binding: VB, item: T, position: Int) -> Unit) {
+    inline fun <T, VB : ViewBinding> RecyclerView.setData(items: List<T>, crossinline bindingInflater: (LayoutInflater, ViewGroup, Boolean) -> VB, crossinline bindHolder: (binding: VB, item: T, position: Int,holder:DataViewHolder<VB>) -> Unit) {
         val adapter = object : RecyclerView.Adapter<DataViewHolder<VB>>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder<VB> {
                 val layoutInflater = LayoutInflater.from(parent.context)
@@ -808,7 +808,7 @@ object NewUtils {
                 return DataViewHolder(binding)
             }
             override fun onBindViewHolder(holder: DataViewHolder<VB>, position: Int) {
-                bindHolder(holder.binding, items[position], position)
+                bindHolder(holder.binding, items[position], position,holder)
             }
             override fun getItemCount(): Int {
                 return  items.size

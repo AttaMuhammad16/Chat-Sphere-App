@@ -379,10 +379,8 @@ class ChatAdapter(
         date.text=formatDateFromMillis(data.timeStamp)
 
         if (!animatedPositions.contains(position)) {
-            // Load and apply the animation
             val animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left)
             holder.itemView.startAnimation(animation)
-            // Add the position to the set
             animatedPositions.add(position)
         }
 
@@ -1769,7 +1767,9 @@ class ChatAdapter(
 
                 val sortedList = it.sortedByDescending { it.senderKey == myUid}
 
-                recyclerView.setData(sortedList, ReactionSampleRowBinding::inflate){ binding, item, position ->
+                recyclerView.setData(sortedList, ReactionSampleRowBinding::inflate){ binding, item, position ,holder->
+                    val animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left)
+                    holder.itemView.startAnimation(animation)
 
                     binding.userImg.loadImageViaLink(item.senderImageUrl)
                     binding.userName.text=item.senderName

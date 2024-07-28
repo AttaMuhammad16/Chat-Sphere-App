@@ -45,11 +45,11 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
-                android:fontFamily="@font/baloo"
+                android:fontFamily="@font/baloo_2_medium"
                 android:paddingStart="@dimen/_10sdp"
                 android:text="User Name"
                 android:textColor="@color/white"
-                android:textSize="@dimen/_18sdp" />
+                android:textSize="@dimen/_16sdp" />
 
             <ImageView
                 android:id="@+id/copyMessageImg"
