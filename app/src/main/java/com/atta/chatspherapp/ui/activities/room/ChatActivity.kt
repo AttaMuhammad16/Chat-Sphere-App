@@ -21,6 +21,7 @@ import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
 import android.view.View
+import android.view.animation.AnimationUtils
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -155,6 +156,7 @@ class ChatActivity : AppCompatActivity() {
     var myModel=UserModel()
     var fromRecentChat=false
     var userActivityState:Boolean=false
+    var updatedList= listOf<MessageModel>()
 
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
@@ -303,33 +305,63 @@ class ChatActivity : AppCompatActivity() {
                 if (it.isNotEmpty()){
                     list=it as ArrayList
                 }
-                val updatedList = it.map { message ->
+                updatedList = it.map { message ->
                     message.copy(formattedTime = message.timeStamp.getFormattedDateAndTime("hh:mm a"))
                 }
-
                 adapter.setList(updatedList)
                 adapter.notifyDataSetChanged()
                 setAdapter(adapter)
             }
         }
 
+        var toggle=true
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             private var hideDateJob: Job? = null
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 super.onScrollStateChanged(recyclerView, newState)
-                if (newState == RecyclerView.SCROLL_STATE_DRAGGING) {
-                    binding.dateTv.visibility = View.VISIBLE
-                }
-                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    hideDateJob?.cancel()
-                    hideDateJob = lifecycleScope.launch {
-                        delay(3000)
-                        binding.dateTv.visibility = View.GONE
+                when(newState){
+
+                    RecyclerView.SCROLL_STATE_DRAGGING->{
+                        binding.dateTv.visibility = View.VISIBLE
+                    }
+
+                    RecyclerView.SCROLL_STATE_IDLE->{
+
+                        hideDateJob?.cancel()
+                        hideDateJob = lifecycleScope.launch {
+                            delay(3000)
+                            binding.dateTv.visibility = View.GONE
+                        }
+
+                        val currentPosition = layoutManager.findLastVisibleItemPosition()
+                        val totalItemCount = layoutManager.itemCount
+
+                        if (currentPosition == totalItemCount - 1) {
+                            binding.dropDownImg.visibility = View.GONE
+                        }
+
                     }
                 }
             }
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                if (dy < 0) {
+                    binding.dropDownImg.visibility = View.VISIBLE
+                    if(toggle){
+                        val animation = AnimationUtils.loadAnimation(this@ChatActivity, android.R.anim.fade_in)
+                        binding.dropDownImg.startAnimation(animation)
+                        toggle=false
+                    }
+                }
+            }
+
         })
 
+        binding.dropDownImg.setOnClickListener {
+            binding.recyclerView.scrollToPosition(updatedList.size-1)
+            binding.dropDownImg.visibility = View.GONE
+        }
 
         binding.deleteMessageImg.setOnClickListener {
             hideReactionViews()
