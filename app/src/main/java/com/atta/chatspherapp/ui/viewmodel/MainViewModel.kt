@@ -1,10 +1,14 @@
 package com.atta.chatspherapp.ui.viewmodel
 
 import android.util.Log
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import com.atta.chatspherapp.R
 import com.atta.chatspherapp.data.auth.AuthRepository
 import com.atta.chatspherapp.data.main.MainRepository
 import com.atta.chatspherapp.data.storage.StorageRepository
+import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.utils.MyResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +30,9 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
 
     private var _userFlow:MutableStateFlow<UserModel> = MutableStateFlow(UserModel())
     val userFlow:StateFlow<UserModel> = _userFlow
+
+    private var _selectedItemFlow : MutableStateFlow<MutableList<RecentChatModel>> = MutableStateFlow(mutableListOf())
+    val selectedItemFlow : StateFlow<List<RecentChatModel>> = _selectedItemFlow
 
 
 
@@ -68,6 +75,22 @@ class MainViewModel @Inject constructor(private val authRepository: AuthReposito
             _userFlow.value=it
             Log.i("_userFlow", "getAnyModelFlow:${userFlow.value} ")
         }
+    }
+
+    fun addToSelectedList(recentChatModel: RecentChatModel,isAddedOrRemoved:(Boolean)->Unit){
+        val selectedList=_selectedItemFlow.value
+        if (selectedList.contains(recentChatModel)){
+            selectedList.remove(recentChatModel)
+            isAddedOrRemoved.invoke(false)
+        }else{
+            selectedList.add(recentChatModel)
+            isAddedOrRemoved.invoke(true)
+        }
+        _selectedItemFlow.value=selectedList
+    }
+
+    fun clearSelectedItemsList(){
+        _selectedItemFlow.value.clear()
     }
 
 

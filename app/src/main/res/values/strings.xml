@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Chat Sphere App</string>
+    <string name="chat_sphere_for_random_chat">Chat Sphere For Random Chat</string>
 </resources>

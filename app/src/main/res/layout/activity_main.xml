@@ -18,10 +18,11 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <TextView
+            android:id="@+id/toolBarTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:fontFamily="@font/alatsi"
-            android:text="Chat Sphere App For Random Chat"
+            android:text="@string/chat_sphere_for_random_chat"
             android:textColor="@color/white"
             android:textSize="@dimen/_17sdp"
             tools:layout_editor_absoluteX="16dp"
@@ -36,6 +37,18 @@
             android:layout_margin="@dimen/_5sdp"
             android:src="@drawable/baseline_settings_24"
             app:tint="@color/white" />
+
+        <ImageView
+            android:id="@+id/deleteImg"
+            android:layout_width="@dimen/_25sdp"
+            android:layout_height="@dimen/_25sdp"
+            android:layout_gravity="end"
+            android:visibility="gone"
+            android:foreground="?attr/selectableItemBackgroundBorderless"
+            android:layout_margin="@dimen/_5sdp"
+            android:src="@drawable/baseline_delete_24"
+            app:tint="@color/white" />
+
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView

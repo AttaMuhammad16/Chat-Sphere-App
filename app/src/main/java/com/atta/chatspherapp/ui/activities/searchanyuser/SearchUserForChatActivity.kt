@@ -23,6 +23,7 @@ import com.atta.chatspherapp.utils.NewUtils.onTextChange
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showKeyBoard
+import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.showWithRevealAnimation
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
@@ -96,38 +97,18 @@ class SearchUserForChatActivity : AppCompatActivity() {
         setUpRecyclerView(filteredList)
     }
 
-
-    fun zoomImage(userModel: UserModel) {
-        val alert = AlertDialog.Builder(this).setView(R.layout.pop_up_image_dialog).show()
-
-//        val width = resources.displayMetrics.widthPixels * 75 / 100
-        val window = alert.window
-        val layoutParams = WindowManager.LayoutParams()
-        layoutParams.copyFrom(window?.attributes)
-//        layoutParams.width = width
-
-        window?.setBackgroundDrawableResource(android.R.color.transparent)
-        window?.attributes = layoutParams
-
-        val userNumberTv = alert.findViewById<TextView>(R.id.numberTv)
-        val userImage = alert.findViewById<ImageView>(R.id.imageView)
-        userImage?.loadImageViaLink(userModel.profileUrl)
-        userNumberTv?.text = userModel.phone
-    }
-
+    var toggle=true
     fun setUpRecyclerView(list:List<UserModel>){
 
         val sortedList = list.sortedByDescending { it.key == auth.currentUser!!.uid}
 
         binding.recyclerView.setData(items = sortedList, bindingInflater = UserSampleRowBinding::inflate, bindHolder = {binding, item, position ,holder->
-            val animation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left)
-            holder.itemView.startAnimation(animation)
 
             binding.userImage.loadImageViaLink(item.profileUrl)
             binding.userNameTv.text=if (auth.currentUser!!.uid==item.key){"${item.fullName} (You)"}else{item.fullName}
             binding.statusTv.text=if (item.status.isEmpty()){"Hey there i am using Chat Sphere"}else{item.status}
             binding.userImage.setOnClickListener{
-                zoomImage(item)
+                showUserImage(item.profileUrl,item.phone)
             }
 
             binding.main.setOnClickListener {
@@ -138,6 +119,13 @@ class SearchUserForChatActivity : AppCompatActivity() {
                     startActivity(intent)
                 }
             }
+
+            if (toggle){
+                val animation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left)
+                holder.itemView.startAnimation(animation)
+                toggle=false
+            }
+
         })
     }
 

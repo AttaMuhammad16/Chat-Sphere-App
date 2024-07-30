@@ -376,7 +376,6 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-
         // swipe listener
         val swipeHandler = SwipeToRevealCallback(adapter) { messageModel ->
 

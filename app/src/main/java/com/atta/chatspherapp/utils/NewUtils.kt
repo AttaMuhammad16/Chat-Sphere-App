@@ -30,6 +30,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
@@ -51,6 +52,7 @@ import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
 import com.atta.chatspherapp.R
+import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.activities.room.EditImageActivity
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.bumptech.glide.Glide
@@ -929,6 +931,23 @@ object NewUtils {
         })
         view.startAnimation(zoomInAnimation)
         showToast("message copied.")
+    }
+
+
+    fun Context.showUserImage(profileUrl:String,phoneNumber: String) {
+        val alert = androidx.appcompat.app.AlertDialog.Builder(this).setView(R.layout.pop_up_image_dialog).show()
+
+        val window = alert.window
+        val layoutParams = WindowManager.LayoutParams()
+        layoutParams.copyFrom(window?.attributes)
+
+        window?.setBackgroundDrawableResource(android.R.color.transparent)
+        window?.attributes = layoutParams
+
+        val userNumberTv = alert.findViewById<TextView>(R.id.numberTv)
+        val userImage = alert.findViewById<ImageView>(R.id.imageView)
+        userImage?.loadImageViaLink(profileUrl)
+        userNumberTv?.text = phoneNumber
     }
 
 

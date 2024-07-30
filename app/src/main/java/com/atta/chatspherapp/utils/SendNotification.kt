@@ -28,6 +28,7 @@ object SendNotification {
         token: String,
         accessToken:String
     ) {
+
         val client = OkHttpClient()
         val mediaType = "application/json".toMediaTypeOrNull()
 
