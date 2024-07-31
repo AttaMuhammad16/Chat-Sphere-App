@@ -119,8 +119,6 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
                 databaseReference.child(path).setValue(model.shrink())
                 MyResult.Success("Success")
             }
-
-
         } catch (e: Exception) {
             MyResult.Error(e.message.toString())
         }

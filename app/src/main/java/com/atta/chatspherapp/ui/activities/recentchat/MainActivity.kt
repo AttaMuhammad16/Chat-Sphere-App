@@ -42,6 +42,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
+// for audio calling will add agora or zegocloud
+
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     @Inject
@@ -233,10 +235,6 @@ class MainActivity : AppCompatActivity() {
             alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }
-
-
-
-
 
 
 }

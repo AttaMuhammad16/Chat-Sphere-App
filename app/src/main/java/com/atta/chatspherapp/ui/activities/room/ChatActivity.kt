@@ -273,7 +273,7 @@ class ChatActivity : AppCompatActivity() {
                     addReactionOnDB(messageModel, selectedReaction)
                 }
                 this.messageModel = messageModel
-            }else {
+            }else{
                 hideReactionViews()
             }
 
@@ -313,6 +313,7 @@ class ChatActivity : AppCompatActivity() {
                 setAdapter(adapter)
             }
         }
+
 
         var toggle=true
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -456,8 +457,6 @@ class ChatActivity : AppCompatActivity() {
 
             }
         }
-
-
         // swipe listener
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)

@@ -104,8 +104,6 @@ class ChatAdapter(
     lateinit var currentSeekBar:SeekBar
 
 
-
-
     private var currentlyPlayingMediaPlayer: MediaPlayer? = null
     private var currentPlayingButton: ImageView? = null
     private val handler = Handler(Looper.getMainLooper())
@@ -1910,7 +1908,5 @@ class ChatAdapter(
     private fun getMediaPlayerInstance(): MediaPlayer {
         return currentlyPlayingMediaPlayer ?: MediaPlayer()
     }
-
-
 
 }

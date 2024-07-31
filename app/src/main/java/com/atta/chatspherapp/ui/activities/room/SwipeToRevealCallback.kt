@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.atta.chatspherapp.models.MessageModel
 import com.atta.chatspherapp.adapters.ChatAdapter
 
+
 class SwipeToRevealCallback(
     private val adapter: ChatAdapter,
     private val onSwipeAction: (MessageModel) -> Unit
