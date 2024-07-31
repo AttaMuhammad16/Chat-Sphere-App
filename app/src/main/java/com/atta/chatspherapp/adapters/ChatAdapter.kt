@@ -38,6 +38,7 @@ import com.atta.chatspherapp.ui.activities.room.PhotoViewActivity
 import com.atta.chatspherapp.ui.activities.room.VideosActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.ui.viewmodel.StorageViewModel
+import com.atta.chatspherapp.utils.Constants.REACTIONDETAILS
 import com.atta.chatspherapp.utils.Constants.RECEIVER_DOCUMENT_MESSAGE
 import com.atta.chatspherapp.utils.Constants.RECEIVER_IMAGE_MESSAGE
 import com.atta.chatspherapp.utils.Constants.RECEIVER_VIDEO_MESSAGE
@@ -1747,7 +1748,7 @@ class ChatAdapter(
     fun showReactedBottomSheet(data:MessageModel){
 
         val previousReactionPath="$chatPath/${data.key}"
-        val reactionDetailsPath="reactionsDetails/${getSortedKeys(userModel.key,auth.currentUser!!.uid)}/${data.key}"
+        val reactionDetailsPath="$REACTIONDETAILS/${getSortedKeys(userModel.key,auth.currentUser!!.uid)}/${data.key}"
 
         val bottomSheetDialog = BottomSheetDialog(context)
         val view = LayoutInflater.from(context).inflate(R.layout.reaction_bottom_sheet, null)

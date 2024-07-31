@@ -14,9 +14,11 @@ import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.data.main.MainRepository
+import com.atta.chatspherapp.data.storage.StorageRepository
 import com.atta.chatspherapp.models.MessageModel
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.ui.activities.recentchat.MainActivity
+import com.atta.chatspherapp.utils.Constants.REACTIONDETAILS
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.ROOM
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
@@ -26,6 +28,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -39,6 +43,8 @@ class DeleteMessagesService : Service() {
 
     @Inject
     lateinit var mainRepository: MainRepository
+    @Inject
+    lateinit var storageRepository: StorageRepository
 
     private val NOTIFICATION_CHANNEL_ID = "Deleting Message Channel"
     private val NOTIFICATION_ID = 30801
@@ -113,24 +119,48 @@ class DeleteMessagesService : Service() {
     private suspend fun startDeleting(recentMessagesList: ArrayList<RecentChatModel>?) {
         withContext(Dispatchers.IO) {
 
-            coroutineScope {
-                for ((i, model) in recentMessagesList!!.withIndex()) { // will delete from recent chat
-                    val result = mainRepository.deleteAnyModel("$RECENTCHAT/$mykey/${model.userModel.key}")
-                    result.whenError {
-                        Log.i("TAG", "result.whenError { :${it.message}")
+            recentMessagesList?.let { messagesList ->
+                val deleteResults = messagesList.map { model ->
+                    async {
+                        val result = mainRepository.deleteAnyModel("$RECENTCHAT/$mykey/${model.userModel.key}")
+                        result.whenError {
+                            Log.i("TAG", "Deletion error: ${it.message}")
+                            showToast(it.message.toString())
+                        }
+                    }
+                }
+                deleteResults.awaitAll()
+            }
+
+            val listOfLinks = mutableListOf<String>()
+
+            val linkResults = recentMessagesList?.map { model ->
+                async {
+                    val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)
+                    val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+                    roomMessagesList.whenSuccess { messages ->
+                        messages.forEach { messageModel ->
+                            messageModel.imageUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                            messageModel.voiceUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                            messageModel.documentUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                            messageModel.videoUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                        }
+                    }
+                    roomMessagesList.whenError {
+                        Log.i("TAG", "Fetching messages error: ${it.message}")
                         showToast(it.message.toString())
                     }
+                    mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
+                    mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
                 }
             }
 
-            coroutineScope {
-                for ((i, model) in recentMessagesList!!.withIndex()) {
-                    launch {
-                        val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)
-                        val roomMessages = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
-                        Log.i("TAG", "messages : $roomMessages")
-                    }
-                }
+            linkResults?.awaitAll()
+
+            listOfLinks.chunked(10).forEach { chunk ->
+                chunk.map { link ->
+                    async { storageRepository.deleteDocumentToFirebaseStorage(link) }
+                }.awaitAll()
             }
 
             deleteNotification(notificationManager)

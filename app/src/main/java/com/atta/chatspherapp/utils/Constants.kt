@@ -18,6 +18,7 @@ object Constants {
     const val ACTIVITYSTATEOFTHEUSER="activityState"
     const val CHATTINGWITH="chattingWith"
     const val ROOM="room"
+    const val REACTIONDETAILS="reactionsDetails"
 
 
     //sender

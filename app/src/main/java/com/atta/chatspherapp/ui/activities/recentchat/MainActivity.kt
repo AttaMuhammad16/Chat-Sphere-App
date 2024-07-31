@@ -229,7 +229,6 @@ class MainActivity : AppCompatActivity() {
                 }else{
                     startService(intent)
                 }
-
                 for ((i,model) in list.withIndex()){
                     sortedList.remove(model)
                 }
@@ -237,6 +236,7 @@ class MainActivity : AppCompatActivity() {
                 mainViewModel.clearSelectedItemsList()
                 toolBarSettings()
             }
+
             alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
     }

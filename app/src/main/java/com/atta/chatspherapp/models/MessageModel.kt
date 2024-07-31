@@ -17,6 +17,7 @@ data class MessageModel (
     var currentAudioPosition:Int = 0,
     var senderUid:String = "",
     var blockList:ArrayList<String> = arrayListOf(),
+
     var imageUrl:String = "",
     var voiceUrl:String = "",
     var documentUrl:String = "",

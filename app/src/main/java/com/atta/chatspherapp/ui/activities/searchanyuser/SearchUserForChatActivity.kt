@@ -117,6 +117,7 @@ class SearchUserForChatActivity : AppCompatActivity() {
                     intent.putExtra("userModel",item)
                     intent.putExtra("myModel",myModel)
                     startActivity(intent)
+                    finish()
                 }
             }
 
