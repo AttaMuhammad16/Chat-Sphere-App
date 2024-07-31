@@ -16,7 +16,6 @@ interface MainRepository {
     suspend fun updateNumberOfMessages(path: String): MyResult<String>
     suspend fun uploadMap(path: String, dataMap: HashMap<String,Any>): MyResult<Boolean>
     suspend fun getAnyModelFlow(path: String,userModel: UserModel): Flow<UserModel>
-
-
+    suspend fun <T> getModelsList(path: String,clazz: Class<T>): MyResult<List<T>>
 
 }

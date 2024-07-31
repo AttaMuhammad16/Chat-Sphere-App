@@ -16,6 +16,7 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
     <application
@@ -131,6 +132,10 @@
             android:value="Chat Sphere App" />
 
         <receiver android:name=".receiver.NotificationDismissedReceiver" />
+        <service android:name=".service.DeleteMessagesService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="remoteMessaging"/>
     </application>
 
 </manifest>

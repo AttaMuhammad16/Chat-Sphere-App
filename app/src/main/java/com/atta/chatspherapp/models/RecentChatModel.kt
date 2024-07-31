@@ -1,5 +1,10 @@
 package com.atta.chatspherapp.models
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+
+@Parcelize
 data class RecentChatModel(
     var key:String="",
     var recentMessage:String="",
@@ -7,4 +12,4 @@ data class RecentChatModel(
     var numberOfMessages:Int=0,
     var timeStamp:Long=0,
     var userModel: UserModel= UserModel()
-)
+) : Parcelable

@@ -5,6 +5,7 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import android.view.animation.AnimationUtils
@@ -19,6 +20,7 @@ import com.atta.chatspherapp.databinding.ActivityMainBinding
 import com.atta.chatspherapp.databinding.RecentChatSampleRowBinding
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.models.UserModel
+import com.atta.chatspherapp.service.DeleteMessagesService
 import com.atta.chatspherapp.ui.activities.searchanyuser.SearchUserForChatActivity
 import com.atta.chatspherapp.ui.activities.profile.ProfileSettingActivity
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
@@ -75,11 +77,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            mainViewModel.selectedItemFlow.collect{
-                showToast("$it")
-            }
-        }
 
 
 
@@ -116,11 +113,9 @@ class MainActivity : AppCompatActivity() {
                 if (it.isNotEmpty()){
                     progress.dismiss()
                 }else{
-                    delay(4000)
+                    delay(2000)
                     progress.dismiss()
                 }
-
-
                 sortedList = it.sortedByDescending { recentModel -> recentModel.timeStamp }.toMutableList()
                 setUpRecyclerView(sortedList)
 
@@ -225,6 +220,16 @@ class MainActivity : AppCompatActivity() {
 
             deleteBtn.setOnClickListener {
                 alert.dismiss()
+
+                val intent = Intent(this@MainActivity,DeleteMessagesService::class.java)
+                val arraylist=ArrayList(list)
+                intent.putExtra("selectedMessages",arraylist)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(intent)
+                }else{
+                    startService(intent)
+                }
+
                 for ((i,model) in list.withIndex()){
                     sortedList.remove(model)
                 }

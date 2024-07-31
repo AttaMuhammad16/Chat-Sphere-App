@@ -1,0 +1,141 @@
+package com.atta.chatspherapp.service
+
+import android.app.Notification
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.app.Service
+import android.content.Context
+import android.content.Intent
+import android.os.Binder
+import android.os.Build
+import android.os.IBinder
+import android.util.Log
+import androidx.core.app.NotificationCompat
+import com.atta.chatspherapp.R
+import com.atta.chatspherapp.data.main.MainRepository
+import com.atta.chatspherapp.models.MessageModel
+import com.atta.chatspherapp.models.RecentChatModel
+import com.atta.chatspherapp.ui.activities.recentchat.MainActivity
+import com.atta.chatspherapp.utils.Constants.RECENTCHAT
+import com.atta.chatspherapp.utils.Constants.ROOM
+import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
+import com.atta.chatspherapp.utils.NewUtils.showToast
+import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import javax.inject.Inject
+
+
+@AndroidEntryPoint
+class DeleteMessagesService : Service() {
+
+    @Inject
+    lateinit var mainRepository: MainRepository
+
+    private val NOTIFICATION_CHANNEL_ID = "Deleting Message Channel"
+    private val NOTIFICATION_ID = 30801
+
+    @Inject
+    lateinit var auth: FirebaseAuth
+
+    private val serviceJob = Job()
+    private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
+
+
+
+    private val binder = LocalBinder()
+    private lateinit var notificationManager: NotificationManager
+    private lateinit var builder: NotificationCompat.Builder
+
+    inner class LocalBinder : Binder() {
+        fun getService(): DeleteMessagesService = this@DeleteMessagesService
+    }
+    var mykey:String?=""
+
+    override fun onBind(intent: Intent?): IBinder {
+        return binder
+    }
+
+    override fun onCreate() {
+        super.onCreate()
+        notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        createNotificationChannel()
+        createInitialNotification()
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        startForeground(NOTIFICATION_ID, createInitialNotification())
+        val recentMessagesList: ArrayList<RecentChatModel>? = intent?.getParcelableArrayListExtra("selectedMessages")
+        mykey=auth.currentUser?.uid
+        serviceScope.launch {
+            startDeleting(recentMessagesList)
+        }
+        return START_STICKY
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val serviceChannel = NotificationChannel(
+                NOTIFICATION_CHANNEL_ID,
+                "Deleting Message",
+                NotificationManager.IMPORTANCE_DEFAULT
+            )
+            notificationManager.createNotificationChannel(serviceChannel)
+        }
+    }
+
+    private fun createInitialNotification(): Notification {
+        val notificationIntent = Intent(this, MainActivity::class.java)
+        val pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, PendingIntent.FLAG_IMMUTABLE)
+        builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
+            .setContentTitle("Deleting Messages")
+            .setSmallIcon(R.drawable.baseline_delete_24)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .setOngoing(true)
+            .setProgress(0, 0, true)
+        notificationManager.notify(NOTIFICATION_ID, builder.build())
+        return builder.build()
+    }
+
+    private fun deleteNotification(mNotificationManager: NotificationManager) {
+        mNotificationManager.cancel(NOTIFICATION_ID)
+    }
+
+    private suspend fun startDeleting(recentMessagesList: ArrayList<RecentChatModel>?) {
+        withContext(Dispatchers.IO) {
+
+            coroutineScope {
+                for ((i, model) in recentMessagesList!!.withIndex()) { // will delete from recent chat
+                    val result = mainRepository.deleteAnyModel("$RECENTCHAT/$mykey/${model.userModel.key}")
+                    result.whenError {
+                        Log.i("TAG", "result.whenError { :${it.message}")
+                        showToast(it.message.toString())
+                    }
+                }
+            }
+
+            coroutineScope {
+                for ((i, model) in recentMessagesList!!.withIndex()) {
+                    launch {
+                        val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)
+                        val roomMessages = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+                        Log.i("TAG", "messages : $roomMessages")
+                    }
+                }
+            }
+
+            deleteNotification(notificationManager)
+            stopSelf()
+            serviceScope.cancel()
+        }
+    }
+}

@@ -17,6 +17,7 @@ object Constants {
     const val FCMTOENNODE="token"
     const val ACTIVITYSTATEOFTHEUSER="activityState"
     const val CHATTINGWITH="chattingWith"
+    const val ROOM="room"
 
 
     //sender

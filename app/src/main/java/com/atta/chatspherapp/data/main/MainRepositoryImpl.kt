@@ -199,5 +199,19 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
     }
 
 
-
+    override suspend fun <T> getModelsList(path: String, clazz: Class<T>): MyResult<List<T>> {
+        return try {
+            val list= mutableListOf<T>()
+            val snap=databaseReference.child(path).get().await()
+            for (i in snap.children){
+                val data=i.getValue(clazz)
+                if (data!=null){
+                    list.add(data)
+                }
+            }
+           MyResult.Success(list)
+        }catch (e:Exception){
+            MyResult.Error(e.message.toString())
+        }
+    }
 }
