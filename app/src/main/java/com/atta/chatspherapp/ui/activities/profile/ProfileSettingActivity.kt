@@ -53,7 +53,7 @@ class ProfileSettingActivity : AppCompatActivity() {
             binding.profileImg.loadImageViaLink(profileUrl)
             binding.userNameTv.text=fullName
             binding.statusTv.text=s
-            binding.phoneNumberTv.text=phone
+            binding.phoneNumberTv.text=fullName
             status=s
         }
 
@@ -66,7 +66,7 @@ class ProfileSettingActivity : AppCompatActivity() {
         }
 
         binding.nameLinear.setOnClickListener {
-            showBottomSheet(myModel!!.fullName,true)
+            showBottomSheet(myModel?.fullName?:"Name not found",true)
         }
 
         binding.aboutLinear.setOnClickListener {
@@ -80,7 +80,7 @@ class ProfileSettingActivity : AppCompatActivity() {
             uri=data!!.data!!
             binding.profileImg.setImageURI(uri)
             lifecycleScope.launch {
-                val progress= showProgressDialog(this@ProfileSettingActivity,"Changing...")
+                val progress= showProgressDialog("Changing...")
                 storageViewModel.deleteDocumentToFirebaseStorage(myModel!!.profileUrl)
                 val result=storageViewModel.uploadImageToFirebaseStorage(uri.toString())
                 result.whenSuccess {

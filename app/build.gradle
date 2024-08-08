@@ -146,6 +146,13 @@ dependencies {
     implementation 'com.nex3z:flow-layout:1.3.3'
     implementation 'com.github.Armen101:AudioRecordView:1.0.1'
 
+    //fancy toast
+    implementation 'io.github.shashank02051997:FancyToast:2.0.2'
+
+    //google sign in
+    implementation 'com.google.android.gms:play-services-auth:18.1.0'
+
+
 }
 kapt {
     correctErrorTypes = true

@@ -19,10 +19,12 @@
         app:lottie_rawRes="@raw/sign_up_anim" />
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
         android:layout_margin="@dimen/_10sdp"
+        android:clickable="true"
         android:backgroundTint="@color/white"
         app:strokeColor="@color/green"
         app:cardElevation="@dimen/_3sdp"
@@ -39,15 +41,18 @@
                 android:orientation="vertical">
 
                 <TextView
+                    android:id="@+id/loginTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/baloo_2_medium"
                     android:gravity="center"
                     android:text="Login"
+                    android:layout_marginTop="@dimen/_7sdp"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_20sdp" />
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/emailTextInput"
                     style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,6 +74,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/passwordTextInput"
                     style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -92,6 +98,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/loginBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_8sdp"
@@ -100,6 +107,7 @@
                     android:textColor="@color/white" />
 
                 <LinearLayout
+                    android:id="@+id/dontAccountLinear"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_5sdp"
@@ -115,6 +123,7 @@
                         android:textSize="@dimen/_14sdp" />
 
                     <TextView
+                        android:id="@+id/registerTv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/baloo_2_medium"
@@ -125,6 +134,7 @@
                 </LinearLayout>
 
                 <TextView
+                    android:id="@+id/orTv"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -133,6 +143,7 @@
                     android:textSize="@dimen/_14sdp" />
 
                 <com.google.android.gms.common.SignInButton
+                    android:id="@+id/googleSignBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center" />

@@ -1760,7 +1760,7 @@ class ChatAdapter(
             mainViewModel.collectAnyModel(reactionDetailsPath , ReactionModel::class.java).collect{
                 for (i in it){
                     val model=mainViewModel.getAnyData("$USERS/${i.senderKey}",UserModel::class.java)!!
-                    i.senderName=model.fullName
+                    i.senderName= model.fullName ?:"Name not found"
                     i.senderImageUrl=model.profileUrl
                 }
 

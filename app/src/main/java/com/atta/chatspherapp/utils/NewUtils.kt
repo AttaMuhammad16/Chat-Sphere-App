@@ -32,6 +32,7 @@ import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
@@ -47,14 +48,13 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
 import com.atta.chatspherapp.R
-import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.activities.room.EditImageActivity
-import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.tabs.TabLayout
@@ -63,12 +63,10 @@ import com.google.android.material.textfield.MaterialAutoCompleteTextView
 import com.google.android.material.textfield.TextInputEditText
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.Firebase
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.FirebaseDatabase
-import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.storage.UploadTask
 import com.google.firebase.storage.ktx.storage
 import com.google.firebase.storage.storage
+import com.shashank.sony.fancytoastlib.FancyToast
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -85,6 +83,7 @@ import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 import java.util.TimeZone
+import java.util.regex.Pattern
 
 
 object NewUtils {
@@ -659,6 +658,7 @@ object NewUtils {
 
 
     fun EditText.showSoftKeyboard() {
+        this.requestFocus()
         val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
     }
@@ -666,6 +666,15 @@ object NewUtils {
     fun EditText.hideSoftKeyboard() {
         val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(this, InputMethodManager.HIDE_IMPLICIT_ONLY)
+    }
+
+    fun String.isValidEmail(): Boolean {
+        val emailPattern = Pattern.compile(
+            "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"
+        )
+        if (!emailPattern.matcher(this).matches()) return false
+        if (this.length > 50) return false
+        return true
     }
 
 
@@ -782,12 +791,12 @@ object NewUtils {
         }
     }
 
-    fun showProgressDialog(context: Context, message: String): Dialog {
-        val progressDialog = Dialog(context)
+    fun FragmentActivity.showProgressDialog(message: String="Loading"): Dialog {
+        val progressDialog = Dialog(this)
         progressDialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         progressDialog.setCancelable(false)
 
-        val view = LayoutInflater.from(context).inflate(R.layout.progress_dialog, null)
+        val view = LayoutInflater.from(this).inflate(R.layout.progress_dialog, null)
         val progressBar = view.findViewById<ProgressBar>(R.id.progressBar)
         val messageTextView = view.findViewById<TextView>(R.id.messageTextView)
         messageTextView.text = message
@@ -934,7 +943,7 @@ object NewUtils {
     }
 
 
-    fun Context.showUserImage(profileUrl:String,phoneNumber: String) {
+    fun Context.showUserImage(profileUrl: String, fullName: String) {
         val alert = androidx.appcompat.app.AlertDialog.Builder(this).setView(R.layout.pop_up_image_dialog).show()
 
         val window = alert.window
@@ -944,11 +953,45 @@ object NewUtils {
         window?.setBackgroundDrawableResource(android.R.color.transparent)
         window?.attributes = layoutParams
 
-        val userNumberTv = alert.findViewById<TextView>(R.id.numberTv)
+        val nameTv = alert.findViewById<TextView>(R.id.nameTv)
         val userImage = alert.findViewById<ImageView>(R.id.imageView)
         userImage?.loadImageViaLink(profileUrl)
-        userNumberTv?.text = phoneNumber
+        nameTv?.text=fullName
     }
+
+
+    fun Activity.startNewActivity(activity:Class<*> , willFinish:Boolean=false){
+        startActivity(Intent(this,activity))
+        if (willFinish){
+            finish()
+        }
+    }
+
+    fun Activity.startNewActivityFinishPreviousAll(activity:Class<*> , willFinish:Boolean=false){
+        startActivity(Intent(this,activity))
+        if (willFinish){
+            finishAffinity()
+        }
+    }
+
+
+    fun View.setAnimationOnView(animationId:Int,duration: Long){
+        val animation = AnimationUtils.loadAnimation(this.context, animationId)
+        animation.duration = duration // Set the animation duration
+        this.startAnimation(animation)
+    }
+
+
+    fun Context.showErrorToast(message: String){
+        FancyToast.makeText(this,message,FancyToast.LENGTH_LONG,FancyToast.ERROR,false).show();
+    }
+
+    fun Context.showSuccessToast(message: String){
+        FancyToast.makeText(this,message,FancyToast.LENGTH_LONG,FancyToast.SUCCESS,false).show();
+    }
+
+
+
 
 
 }

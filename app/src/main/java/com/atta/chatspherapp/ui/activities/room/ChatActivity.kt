@@ -524,7 +524,7 @@ class ChatActivity : AppCompatActivity() {
                         imageUrl = "",
                         voiceUrl = "",
                         documentUrl = "",
-                        referenceMessageSenderName = myModel.fullName,
+                        referenceMessageSenderName = myModel.fullName?:"Name not found",
                         referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
                         referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
                         referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
@@ -1154,7 +1154,7 @@ class ChatActivity : AppCompatActivity() {
                 myModel.apply {
                     val accessToken= getAccessToken(this@ChatActivity)
                     if (!accessToken.isNullOrEmpty()){
-                        SendNotification.sendMessageNotification(fullName,message,userModel!!.token,accessToken)
+                        SendNotification.sendMessageNotification(fullName?:"Name not found",message,userModel!!.token,accessToken)
                     }else{
                         showToast("your access token is not found")
                     }

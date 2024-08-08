@@ -12,13 +12,14 @@
         android:id="@+id/lottieAnimationView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight=".6"
+        android:layout_weight=".4"
         android:layout_margin="@dimen/_5sdp"
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/sign_up_anim" />
 
     <com.google.android.material.card.MaterialCardView
+        android:id="@+id/card"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -26,6 +27,7 @@
         android:backgroundTint="@color/white"
         app:strokeColor="@color/green"
         app:cardElevation="@dimen/_3sdp"
+        android:clickable="true"
         android:animateLayoutChanges="true"
         app:strokeWidth="1dp">
         <androidx.core.widget.NestedScrollView
@@ -38,16 +40,60 @@
                 android:layout_margin="@dimen/_10sdp"
                 android:orientation="vertical">
 
-                <TextView
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/imgConstraint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/baloo_2_medium"
-                    android:gravity="center"
-                    android:text="Registration"
-                    android:textColor="@color/black"
-                    android:textSize="@dimen/_20sdp" />
+                    android:layout_marginTop="@dimen/_10sdp"
+                    android:layout_gravity="center">
+
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/selectedImg"
+                        android:layout_width="@dimen/_80sdp"
+                        android:layout_height="@dimen/_80sdp"
+                        android:src="@drawable/person"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/selectUserImage"
+                        android:layout_width="@dimen/_25sdp"
+                        android:layout_height="@dimen/_25sdp"
+                        android:elevation="@dimen/_10sdp"
+                        android:src="@drawable/baseline_camera_alt_24"
+                        app:layout_constraintBottom_toBottomOf="@+id/selectedImg"
+                        app:layout_constraintEnd_toEndOf="@+id/selectedImg"
+                        app:tint="@color/gray" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/nameInputLayout"
+                    style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/_5sdp"
+                    app:boxCornerRadiusBottomEnd="@dimen/_8sdp"
+                    app:boxCornerRadiusBottomStart="@dimen/_8sdp"
+                    app:boxCornerRadiusTopEnd="@dimen/_8sdp"
+                    app:boxCornerRadiusTopStart="@dimen/_8sdp"
+                    app:boxStrokeColor="@color/mtrl_textinput_default_box_stroke_color"
+                    app:hintTextColor="@color/black">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/fullNameEdt"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Enter Name"
+                        android:textColor="@color/black"
+                        android:textColorHint="@color/black" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/emailInputLayout"
                     style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -69,6 +115,7 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
+                    android:id="@+id/passwordInputLayout"
                     style="@style/ThemeOverlay.Material3.TextInputEditText.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -92,14 +139,16 @@
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/registerBtn"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_8sdp"
                     android:backgroundTint="@color/green"
-                    android:text="Login"
+                    android:text="Register"
                     android:textColor="@color/white" />
 
                 <LinearLayout
+                    android:id="@+id/aleardyAccountLinear"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/_5sdp"
@@ -115,6 +164,7 @@
                         android:textSize="@dimen/_14sdp" />
 
                     <TextView
+                        android:id="@+id/loginTv"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:fontFamily="@font/baloo_2_medium"

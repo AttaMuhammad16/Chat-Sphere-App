@@ -19,6 +19,7 @@ object Constants {
     const val CHATTINGWITH="chattingWith"
     const val ROOM="room"
     const val REACTIONDETAILS="reactionsDetails"
+    const val GOOGLEREQUESTCODE=12
 
 
     //sender
@@ -37,6 +38,5 @@ object Constants {
 
     const val SENDER_DOCUMENT_MESSAGE=9
     const val RECEIVER_DOCUMENT_MESSAGE=10
-    const val TEACHER_KEY="teacherKey"
 
 }

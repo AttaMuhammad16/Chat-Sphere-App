@@ -2,6 +2,8 @@ package com.atta.chatspherapp.di
 
 import com.atta.chatspherapp.data.auth.email.AuthRepositoryWithEmail
 import com.atta.chatspherapp.data.auth.email.AuthRepositoryWithEmailImpl
+import com.atta.chatspherapp.data.auth.google.SignInWIthGoogle
+import com.atta.chatspherapp.data.auth.google.SignInWithGoogleImpl
 import com.atta.chatspherapp.data.auth.phone.AuthRepositoryWithPhone
 import com.atta.chatspherapp.data.main.MainRepository
 import com.atta.chatspherapp.data.main.MainRepositoryImpl
@@ -49,8 +51,8 @@ object Module {
 
     @Provides
     @Singleton
-    fun provideAuthViewModel(authRepositoryWithEmail: AuthRepositoryWithEmail, authRepositoryWithPhone: AuthRepositoryWithPhone) : AuthViewModel {
-        return AuthViewModel(authRepositoryWithEmail,authRepositoryWithPhone)
+    fun provideAuthViewModel(authRepositoryWithEmail: AuthRepositoryWithEmail, authRepositoryWithPhone: AuthRepositoryWithPhone,signInWIthGoogle: SignInWIthGoogle) : AuthViewModel {
+        return AuthViewModel(authRepositoryWithEmail,authRepositoryWithPhone,signInWIthGoogle)
     }
 
     @Provides
@@ -97,6 +99,13 @@ object Module {
     @Singleton
     fun provideStorageRepository(storageReference: StorageReference): StorageRepository {
        return StorageRepositoryImpl(storageReference)
+    }
+
+
+    @Provides
+    @Singleton
+    fun provideGoogleSignIn(auth: FirebaseAuth):SignInWIthGoogle{
+        return SignInWithGoogleImpl(auth)
     }
 
 

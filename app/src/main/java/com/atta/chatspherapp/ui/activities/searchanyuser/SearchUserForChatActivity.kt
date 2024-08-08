@@ -2,11 +2,7 @@ package com.atta.chatspherapp.ui.activities.searchanyuser
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.WindowManager
 import android.view.animation.AnimationUtils
-import android.widget.ImageView
-import android.widget.TextView
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
@@ -26,7 +22,6 @@ import com.atta.chatspherapp.utils.NewUtils.showKeyBoard
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.showWithRevealAnimation
 import com.google.firebase.auth.FirebaseAuth
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -92,7 +87,7 @@ class SearchUserForChatActivity : AppCompatActivity() {
         if (query.isEmpty()) {
             filteredList.addAll(list)
         } else {
-            list.filterTo(filteredList) { it.fullName.contains(query, ignoreCase = true) }
+            list.filterTo(filteredList) { it.fullName?.contains(query, ignoreCase = true)==true }
         }
         setUpRecyclerView(filteredList)
     }
@@ -108,11 +103,11 @@ class SearchUserForChatActivity : AppCompatActivity() {
             binding.userNameTv.text=if (auth.currentUser!!.uid==item.key){"${item.fullName} (You)"}else{item.fullName}
             binding.statusTv.text=if (item.status.isEmpty()){"Hey there i am using Chat Sphere"}else{item.status}
             binding.userImage.setOnClickListener{
-                showUserImage(item.profileUrl,item.phone)
+                showUserImage(item.profileUrl,item?.fullName?:"Name not found")
             }
 
             binding.main.setOnClickListener {
-                if (myModel.fullName.isNotEmpty()){
+                if (myModel.fullName?.isNotEmpty()==true){
                     val intent=Intent(this@SearchUserForChatActivity, ChatActivity::class.java)
                     intent.putExtra("userModel",item)
                     intent.putExtra("myModel",myModel)

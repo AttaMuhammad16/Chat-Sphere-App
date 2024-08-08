@@ -12,7 +12,6 @@ import android.view.animation.AnimationUtils
 import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
@@ -37,7 +36,6 @@ import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -97,7 +95,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            val progress= showProgressDialog(this@MainActivity,"Loading...")
+            val progress= showProgressDialog("Loading...")
 
             mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}",RecentChatModel::class.java).collect{it->
 
@@ -157,7 +155,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             binding.profileImage.setOnClickListener{
-                showUserImage(recentModel.userModel.profileUrl,recentModel.userModel.phone)
+                showUserImage(recentModel.userModel.profileUrl,recentModel.userModel.fullName?:"Name not found")
             }
 
             if (toggle){

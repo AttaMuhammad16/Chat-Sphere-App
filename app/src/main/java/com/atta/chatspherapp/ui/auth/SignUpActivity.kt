@@ -29,6 +29,8 @@ import com.bumptech.glide.Glide
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.utils.Constants.CONTACTS
 import com.atta.chatspherapp.utils.Constants.PHONE
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
+import com.atta.chatspherapp.utils.NewUtils.startNewActivity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import dagger.hilt.android.AndroidEntryPoint
@@ -60,8 +62,23 @@ class SignUpActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        setStatusBarColor(R.color.black)
+        setStatusBarColor(R.color.green)
+        overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
+        binding.loginTv.setOnClickListener {
+            finish()
+        }
+        animations()
+    }
 
 
+
+    fun animations(){
+        binding.card.setAnimationOnView(R.anim.slide_up,2000)
+        binding.imgConstraint.setAnimationOnView(R.anim.slide_up,2200)
+        binding.nameInputLayout.setAnimationOnView(R.anim.slide_up,2400)
+        binding.emailInputLayout.setAnimationOnView(R.anim.slide_up,2600)
+        binding.passwordInputLayout.setAnimationOnView(R.anim.slide_up,2800)
+        binding.registerBtn.setAnimationOnView(R.anim.slide_up,3000)
+        binding.aleardyAccountLinear.setAnimationOnView(R.anim.slide_up,3200)
     }
 }

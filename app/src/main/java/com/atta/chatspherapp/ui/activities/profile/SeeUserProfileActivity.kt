@@ -35,12 +35,12 @@ class SeeUserProfileActivity : AppCompatActivity() {
             binding.profileImg.loadImageViaLink(profileUrl)
             binding.userNameTv.text=fullName
             binding.statusTv.text=if (status.isNotEmpty()){status}else{"Hey there! i am using chat sphere"}
-            binding.phoneNumberTv.text=phone
+            binding.phoneNumberTv.text="empty"
         }
 
         binding.phoneLinear.setOnClickListener {
             val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("phoneNumber copied", userBundle?.phone)
+            val clip = ClipData.newPlainText("phoneNumber copied", userBundle?.fullName)
             clipboard.setPrimaryClip(clip)
             showToast("phoneNumber copied.")
         }
