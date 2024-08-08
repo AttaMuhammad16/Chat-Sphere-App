@@ -1,7 +1,5 @@
 package com.atta.chatspherapp.di
 
-import com.atta.chatspherapp.data.auth.AuthRepository
-import com.atta.chatspherapp.data.auth.AuthRepositoryImpl
 import com.atta.chatspherapp.data.auth.email.AuthRepositoryWithEmail
 import com.atta.chatspherapp.data.auth.email.AuthRepositoryWithEmailImpl
 import com.atta.chatspherapp.data.auth.phone.AuthRepositoryWithPhone
@@ -38,18 +36,15 @@ object Module {
 
     @Provides
     @Singleton
-    fun provideMainViewModel(mainRepository: MainRepository,authRepository: AuthRepository,storageRepository: StorageRepository) : MainViewModel {
-        return MainViewModel(authRepository,storageRepository,mainRepository)
+    fun provideMainViewModel(mainRepository: MainRepository,storageRepository: StorageRepository) : MainViewModel {
+        return MainViewModel(storageRepository,mainRepository)
     }
-
-
 
     @Provides
     @Singleton
     fun provideStorageViewModel(storageRepository: StorageRepository) : StorageViewModel {
         return StorageViewModel(storageRepository)
     }
-
 
 
     @Provides
@@ -105,13 +100,6 @@ object Module {
     }
 
 
-
-
-    @Provides
-    @Singleton
-    fun provideAuthRepository(auth: FirebaseAuth): AuthRepository {
-        return AuthRepositoryImpl(auth)
-    }
 
 
 

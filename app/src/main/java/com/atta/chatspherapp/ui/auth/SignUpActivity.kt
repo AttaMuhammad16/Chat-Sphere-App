@@ -35,6 +35,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
 class SignUpActivity : AppCompatActivity() {
     lateinit var binding: ActivitySignUpBinding
@@ -57,84 +58,10 @@ class SignUpActivity : AppCompatActivity() {
     lateinit var sharedPreferencesHelper: SharedPreferencesHelper
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding=ActivitySignUpBinding.inflate(layoutInflater)
+        binding = ActivitySignUpBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        sharedPreferencesHelper= SharedPreferencesHelper(this@SignUpActivity)
-
         setStatusBarColor(R.color.black)
-        Glide.with(this@SignUpActivity).load(R.drawable.bg).into(binding.imageView)
-        binding.selectUserImage.setOnClickListener {
-            pickImageFromGallery(requestCode,this@SignUpActivity)
-        }
 
-        binding.loginTv.setOnClickListener {
-            startActivity(Intent(this@SignUpActivity, SignInActivity::class.java))
-            finish()
-        }
-
-        requestStoragePermission()
-
-        binding.registerBtn.setOnClickListener {
-            val name=binding.nameEdt.text.toString().trim()
-
-            binding.countryCodePicker.registerCarrierNumberEditText(binding.numberEdt)
-            val dialog= showProgressDialog(this,"Register...")
-            val countryCode=binding.countryCodePicker.selectedCountryCode
-            val number=binding.numberEdt.text.toString()
-            val formattedNumber=processPhoneNumber(number)
-            val fullNumber="+${countryCode+formattedNumber}"
-            val selectedCountryNameCode=binding.countryCodePicker.selectedCountryNameCode
-
-            list.add(binding.nameEdt)
-            list.add(binding.numberEdt)
-
-            if (!::uri.isInitialized){
-                showToast("Select profile image", Toast.LENGTH_LONG)
-                dialog.dismiss()
-            }else if (!checkEditTexts(this@SignUpActivity,list)){
-                dialog.dismiss()
-            }else if (fullNumber.length<=5){
-                showToast("Enter valid PhoneNumber", Toast.LENGTH_SHORT)
-                binding.numberEdt.error = "Enter valid PhoneNumber"
-                dialog.dismiss()
-            } else{
-
-                lifecycleScope.launch {
-
-                    sharedPreferencesHelper.getString(COUNTRYNAMECODE,selectedCountryNameCode)
-
-                    val userModel= UserModel("",name,fullNumber,"","",0,"")
-                    val intent=Intent(this@SignUpActivity, OTPActivity::class.java)
-                    intent.putExtra("userModel",userModel)
-                    intent.putExtra("uri",uri.toString())
-                    startActivity(intent)
-                    finish()
-                    dialog.dismiss()
-
-               }
-            }
-        }
 
     }
-
-    @Deprecated("Deprecated in Java")
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (resultCode== Activity.RESULT_OK&&requestCode==this.requestCode){
-            uri=data?.data?: Uri.parse("")
-            binding.selectedImg.setImageURI(uri)
-            val takeFlags = data?.flags?.and((Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION))
-            if (takeFlags != null) {
-                contentResolver.takePersistableUriPermission(uri, takeFlags)
-            }
-        }
-    }
-
-    private fun requestStoragePermission() {
-        if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1321)
-        }
-    }
-
 }

@@ -78,8 +78,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
-
         binding.chatCard.setOnClickListener{
             startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
         }

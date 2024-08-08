@@ -5,7 +5,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.atta.chatspherapp.R
-import com.atta.chatspherapp.data.auth.AuthRepository
 import com.atta.chatspherapp.data.main.MainRepository
 import com.atta.chatspherapp.data.storage.StorageRepository
 import com.atta.chatspherapp.models.RecentChatModel
@@ -22,7 +21,7 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val authRepository: AuthRepository, private val storageRepository: StorageRepository, private val mainRepository: MainRepository):ViewModel() {
+class MainViewModel @Inject constructor(private val storageRepository: StorageRepository, private val mainRepository: MainRepository):ViewModel() {
     var isRecentChatUploaded:MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     private var _isUserInActivity:MutableStateFlow<Boolean> = MutableStateFlow(false)

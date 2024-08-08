@@ -8,6 +8,8 @@
     <color name="very_light_grey">#BCBCBD</color>
     <color name="red">#F40A0A</color>
     <color name="light_red">#EF6262</color>
+    <color name="mtrl_textinput_default_box_stroke_color">#299F0B</color>
+
 
     <color name="tool_bar_color">#556080</color>
     <color name="dark_blue_nav">#162059</color>
@@ -23,7 +25,6 @@
     <color name="very_light_cement">#EBEDF4</color>
     <color name="very_very_light_cement">#F1F1F1</color>
 
-    <color name="mtrl_textinput_default_box_stroke_color">#FFFFFFFF</color>
     <color name="sender_background_color">#DEF6D4</color>
     <color name="reciver_background_color">#FFFFFF</color>
 
