@@ -7,6 +7,29 @@
     android:background="@color/white"
     android:orientation="vertical"
     tools:context=".ui.auth.SignUpActivity">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:background="@color/green"
+        android:visibility="gone"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:id="@+id/backArrow"
+            android:layout_width="@dimen/_40sdp"
+            android:padding="@dimen/_5sdp"
+            android:src="@drawable/baseline_arrow_back_24"
+            android:layout_height="@dimen/_40sdp"
+            app:tint="@color/white" />
+        <TextView
+            android:id="@+id/toolBarTitle"
+            android:layout_width="match_parent"
+            android:text="Take Picture"
+            android:textColor="@color/white"
+            android:textSize="@dimen/_20sdp"
+            android:layout_height="wrap_content"/>
+
+
+    </androidx.appcompat.widget.Toolbar>
 
     <com.airbnb.lottie.LottieAnimationView
         android:id="@+id/lottieAnimationView"
@@ -17,6 +40,35 @@
         app:lottie_autoPlay="true"
         app:lottie_loop="true"
         app:lottie_rawRes="@raw/sign_up_anim" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/previewViewCard"
+        android:layout_width="@dimen/_200sdp"
+        android:layout_height="@dimen/_200sdp"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/_60sdp"
+        app:cardCornerRadius="@dimen/_200sdp">
+
+        <androidx.camera.view.PreviewView
+            android:id="@+id/previewView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center" />
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/cameraBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_marginTop="@dimen/_50sdp"
+        android:gravity="center"
+        android:textColor="@color/white"
+        android:backgroundTint="@color/green"
+        android:text="Take Picture" />
+
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/card"
@@ -52,6 +104,17 @@
                         android:layout_width="@dimen/_80sdp"
                         android:layout_height="@dimen/_80sdp"
                         android:src="@drawable/person"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ProgressBar
+                        android:id="@+id/pd"
+                        android:layout_width="@dimen/_25sdp"
+                        android:layout_height="@dimen/_25sdp"
+                        android:indeterminateTint="@color/green"
+                        android:visibility="gone"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

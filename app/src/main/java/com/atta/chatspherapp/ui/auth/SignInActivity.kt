@@ -74,6 +74,7 @@ class SignInActivity : AppCompatActivity() {
         binding.loginBtn.setOnClickListener{
             val email=binding.emailEdt.text.toString().trim()
             val password=binding.passwordEdt.text.toString().trim()
+
             if (email.isEmpty()||email.isBlank()){
                 binding.emailEdt.error="Enter email"
                 binding.emailEdt.showSoftKeyboard()

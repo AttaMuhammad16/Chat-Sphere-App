@@ -33,7 +33,6 @@
         android:fontFamily="@font/akaya_kanadaka"
         android:gravity="center"
         android:text="Welcome to Chat Sphere"
-        android:textStyle="bold"
         android:textColor="@color/green"
         android:textSize="@dimen/_20sdp" />
 

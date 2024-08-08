@@ -20,6 +20,9 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_REMOTE_MESSAGING" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <uses-feature android:name="android.hardware.camera" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
     <application
         android:name=".utils.App"
         android:allowBackup="true"
@@ -56,11 +59,13 @@
 
         <activity
             android:name=".ui.auth.SignInActivity"
-            android:exported="false"/>
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
 
         <activity
             android:name=".ui.auth.SignUpActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize"/>
 
         <activity
             android:name=".ui.activities.recentchat.MainActivity"

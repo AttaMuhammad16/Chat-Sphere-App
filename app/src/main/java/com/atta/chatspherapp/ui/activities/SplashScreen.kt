@@ -33,8 +33,6 @@ class SplashScreen : AppCompatActivity() {
         val splashText = findViewById<TextView>(R.id.splashText)
 
         splashText.setAnimationOnView(R.anim.slide_up,1500)
-
-
         Handler().postDelayed({
             if (auth.currentUser!=null){
                 startNewActivity(MainActivity::class.java,true)
@@ -42,7 +40,6 @@ class SplashScreen : AppCompatActivity() {
                 startNewActivity(SignInActivity::class.java,true)
             }
         },2500)
-
 
 
 

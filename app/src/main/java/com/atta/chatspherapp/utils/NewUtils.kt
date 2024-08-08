@@ -13,6 +13,8 @@ import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Typeface
 import android.graphics.drawable.ColorDrawable
@@ -20,6 +22,7 @@ import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.os.CountDownTimer
 import android.os.Environment
+import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
@@ -74,6 +77,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -967,7 +971,7 @@ object NewUtils {
         }
     }
 
-    fun Activity.startNewActivityFinishPreviousAll(activity:Class<*> , willFinish:Boolean=false){
+    fun Activity.startNewActivityFinishPreviousAll(activity:Class<*> , willFinish:Boolean=true){
         startActivity(Intent(this,activity))
         if (willFinish){
             finishAffinity()
@@ -989,6 +993,43 @@ object NewUtils {
     fun Context.showSuccessToast(message: String){
         FancyToast.makeText(this,message,FancyToast.LENGTH_LONG,FancyToast.SUCCESS,false).show();
     }
+
+    fun Activity.openCamera(requestCode:Int) {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        startActivityForResult(takePictureIntent, requestCode)
+    }
+
+    fun Activity.openBackCamera(requestCode:Int){
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        intent.putExtra("android.intent.extras.CAMERA_FACING", 1)
+        startActivityForResult(intent,requestCode)
+    }
+
+    suspend fun getBitmapFromFile(filePath: String): Bitmap? {
+        val file = File(filePath)
+        if (!file.exists()) {
+            throw IllegalArgumentException("File does not exist: $filePath")
+        }
+        return BitmapFactory.decodeFile(file.absolutePath)
+    }
+
+
+    suspend fun Context.compressImageUri(uri: Uri, quality: Int): Uri? {
+        val inputStream = contentResolver.openInputStream(uri)
+        val bitmap = BitmapFactory.decodeStream(inputStream)
+        val compressedFile = File.createTempFile("compressed_image", ".jpg", cacheDir)
+
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
+        val byteArray = outputStream.toByteArray()
+        withContext(Dispatchers.IO) {
+            FileOutputStream(compressedFile).use { it.write(byteArray) }
+        }
+        val compressUri=Uri.fromFile(compressedFile)
+        return compressUri
+    }
+
+
 
 
 
