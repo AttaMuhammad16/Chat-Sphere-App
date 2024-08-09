@@ -48,10 +48,11 @@
 
             <ImageView
                 android:id="@+id/profileSettingImg"
-                android:layout_width="@dimen/_20sdp"
-                android:layout_height="@dimen/_20sdp"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
                 android:layout_gravity="end"
-                android:layout_margin="@dimen/_5sdp"
+                android:padding="@dimen/_3sdp"
+                android:layout_marginEnd="@dimen/_10sdp"
                 android:foreground="?attr/selectableItemBackgroundBorderless"
                 android:src="@drawable/baseline_settings_24"
                 app:tint="@color/white" />

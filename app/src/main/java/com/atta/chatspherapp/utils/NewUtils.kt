@@ -51,6 +51,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -999,11 +1000,14 @@ object NewUtils {
     }
 
 
+
+
     fun View.setAnimationOnView(animationId:Int,duration: Long){
         val animation = AnimationUtils.loadAnimation(this.context, animationId)
         animation.duration = duration // Set the animation duration
         this.startAnimation(animation)
     }
+
 
 
     fun Context.showErrorToast(message: String){
@@ -1079,6 +1083,30 @@ object NewUtils {
         fallAnimator.start()
     }
 
+
+
+    fun Context.share() {
+        val shareText = """
+            Check out this amazing app! Chat Sphere App
+            Play store link:
+               https://play.google.com/store/apps/details?id=com.atta.chatspherapp
+        """.trimIndent()
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            type = "text/plain"
+        }
+        startActivity(Intent.createChooser(shareIntent, "Share via"))
+    }
+
+    fun Context.rateUS() {
+        val appPackageName = packageName
+        try {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$appPackageName")))
+        } catch (anfe: android.content.ActivityNotFoundException) {
+            startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=$appPackageName")))
+        }
+    }
 
 
 

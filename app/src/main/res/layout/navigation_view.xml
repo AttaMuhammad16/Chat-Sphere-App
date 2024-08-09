@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/mainRelative"
     android:layout_width="match_parent"
+    android:visibility="gone"
     android:layout_height="match_parent">
 
     <de.hdodenhof.circleimageview.CircleImageView
@@ -12,6 +14,7 @@
         android:elevation="20dp"
         android:src="@drawable/person" />
 
+
     <TextView
         android:id="@+id/tx_name"
         android:layout_width="wrap_content"
@@ -19,7 +22,7 @@
         android:layout_below="@+id/img_profile"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="13dp"
-        android:text="Rahil Badshah"
+        android:text="Atta Muhammad"
         android:textColor="#ff000000"
         android:textSize="20sp"
         android:textStyle="bold" />
@@ -31,69 +34,66 @@
         android:layout_below="@+id/img_profile"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="42dp"
-        android:text="abcsample@gmail.com"
-        android:textColor="#ffcccccc"
+        android:text="atta@gmail.com"
+        android:textColor="#989797"
         android:textSize="14sp" />
 
-    <TextView
-        android:id="@+id/tx_profil"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="249dp"
-        android:text="My Profile"
-        android:textColor="#ff0083c2"
-        android:textSize="20sp"
-        android:textStyle="bold" />
 
-    <TextView
-        android:id="@+id/tx_ac"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_profil"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="25dp"
-        android:text="Account Settings"
-        android:textColor="#ff0083c2"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        android:layout_below="@id/tx_email"
+        android:layout_marginTop="@dimen/_20sdp"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tx_share"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_ac"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="25dp"
-        android:text="Share App"
-        android:textColor="#ff0083c2"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tx_profil"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:text="Profile"
+            android:background="?attr/selectableItemBackground"
+            android:textColor="#4AC54F"
+            android:drawableTint="#4AC54F"
+            android:drawableRight="@drawable/baseline_person_24"
+            android:textSize="@dimen/_17sdp"
+            android:fontFamily="@font/alatsi" />
 
-    <TextView
-        android:id="@+id/tx_rate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tx_share"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="25dp"
-        android:text="Rate App"
-        android:textColor="#ff0083c2"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        <TextView
+            android:id="@+id/tx_share"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tx_ac"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="10dp"
+            android:drawableRight="@drawable/baseline_share_24"
+            android:background="?attr/selectableItemBackground"
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/txt_about"
-        android:layout_below="@+id/tx_rate"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="25dp"
-        android:text="Réglages"
-        android:textColor="#ff0083c2"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+            android:drawableTint="#2196F3"
+            android:text="Share App"
+            android:textColor="#2196F3"
+            android:textSize="@dimen/_17sdp"
+            android:fontFamily="@font/alatsi" />
+
+        <TextView
+            android:id="@+id/tx_rate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tx_share"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="10dp"
+            android:background="?attr/selectableItemBackground"
+            android:text="Rate Us"
+            android:drawableTint="#F1BB1A"
+            android:drawableRight="@drawable/baseline_star_24"
+            android:textColor="#F1BB1A"
+            android:layout_marginBottom="@dimen/_5sdp"
+            android:textSize="@dimen/_17sdp"
+            android:fontFamily="@font/alatsi" />
+    </LinearLayout>
+
 
 </RelativeLayout>

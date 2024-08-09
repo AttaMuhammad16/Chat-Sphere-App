@@ -13,6 +13,8 @@ import android.view.MenuItem
 import android.view.View
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -29,14 +31,17 @@ import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.service.DeleteMessagesService
 import com.atta.chatspherapp.ui.activities.profile.ProfileSettingActivity
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
+import com.atta.chatspherapp.ui.activities.searchanyuser.SearchUserForChatActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
+import com.atta.chatspherapp.utils.NewUtils.rateUS
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
+import com.atta.chatspherapp.utils.NewUtils.share
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
@@ -62,7 +67,7 @@ class MainActivity : AppCompatActivity() {
     var myModel:UserModel?=null
     var sortedList = mutableListOf<RecentChatModel>()
 
-    var duration=1500L
+    var duration=1000L
     var animatedItemKey = mutableSetOf<String>() // Set to track animated items
 
 
@@ -73,6 +78,17 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setStatusBarColor(R.color.green)
         window.statusBarColor = Color.parseColor("#299F0B")
+
+        // navigation items
+
+        val drawerImgProfile = findViewById<ImageView>(R.id.img_profile)
+        val drawerName = findViewById<TextView>(R.id.tx_name)
+        val drawerEmail = findViewById<TextView>(R.id.tx_email)
+
+        val profileTextView = findViewById<TextView>(R.id.tx_profil)
+        val shareTextView = findViewById<TextView>(R.id.tx_share)
+        val rateTextView = findViewById<TextView>(R.id.tx_rate)
+        val mainRelative = findViewById<RelativeLayout>(R.id.mainRelative)
 
 
 
@@ -86,16 +102,22 @@ class MainActivity : AppCompatActivity() {
         drawer.setRadius(Gravity.START, 20.0f);
         drawer.setViewElevation(Gravity.START, 1.0f);
 
-
         drawer.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 // You can update UI or handle animations here
             }
             override fun onDrawerOpened(drawerView: View) {
-                Log.d("Drawer", "Drawer opened")
+                mainRelative.visibility=View.VISIBLE
+                drawerImgProfile.setAnimationOnView(R.anim.bounce_anim,1500)
+                drawerName.setAnimationOnView(R.anim.bounce_anim,1500)
+                drawerEmail.setAnimationOnView(R.anim.slide_in_bottom,1500)
+                profileTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
+                shareTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
+                rateTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
             }
             override fun onDrawerClosed(drawerView: View) {
                 setStatusBarColor(R.color.green)
+                mainRelative.visibility=View.GONE
             }
             override fun onDrawerStateChanged(newState: Int) {
                 when (newState) {
@@ -108,6 +130,24 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
+
+
+        profileTextView.setOnClickListener {
+            openProfileSetting()
+            true
+        }
+
+        shareTextView.setOnClickListener {
+            share()
+            true
+        }
+
+        rateTextView.setOnClickListener {
+            rateUS()
+            true
+        }
+
+
 
 
 //       generate FCM token
@@ -123,24 +163,21 @@ class MainActivity : AppCompatActivity() {
 
 
         binding.chatCard.setOnClickListener{
-//            startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
-            animatedItemKey = mutableSetOf()
-            duration=1000
-            setUpRecyclerView(sortedList)
+            startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
+//            animatedItemKey = mutableSetOf()
+//            duration=1000
+//            setUpRecyclerView(sortedList)
         }
 
         lifecycleScope.launch {
             myModel=mainViewModel.getAnyData("$USERS/${auth.currentUser!!.uid}",UserModel::class.java)
+            drawerImgProfile.loadImageViaLink(myModel?.profileUrl?:"empty")
+            drawerName.text=myModel?.fullName?:"Name not found"
+            drawerEmail.text=myModel?.email?:"Email not found"
         }
 
         binding.profileSettingImg.setOnClickListener {
-            if (myModel!=null){
-                val intent=Intent(this@MainActivity, ProfileSettingActivity::class.java)
-                intent.putExtra("myModel",myModel)
-                startActivity(intent)
-            }else{
-                showToast("Something wrong or check internet connect.")
-            }
+            openProfileSetting()
         }
 
         binding.backArrow.setOnClickListener {
@@ -219,7 +256,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (!animatedItemKey.contains(recentModel.key)) {
-                    binding.mainConstraint.setAnimationOnView(com.atta.chatspherapp.R.anim.slide_up, duration)
+                    binding.mainConstraint.setAnimationOnView(R.anim.slide_up, duration)
                     duration += 50
                     animatedItemKey.add(recentModel.key)
                 }
@@ -312,9 +349,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun onNavigationItemSelected(item: MenuItem?): Boolean {
-        binding.drawer.closeDrawer(GravityCompat.START)
-        return true
+
+    fun openProfileSetting(){
+        if (myModel!=null){
+            val intent=Intent(this@MainActivity, ProfileSettingActivity::class.java)
+            intent.putExtra("myModel",myModel)
+            startActivity(intent)
+        }else{
+            showToast("Something wrong or check internet connect.")
+        }
     }
+
 
 }
