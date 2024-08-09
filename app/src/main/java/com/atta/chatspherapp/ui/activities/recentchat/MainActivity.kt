@@ -7,20 +7,26 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
+import android.view.Gravity
+import android.view.MenuItem
 import android.view.View
-import android.view.animation.AnimationUtils
+import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivityMainBinding
+import com.atta.chatspherapp.databinding.RecentChatItemPlaceHolderBinding
 import com.atta.chatspherapp.databinding.RecentChatSampleRowBinding
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.service.DeleteMessagesService
-import com.atta.chatspherapp.ui.activities.searchanyuser.SearchUserForChatActivity
 import com.atta.chatspherapp.ui.activities.profile.ProfileSettingActivity
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
@@ -28,16 +34,17 @@ import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
-import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
+import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -53,8 +60,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var mainViewModel: MainViewModel
 
     var myModel:UserModel?=null
-    var toggle=true
     var sortedList = mutableListOf<RecentChatModel>()
+
+    var duration=1500L
+    var animatedItemKey = mutableSetOf<String>() // Set to track animated items
 
 
     @SuppressLint("SetTextI18n")
@@ -63,6 +72,43 @@ class MainActivity : AppCompatActivity() {
         binding=ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setStatusBarColor(R.color.green)
+        window.statusBarColor = Color.parseColor("#299F0B")
+
+
+
+        // drawer setup
+        val drawer=findViewById<AdvanceDrawerLayout>(R.id.drawer)
+        val toggle = ActionBarDrawerToggle(this, drawer, binding.toolbar2, R.string.open, R.string.close)
+        toggle.drawerArrowDrawable.color = ContextCompat.getColor(this, R.color.white)
+        binding.drawer.addDrawerListener(toggle)
+        toggle.syncState()
+        drawer.setViewScale(Gravity.START, .8f);
+        drawer.setRadius(Gravity.START, 20.0f);
+        drawer.setViewElevation(Gravity.START, 1.0f);
+
+
+        drawer.addDrawerListener(object : DrawerLayout.DrawerListener {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                // You can update UI or handle animations here
+            }
+            override fun onDrawerOpened(drawerView: View) {
+                Log.d("Drawer", "Drawer opened")
+            }
+            override fun onDrawerClosed(drawerView: View) {
+                setStatusBarColor(R.color.green)
+            }
+            override fun onDrawerStateChanged(newState: Int) {
+                when (newState) {
+                    DrawerLayout.STATE_DRAGGING -> {
+                        setStatusBarColor(R.color.green)
+                    }
+                    DrawerLayout.STATE_IDLE ->{
+                        setStatusBarColor(R.color.green)
+                    }
+                }
+            }
+        })
+
 
 //       generate FCM token
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
@@ -77,7 +123,10 @@ class MainActivity : AppCompatActivity() {
 
 
         binding.chatCard.setOnClickListener{
-            startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
+//            startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
+            animatedItemKey = mutableSetOf()
+            duration=1000
+            setUpRecyclerView(sortedList)
         }
 
         lifecycleScope.launch {
@@ -94,9 +143,12 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch {
-            val progress= showProgressDialog("Loading...")
+        binding.backArrow.setOnClickListener {
+            onBackPressed()
+        }
 
+        lifecycleScope.launch {
+            setUpRecyclerView(sortedList,true)
             mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}",RecentChatModel::class.java).collect{it->
 
                 for (i in it){
@@ -106,64 +158,74 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
 
-                if (it.isNotEmpty()){
-                    progress.dismiss()
-                }else{
-                    delay(2000)
-                    progress.dismiss()
+                if (it.isEmpty()){
+                    binding.noRecentChatMessage.visibility=View.VISIBLE
+                    setUpRecyclerView(sortedList,false)
                 }
                 sortedList = it.sortedByDescending { recentModel -> recentModel.timeStamp }.toMutableList()
-                setUpRecyclerView(sortedList)
+                setUpRecyclerView(sortedList,false)
 
             }
         }
 
     }
 
-    fun setUpRecyclerView(sortedList:List<RecentChatModel>){
-        binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position,holder->
+    fun setUpRecyclerView(sortedList: List<RecentChatModel>,isLoading:Boolean = false) {
+        if (!isLoading){
+            binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position, holder ->
+                binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
 
-            binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
+                val maxLength = 20
+                val nameLength = recentModel.userModel.fullName?.length ?: 0
+                val name = recentModel.userModel.fullName
+                val truncatedText = if (nameLength > maxLength) {
+                    name?.substring(0, maxLength) + "..."
+                } else {
+                    name
+                }
 
-            binding.nameTv.text=recentModel.userModel.fullName
-            binding.recentMessage.text=recentModel.recentMessage
-            binding.lastMessageTime.text=recentModel.timeStamp.toTimeAgo()
+                binding.nameTv.text = truncatedText
+                binding.recentMessage.text = recentModel.recentMessage
+                binding.lastMessageTime.text = recentModel.timeStamp.toTimeAgo()
 
-            if (recentModel.numberOfMessages != 0) {
-                binding.msgCounterTv.visibility=View.VISIBLE
-                binding.msgCounterTv.text=recentModel.numberOfMessages.toString()
-            }
+                if (recentModel.numberOfMessages != 0) {
+                    binding.msgCounterTv.visibility = View.VISIBLE
+                    binding.msgCounterTv.text = recentModel.numberOfMessages.toString()
+                }
 
-            holder.itemView.setOnLongClickListener {
-                addToSelectedList(recentModel,binding.mainConstraint)
-                true
-            }
+                holder.itemView.setOnLongClickListener {
+                    addToSelectedList(recentModel, binding.mainConstraint)
+                    true
+                }
 
-            binding.mainConstraint.setOnClickListener {
-                val selectedItemsList=mainViewModel.selectedItemFlow.value
-                if (myModel!=null){
-                    if (selectedItemsList.isNotEmpty()){
-                        addToSelectedList(recentModel,binding.mainConstraint)
-                    }else{
-                        val intent=Intent(this@MainActivity, ChatActivity::class.java)
-                        intent.putExtra("userModel",recentModel.userModel)
-                        intent.putExtra("myModel",myModel)
-                        intent.putExtra("fromRecentChat",true)
-                        startActivity(intent)
+                binding.mainConstraint.setOnClickListener {
+                    val selectedItemsList = mainViewModel.selectedItemFlow.value
+
+                    if (myModel != null) {
+                        if (selectedItemsList.isNotEmpty()) {
+                            addToSelectedList(recentModel, binding.mainConstraint)
+                        } else {
+                            val intent = Intent(this@MainActivity, ChatActivity::class.java)
+                            intent.putExtra("userModel", recentModel.userModel)
+                            intent.putExtra("myModel", myModel)
+                            intent.putExtra("fromRecentChat", true)
+                            startActivity(intent)
+                        }
                     }
                 }
-            }
 
-            binding.profileImage.setOnClickListener{
-                showUserImage(recentModel.userModel.profileUrl,recentModel.userModel.fullName?:"Name not found")
-            }
+                binding.profileImage.setOnClickListener {
+                    showUserImage(recentModel.userModel.profileUrl, recentModel.userModel.fullName ?: "Name not found")
+                }
 
-            if (toggle){
-                val animation = AnimationUtils.loadAnimation(this@MainActivity, android.R.anim.slide_in_left)
-                holder.itemView.startAnimation(animation)
-                toggle=false
+                if (!animatedItemKey.contains(recentModel.key)) {
+                    binding.mainConstraint.setAnimationOnView(com.atta.chatspherapp.R.anim.slide_up, duration)
+                    duration += 50
+                    animatedItemKey.add(recentModel.key)
+                }
             }
-
+        }else{
+            binding.recyclerView.setData(sortedList,RecentChatItemPlaceHolderBinding::inflate,isLoading){binding, recentModel, position, holder -> }
         }
     }
 
@@ -172,9 +234,9 @@ class MainActivity : AppCompatActivity() {
     fun addToSelectedList(recentChatModel:RecentChatModel,view:View){
         mainViewModel.addToSelectedList(recentChatModel){
             if (it){
-                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.light_green))
+                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.light_green))
             }else{
-                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.white))
+                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.white))
             }
             toolBarSettings()
         }
@@ -191,18 +253,20 @@ class MainActivity : AppCompatActivity() {
             binding.toolBarTitle.text="${list.size} selected"
             binding.profileSettingImg.visibility=View.GONE
             binding.deleteImg.visibility=View.VISIBLE
+            binding.backArrow.visibility=View.VISIBLE
         }else{
-            binding.toolBarTitle.text=ContextCompat.getString(this@MainActivity,R.string.chat_sphere_for_random_chat)
+            binding.toolBarTitle.text="Recent chat"
             binding.profileSettingImg.visibility=View.VISIBLE
             binding.deleteImg.visibility=View.GONE
+            binding.backArrow.visibility=View.GONE
             return
         }
 
         binding.deleteImg.setOnClickListener {
-            val alert=AlertDialog.Builder(this@MainActivity).setView(R.layout.delete_chat_dialog).show()
-            val cancelBtn=alert.findViewById<Button>(R.id.cancelBtn)
-            val deleteBtn=alert.findViewById<Button>(R.id.deleteBtn)
-            val dialogTitle=alert.findViewById<TextView>(R.id.dialogTitle)
+            val alert=AlertDialog.Builder(this@MainActivity).setView(com.atta.chatspherapp.R.layout.delete_chat_dialog).show()
+            val cancelBtn=alert.findViewById<Button>(com.atta.chatspherapp.R.id.cancelBtn)
+            val deleteBtn=alert.findViewById<Button>(com.atta.chatspherapp.R.id.deleteBtn)
+            val dialogTitle=alert.findViewById<TextView>(com.atta.chatspherapp.R.id.dialogTitle)
 
             if (list.size>1) {
                 dialogTitle.text="Delete ${list.size} chats?"
@@ -232,10 +296,25 @@ class MainActivity : AppCompatActivity() {
                 mainViewModel.clearSelectedItemsList()
                 toolBarSettings()
             }
-
             alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+
         }
     }
 
+    override fun onBackPressed() {
+        val list=mainViewModel.selectedItemFlow.value
+        if (list.isNotEmpty()){
+            mainViewModel.clearSelectedItemsList()
+            toolBarSettings()
+            setUpRecyclerView(sortedList)
+        }else{
+            super.onBackPressed()
+        }
+    }
+
+    fun onNavigationItemSelected(item: MenuItem?): Boolean {
+        binding.drawer.closeDrawer(GravityCompat.START)
+        return true
+    }
 
 }

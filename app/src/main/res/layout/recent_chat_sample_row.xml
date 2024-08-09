@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/mainConstraint"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
+    android:orientation="vertical"
     android:background="?attr/selectableItemBackground"
     android:layout_height="wrap_content">
 
@@ -13,7 +14,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
-
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/profileImage"
             android:layout_width="@dimen/_40sdp"
@@ -21,6 +21,7 @@
             android:layout_margin="@dimen/_7sdp"
             android:src="@drawable/person"
             android:tint="@color/black"
+            android:elevation="@dimen/_10sdp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -29,10 +30,11 @@
             android:id="@+id/nameTv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/_6sdp"
             android:layout_marginTop="@dimen/_5sdp"
-            android:layout_marginStart="@dimen/_7sdp"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="Atta Muhammad (App Developer)"
-            android:fontFamily="@font/alatsi"
             android:textColor="@color/black"
             android:textSize="@dimen/_15sdp"
             android:textStyle="bold"
@@ -50,7 +52,7 @@
             android:paddingStart="@dimen/_4sdp"
             android:scrollHorizontally="true"
             android:singleLine="true"
-            android:text="+923252142414"
+            android:text="+recent message"
             android:textColor="@color/hintColor"
             android:textSize="@dimen/_13sdp"
             app:layout_constraintEnd_toStartOf="@+id/muteNotificationImg"
@@ -127,6 +129,12 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/lastMessageTime" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+    <View
+        android:layout_width="match_parent"
+        android:background="@color/very_light_grey"
+        android:layout_marginStart="@dimen/_5sdp"
+        android:layout_marginEnd="@dimen/_5sdp"
+        android:layout_height="1dp"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>
 

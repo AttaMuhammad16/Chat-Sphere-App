@@ -3,6 +3,7 @@ package com.atta.chatspherapp.utils
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlertDialog
@@ -34,8 +35,10 @@ import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
+import android.view.animation.BounceInterpolator
 import android.view.animation.ScaleAnimation
 import android.view.animation.TranslateAnimation
 import android.view.inputmethod.InputMethodManager
@@ -59,7 +62,9 @@ import com.airbnb.lottie.LottieAnimationView
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.ui.activities.room.EditImageActivity
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
+import com.facebook.shimmer.ShimmerFrameLayout
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -815,25 +820,40 @@ object NewUtils {
 
 
     // paging adapter
-    inline fun <T, VB : ViewBinding> RecyclerView.setData(items: List<T>, crossinline bindingInflater: (LayoutInflater, ViewGroup, Boolean) -> VB, crossinline bindHolder: (binding: VB, item: T, position: Int,holder:DataViewHolder<VB>) -> Unit) {
+    inline fun <T, VB : ViewBinding> RecyclerView.setData(
+        items: List<T>,
+        crossinline bindingInflater: (LayoutInflater, ViewGroup, Boolean) -> VB,
+        isLoading: Boolean = false, // Add a parameter to check if data is loading
+        crossinline bindHolder: (binding: VB, item: T, position: Int, holder: DataViewHolder<VB>) -> Unit,
+    ) {
         val adapter = object : RecyclerView.Adapter<DataViewHolder<VB>>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DataViewHolder<VB> {
                 val layoutInflater = LayoutInflater.from(parent.context)
                 val binding = bindingInflater(layoutInflater, parent, false)
                 return DataViewHolder(binding)
             }
+
             override fun onBindViewHolder(holder: DataViewHolder<VB>, position: Int) {
-                bindHolder(holder.binding, items[position], position,holder)
+                if (isLoading) {
+                    (holder.binding.root as ShimmerFrameLayout).startShimmer()
+                } else {
+                    bindHolder(holder.binding, items[position], position, holder)
+                }
             }
+
             override fun getItemCount(): Int {
-                return  items.size
+                return if (isLoading) {
+                    12
+                } else {
+                    items.size
+                }
             }
         }
         this.adapter = adapter
     }
 
-    class DataViewHolder<VB : ViewBinding>(val binding: VB) : RecyclerView.ViewHolder(binding.root)
 
+    class DataViewHolder<VB : ViewBinding>(val binding: VB) : RecyclerView.ViewHolder(binding.root)
 
 
 
@@ -879,7 +899,7 @@ object NewUtils {
             .into(this)
     }
 
-    fun ImageView.loadImageViaLink(url:String) {
+    fun ImageView.loadImageViaLink(url: String) {
         Glide.with(this.context)
             .load(url)
             .placeholder(R.drawable.person)
@@ -1028,6 +1048,37 @@ object NewUtils {
         val compressUri=Uri.fromFile(compressedFile)
         return compressUri
     }
+
+
+
+    fun View.startFallAndCollisionAnimation() {
+        // Define the falling animation
+        val fallAnimator = ObjectAnimator.ofFloat(this, "translationY", -100.0f, height.toFloat())
+        fallAnimator.duration = 3000 // Duration for falling
+        fallAnimator.interpolator = AccelerateInterpolator()
+
+        // Define the collision effect animation
+        val collisionAnimator = ObjectAnimator.ofFloat(this, "translationY", height.toFloat(), height.toFloat() - 20f, height.toFloat())
+        collisionAnimator.duration = 3000 // Duration for collision
+        collisionAnimator.interpolator = BounceInterpolator()
+
+        // Set up an animation listener to start the collision effect after the fall
+        fallAnimator.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationStart(animation: Animator) {}
+
+            override fun onAnimationEnd(animation: Animator) {
+                collisionAnimator.start() // Start collision effect after falling animation ends
+            }
+
+            override fun onAnimationCancel(animation: Animator) {}
+
+            override fun onAnimationRepeat(animation: Animator) {}
+        })
+
+        // Start the falling animation
+        fallAnimator.start()
+    }
+
 
 
 

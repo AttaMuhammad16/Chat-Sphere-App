@@ -1,84 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.infideap.drawerbehavior.AdvanceDrawerLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
+    android:id="@+id/drawer"
     android:layout_width="match_parent"
     android:background="@color/white"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:openDrawer="end"
     tools:context=".ui.activities.recentchat.MainActivity">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar2"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/main"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/green"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/toolBarTitle"
-            android:layout_width="wrap_content"
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar2"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/alatsi"
-            android:text="@string/chat_sphere_for_random_chat"
-            android:textColor="@color/white"
-            android:textSize="@dimen/_17sdp"
-            tools:layout_editor_absoluteX="16dp"
-            tools:layout_editor_absoluteY="17dp" />
+            android:background="@color/green"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-        <ImageView
-            android:id="@+id/profileSettingImg"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            android:layout_gravity="end"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
+            <ImageView
+                android:id="@+id/backArrow"
+                android:layout_width="@dimen/_30sdp"
+                android:layout_height="@dimen/_30sdp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/_10sdp"
+                android:padding="@dimen/_2sdp"
+                android:src="@drawable/baseline_arrow_back_24"
+                android:visibility="gone"
+                app:tint="@color/white" />
+
+            <TextView
+                android:id="@+id/toolBarTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:fontFamily="@font/akaya_kanadaka"
+                android:gravity="center_vertical"
+                android:text="Recent chat"
+                android:textColor="@color/white"
+                android:textSize="@dimen/_17sdp" />
+
+            <ImageView
+                android:id="@+id/profileSettingImg"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_gravity="end"
+                android:layout_margin="@dimen/_5sdp"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/baseline_settings_24"
+                app:tint="@color/white" />
+
+            <ImageView
+                android:id="@+id/deleteImg"
+                android:layout_width="@dimen/_20sdp"
+                android:layout_height="@dimen/_20sdp"
+                android:layout_gravity="end"
+                android:layout_margin="@dimen/_5sdp"
+                android:foreground="?attr/selectableItemBackgroundBorderless"
+                android:src="@drawable/baseline_delete_24"
+                android:visibility="gone"
+                app:tint="@color/white" />
+
+        </androidx.appcompat.widget.Toolbar>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar2"
+            tools:listitem="@layout/recent_chat_sample_row" />
+
+        <LinearLayout
+            android:id="@+id/noRecentChatMessage"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_margin="@dimen/_5sdp"
-            android:src="@drawable/baseline_settings_24"
-            app:tint="@color/white" />
-
-        <ImageView
-            android:id="@+id/deleteImg"
-            android:layout_width="@dimen/_25sdp"
-            android:layout_height="@dimen/_25sdp"
-            android:layout_gravity="end"
+            android:gravity="center"
+            android:orientation="vertical"
             android:visibility="gone"
-            android:foreground="?attr/selectableItemBackgroundBorderless"
-            android:layout_margin="@dimen/_5sdp"
-            android:src="@drawable/baseline_delete_24"
-            app:tint="@color/white" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar2">
 
-    </androidx.appcompat.widget.Toolbar>
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/lottieAnimationView"
+                android:layout_width="@dimen/_200sdp"
+                android:layout_height="@dimen/_200sdp"
+                android:layout_margin="@dimen/_10sdp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/empty_box" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/user_sample_row"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar2" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="-30dp"
+                android:elevation="@dimen/_10sdp"
+                android:fontFamily="@font/baloo"
+                android:gravity="center"
+                android:text="No Recent Chats Yet!"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_20sdp" />
 
-    <com.google.android.material.card.MaterialCardView
-        android:id="@+id/chatCard"
-        android:layout_width="@dimen/_45sdp"
-        android:layout_height="@dimen/_45sdp"
-        android:layout_margin="@dimen/_10sdp"
-        android:backgroundTint="@color/green"
-        app:cardCornerRadius="@dimen/_12sdp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:strokeColor="@color/green">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:text="It looks like you don’t have any recent conversations. Start a new chat to connect with your friends or explore the app to find exciting conversations waiting for you!"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_15sdp" />
+        </LinearLayout>
 
-        <ImageView
-            android:layout_width="@dimen/_26sdp"
-            android:layout_height="@dimen/_26sdp"
-            android:layout_gravity="center"
-            android:src="@drawable/baseline_chat_24"
-            app:tint="@color/white" />
-    </com.google.android.material.card.MaterialCardView>
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/chatCard"
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:layout_margin="@dimen/_10sdp"
+            android:backgroundTint="@color/green"
+            app:cardCornerRadius="@dimen/_12sdp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:strokeColor="@color/green">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:layout_width="@dimen/_24sdp"
+                android:layout_height="@dimen/_24sdp"
+                android:layout_gravity="center"
+                android:src="@drawable/baseline_chat_24"
+                app:tint="@color/white" />
+        </com.google.android.material.card.MaterialCardView>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
+        android:background="#FFFFFFFF"
+        android:fitsSystemWindows="true">
+
+        <include layout="@layout/navigation_view" />
+
+    </com.google.android.material.navigation.NavigationView>
+
+</com.infideap.drawerbehavior.AdvanceDrawerLayout>

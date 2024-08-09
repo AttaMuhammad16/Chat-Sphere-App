@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/img_profile"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
+        android:elevation="20dp"
+        android:src="@drawable/person" />
+
+    <TextView
+        android:id="@+id/tx_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/img_profile"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="13dp"
+        android:text="Rahil Badshah"
+        android:textColor="#ff000000"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tx_email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/img_profile"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"
+        android:text="abcsample@gmail.com"
+        android:textColor="#ffcccccc"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/tx_profil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="249dp"
+        android:text="My Profile"
+        android:textColor="#ff0083c2"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tx_ac"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tx_profil"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="25dp"
+        android:text="Account Settings"
+        android:textColor="#ff0083c2"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tx_share"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tx_ac"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="25dp"
+        android:text="Share App"
+        android:textColor="#ff0083c2"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/tx_rate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tx_share"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="25dp"
+        android:text="Rate App"
+        android:textColor="#ff0083c2"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/txt_about"
+        android:layout_below="@+id/tx_rate"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="25dp"
+        android:text="Réglages"
+        android:textColor="#ff0083c2"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>
