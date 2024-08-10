@@ -16,6 +16,7 @@ import com.atta.chatspherapp.utils.NewUtils.hideKeyboard
 import com.atta.chatspherapp.utils.NewUtils.hideWithRevealAnimation
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.onTextChange
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showKeyBoard
@@ -38,16 +39,21 @@ class SearchUserForChatActivity : AppCompatActivity() {
     var list = listOf<UserModel>()
     private val filteredList = mutableListOf<UserModel>()
     var myModel=UserModel()
+    var animatedItemKey = mutableSetOf<String>() // Set to track animated items
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding=ActivitySearchUserForChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setStatusBarColor(R.color.green)
-
+        overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
 
         lifecycleScope.launch {
-            myModel=mainViewModel.getAnyData("${USERS}/${auth.currentUser!!.uid}",UserModel::class.java)!!
+            val currentUser=auth.currentUser
+            if (currentUser!=null){
+                myModel=mainViewModel.getAnyData("${USERS}/${currentUser.uid}",UserModel::class.java)!!
+            }
         }
 
 
@@ -70,9 +76,17 @@ class SearchUserForChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             mainViewModel.collectAnyModel(USERS,UserModel::class.java).collect{
-                list=it
                 binding.totalUsers.text=if (it.size==1){"${it.size} User"}else{"${it.size} Users"}
                 setUpRecyclerView(it)
+
+                val filteredUsers = it.filter { it.fullName?.isNotEmpty() == true }
+                binding.totalUsers.text = if (filteredUsers.size == 1) {
+                    "${filteredUsers.size} User"
+                } else {
+                    "${filteredUsers.size} Users"
+                }
+                list=filteredList
+                setUpRecyclerView(filteredUsers)
             }
         }
 
@@ -92,7 +106,6 @@ class SearchUserForChatActivity : AppCompatActivity() {
         setUpRecyclerView(filteredList)
     }
 
-    var toggle=true
     fun setUpRecyclerView(list:List<UserModel>){
 
         val sortedList = list.sortedByDescending { it.key == auth.currentUser!!.uid}
@@ -116,10 +129,10 @@ class SearchUserForChatActivity : AppCompatActivity() {
                 }
             }
 
-            if (toggle){
-                val animation = AnimationUtils.loadAnimation(this, android.R.anim.slide_in_left)
-                holder.itemView.startAnimation(animation)
-                toggle=false
+
+            if (!animatedItemKey.contains(item.key)) {
+                holder.itemView.setAnimationOnView(R.anim.slide_up, 800)
+                animatedItemKey.add(item.key)
             }
 
         })

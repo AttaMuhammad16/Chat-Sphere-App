@@ -47,6 +47,7 @@ class ProfileSettingActivity : AppCompatActivity() {
         setContentView(binding.root)
         setStatusBarColor(R.color.green)
         myModel=intent.getParcelableExtra("myModel")
+        overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
 
         myModel?.apply {
             val s=if (status.isNotEmpty()){status}else{"Available"}

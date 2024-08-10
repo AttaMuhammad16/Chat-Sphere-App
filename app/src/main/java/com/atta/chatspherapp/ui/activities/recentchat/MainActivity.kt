@@ -1,5 +1,6 @@
 package com.atta.chatspherapp.ui.activities.recentchat
 
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Intent
@@ -18,6 +19,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -36,6 +38,7 @@ import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.USERS
+import com.atta.chatspherapp.utils.NewUtils.addColorRevealAnimation
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.rateUS
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
@@ -67,9 +70,10 @@ class MainActivity : AppCompatActivity() {
     var myModel:UserModel?=null
     var sortedList = mutableListOf<RecentChatModel>()
 
-    var duration=1000L
+    var duration=800L
     var animatedItemKey = mutableSetOf<String>() // Set to track animated items
-
+    private lateinit var toggle: ActionBarDrawerToggle
+    private lateinit var toolbar: Toolbar
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -90,11 +94,10 @@ class MainActivity : AppCompatActivity() {
         val rateTextView = findViewById<TextView>(R.id.tx_rate)
         val mainRelative = findViewById<RelativeLayout>(R.id.mainRelative)
 
-
-
+        toolbar=binding.toolbar2
         // drawer setup
         val drawer=findViewById<AdvanceDrawerLayout>(R.id.drawer)
-        val toggle = ActionBarDrawerToggle(this, drawer, binding.toolbar2, R.string.open, R.string.close)
+        toggle = ActionBarDrawerToggle(this, drawer, binding.toolbar2, R.string.open, R.string.close)
         toggle.drawerArrowDrawable.color = ContextCompat.getColor(this, R.color.white)
         binding.drawer.addDrawerListener(toggle)
         toggle.syncState()
@@ -198,7 +201,10 @@ class MainActivity : AppCompatActivity() {
                 if (it.isEmpty()){
                     binding.noRecentChatMessage.visibility=View.VISIBLE
                     setUpRecyclerView(sortedList,false)
+                }else{
+                    binding.noRecentChatMessage.visibility=View.GONE
                 }
+
                 sortedList = it.sortedByDescending { recentModel -> recentModel.timeStamp }.toMutableList()
                 setUpRecyclerView(sortedList,false)
 
@@ -257,7 +263,6 @@ class MainActivity : AppCompatActivity() {
 
                 if (!animatedItemKey.contains(recentModel.key)) {
                     binding.mainConstraint.setAnimationOnView(R.anim.slide_up, duration)
-                    duration += 50
                     animatedItemKey.add(recentModel.key)
                 }
             }
@@ -271,7 +276,8 @@ class MainActivity : AppCompatActivity() {
     fun addToSelectedList(recentChatModel:RecentChatModel,view:View){
         mainViewModel.addToSelectedList(recentChatModel){
             if (it){
-                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.light_green))
+//                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.light_green))
+                addColorRevealAnimation(view,500,ContextCompat.getColor(this@MainActivity, R.color.light_green))
             }else{
                 view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.white))
             }
@@ -280,23 +286,46 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
+    var animationApplied=true
     @SuppressLint("SetTextI18n")
     fun toolBarSettings(){
 
         val list=mainViewModel.selectedItemFlow.value
 
         if (list.isNotEmpty()){
-            binding.toolBarTitle.text="${list.size} selected"
+
+            showDrawerIcon(false)
+            val size=list.size
+            binding.toolBarTitle.text="${size} selected"
+            binding.toolBarTitle.setAnimationOnView(R.anim.scale,800)
             binding.profileSettingImg.visibility=View.GONE
             binding.deleteImg.visibility=View.VISIBLE
             binding.backArrow.visibility=View.VISIBLE
+
+            if (animationApplied){
+                binding.deleteImg.setAnimationOnView(R.anim.slide_in_bottom,800)
+                binding.backArrow.setAnimationOnView(R.anim.slide_in_bottom,800)
+                animationApplied=false
+            }
+
         }else{
+
+            showDrawerIcon(true)
             binding.toolBarTitle.text="Recent chat"
             binding.profileSettingImg.visibility=View.VISIBLE
             binding.deleteImg.visibility=View.GONE
             binding.backArrow.visibility=View.GONE
+
+            if (!animationApplied){
+                binding.backArrow.setAnimationOnView(R.anim.slide_out_bottom,800)
+                binding.deleteImg.setAnimationOnView(R.anim.slide_out_bottom,800)
+                binding.profileSettingImg.setAnimationOnView(R.anim.slide_in_bottom,800)
+                binding.toolBarTitle.setAnimationOnView(R.anim.slide_in_bottom,800)
+                animationApplied=true
+            }
+
             return
+
         }
 
         binding.deleteImg.setOnClickListener {
@@ -317,7 +346,6 @@ class MainActivity : AppCompatActivity() {
 
             deleteBtn.setOnClickListener {
                 alert.dismiss()
-
                 val intent = Intent(this@MainActivity,DeleteMessagesService::class.java)
                 val arraylist=ArrayList(list)
                 intent.putExtra("selectedMessages",arraylist)
@@ -338,12 +366,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
     override fun onBackPressed() {
         val list=mainViewModel.selectedItemFlow.value
         if (list.isNotEmpty()){
             mainViewModel.clearSelectedItemsList()
             toolBarSettings()
             setUpRecyclerView(sortedList)
+            showDrawerIcon(true)
         }else{
             super.onBackPressed()
         }
@@ -359,6 +389,18 @@ class MainActivity : AppCompatActivity() {
             showToast("Something wrong or check internet connect.")
         }
     }
+
+    private fun showDrawerIcon(show: Boolean) {
+        if (show) {
+            toggle.isDrawerIndicatorEnabled = true
+            toolbar.navigationIcon = toggle.drawerArrowDrawable
+        } else {
+            toggle.isDrawerIndicatorEnabled = false
+            toolbar.navigationIcon = null
+        }
+    }
+
+
 
 
 }

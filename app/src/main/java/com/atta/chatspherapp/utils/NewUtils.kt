@@ -27,6 +27,7 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -34,6 +35,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewAnimationUtils
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
@@ -673,6 +675,7 @@ object NewUtils {
         inputMethodManager.showSoftInput(this, InputMethodManager.SHOW_IMPLICIT)
     }
 
+    @SuppressLint("WrongConstant")
     fun EditText.hideSoftKeyboard() {
         val inputMethodManager = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.showSoftInput(this, InputMethodManager.HIDE_IMPLICIT_ONLY)
@@ -969,20 +972,100 @@ object NewUtils {
 
 
     fun Context.showUserImage(profileUrl: String, fullName: String) {
-        val alert = androidx.appcompat.app.AlertDialog.Builder(this).setView(R.layout.pop_up_image_dialog).show()
+        val alert = androidx.appcompat.app.AlertDialog.Builder(this)
+            .setView(R.layout.pop_up_image_dialog)
+            .show()
 
         val window = alert.window
-        val layoutParams = WindowManager.LayoutParams()
-        layoutParams.copyFrom(window?.attributes)
+        window?.let {
+            val displayMetrics = DisplayMetrics()
+            it.windowManager.defaultDisplay.getMetrics(displayMetrics)
+            val displayWidth = displayMetrics.widthPixels
+            val widthPercent = 0.60f
+            val dialogWidth = (displayWidth * widthPercent).toInt()
 
-        window?.setBackgroundDrawableResource(android.R.color.transparent)
-        window?.attributes = layoutParams
+            // Adjusting layout parameters
+            val layoutParams = WindowManager.LayoutParams()
+            layoutParams.copyFrom(it.attributes)
+            layoutParams.width = dialogWidth
+            layoutParams.gravity = Gravity.CENTER
+            it.attributes = layoutParams
+
+            it.setBackgroundDrawableResource(android.R.color.transparent)
+        }
 
         val nameTv = alert.findViewById<TextView>(R.id.nameTv)
         val userImage = alert.findViewById<ImageView>(R.id.imageView)
+        val mainLinear = alert.findViewById<LinearLayout>(R.id.mainLinear)
+
+        // Use ViewTreeObserver to ensure view is fully laid out before animation
+        mainLinear?.viewTreeObserver?.addOnGlobalLayoutListener(object : ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                mainLinear.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                mainLinear.revealAnimation(900)
+            }
+        })
+
+        // Load image and set name
         userImage?.loadImageViaLink(profileUrl)
-        nameTv?.text=fullName
+        nameTv?.text = fullName
     }
+
+    fun View.revealAnimation(duration: Long=1000) {
+        val centerX = (this.left + this.right) / 2
+        val centerY = (this.top + this.bottom) / 2
+        val initialRadius = 0f
+        val finalRadius = Math.max(this.width, this.height).toFloat()
+        val revealAnimator = ViewAnimationUtils.createCircularReveal(this, centerX, centerY, initialRadius, finalRadius)
+        revealAnimator.duration = duration
+        revealAnimator.start()
+    }
+
+    fun addColorRevealAnimation(view: View, duration: Long, color: Int) {
+        // Ensure the view is visible and has a background set
+        view.visibility = View.VISIBLE
+
+        // Ensure the view has a background color set for the color animation
+        if (view.background == null) {
+            view.setBackgroundColor(Color.TRANSPARENT)
+        }
+
+        // Get the center coordinates of the view
+        val centerX = (view.left + view.right) / 2
+        val centerY = (view.top + view.bottom) / 2
+
+        // Calculate the initial and final radius for the reveal animation
+        val initialRadius = 0f
+        val finalRadius = Math.max(view.width, view.height).toFloat()
+
+        // Create a circular reveal animator
+        val revealAnimator = ViewAnimationUtils.createCircularReveal(view, centerX, centerY, initialRadius, finalRadius)
+        revealAnimator.duration = duration
+        revealAnimator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                view.setBackgroundColor(color)
+            }
+        })
+
+        // Set up the color transition
+        val currentColor = (view.background as? ColorDrawable)?.color ?: Color.TRANSPARENT
+        val colorAnimator = ValueAnimator.ofArgb(currentColor, color)
+        colorAnimator.addUpdateListener { animator ->
+            val animatedColor = animator.animatedValue as Int
+            view.setBackgroundColor(animatedColor)
+        }
+        colorAnimator.duration = duration
+
+        // Start the animations
+        revealAnimator.start()
+        colorAnimator.start()
+    }
+
+
+
+
+
+
 
 
     fun Activity.startNewActivity(activity:Class<*> , willFinish:Boolean=false){

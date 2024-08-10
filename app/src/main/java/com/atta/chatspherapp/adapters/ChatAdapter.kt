@@ -59,6 +59,7 @@ import com.atta.chatspherapp.utils.NewUtils.loadImageFromResource
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.loadThumbnail
 import com.atta.chatspherapp.utils.NewUtils.openDocument
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setData
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.SharedPreferencesHelper
@@ -74,6 +75,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -94,12 +98,13 @@ class ChatAdapter(
     var auth:FirebaseAuth,
     var myModel:UserModel,
     var longClicked: (View, Boolean, MessageModel, Int) -> Unit
+
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    var outerMap:MutableMap<String,Map<String,String>> = mutableMapOf()
+
+
     val downloadManager = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
 
-//    var myMediaPlayer = MediaPlayerHelper.getInstance(context)
     var preferencesHelper: SharedPreferencesHelper = SharedPreferencesHelper(context)
     var mylist:List<MessageModel> = listOf()
     lateinit var currentSeekBar:SeekBar
@@ -370,17 +375,20 @@ class ChatAdapter(
         }
     }
 
-    private val animatedPositions = mutableSetOf<Int>()
-    @OptIn(DelicateCoroutinesApi::class)
+
+    val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    val dateFormatForMessage = SimpleDateFormat("hh:mm a", Locale.getDefault())
+    val animatedItemList = mutableListOf<String>()
     @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged", "SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val data = mylist[position]
-        date.text=formatDateFromMillis(data.timeStamp)
+        val dateObj = Date(data.timeStamp)
+        date.text=dateFormat.format(dateObj)
 
-        if (!animatedPositions.contains(position)) {
+        if (!animatedItemList.contains(data.key)) {
             val animation = AnimationUtils.loadAnimation(context, android.R.anim.slide_in_left)
             holder.itemView.startAnimation(animation)
-            animatedPositions.add(position)
+            animatedItemList.add(data.key)
         }
 
         if (position!=0){
@@ -417,7 +425,8 @@ class ChatAdapter(
             is SenderViewHolder -> {
 
                 holder.senderMessageText.text = data.message
-                holder.senderTime.text = data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.senderTime.text = dateFormatForMessage.format(messageDateObj)
 
                 holder.feelingCard.setOnClickListener{
                     showReactedBottomSheet(data)
@@ -580,12 +589,11 @@ class ChatAdapter(
                     }
                 }
             }
-
             is ReceiverViewHolder -> {
 
                 holder.receiverMessageText.text = data.message
-                holder.receiverTime.text = data.formattedTime
-
+                val messageDateObj=Date(data.timeStamp)
+                holder.receiverTime.text = dateFormatForMessage.format(messageDateObj)
 
                 holder.feelingCard.setOnClickListener{
                     showReactedBottomSheet(data)
@@ -749,6 +757,7 @@ class ChatAdapter(
                 }
             }
 
+
             // for image
             is ImageSenderViewHolder -> {
 
@@ -756,7 +765,9 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.senderTime.text = data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.senderTime.text = dateFormatForMessage.format(messageDateObj)
+
                 val uri = preferencesHelper.getString(data.key, "1")
 
                 if (uri.isNotEmpty() && uri!="1"){
@@ -839,7 +850,9 @@ class ChatAdapter(
                 }
 
                 Glide.with(context).load(data.imageUrl).into(holder.receiverImageView)
-                holder.receiverTime.text = data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.receiverTime.text = dateFormatForMessage.format(messageDateObj)
+
 
                 holder.receiverImageView.setOnClickListener {
                     val intent = Intent(context, PhotoViewActivity::class.java)
@@ -908,7 +921,8 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.senderTime.text = data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.senderTime.text = dateFormatForMessage.format(messageDateObj)
 
                 val uri = preferencesHelper.getString(data.key, "1")
 
@@ -1018,7 +1032,9 @@ class ChatAdapter(
                 }
                 holder.receiverThumbnailImageView.loadThumbnail(data.videoUrl)
 
-                holder.receiverTime.text = data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.receiverTime.text = dateFormatForMessage.format(messageDateObj)
+
                 val uri = preferencesHelper.getString(data.key, "1")
 
                 if (uri.isNotEmpty() && uri != "1") {
@@ -1122,7 +1138,9 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.send_time_tv.text = data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.send_time_tv.text = dateFormatForMessage.format(messageDateObj)
+
                 holder.file_name_tv.text = data.documentFileName
 
                 val uri = preferencesHelper.getString(data.key, "1")
@@ -1212,7 +1230,10 @@ class ChatAdapter(
                     showReactedBottomSheet(data)
                 }
 
-                holder.receiver_timeTv.text = data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.receiver_timeTv.text = dateFormatForMessage.format(messageDateObj)
+
+
                 holder.file_name_tv.text = data.documentFileName
                 val uri = preferencesHelper.getString(data.key, "1")
 
@@ -1325,7 +1346,9 @@ class ChatAdapter(
 
                 holder.apply {
 
-                    voiceSendTime.text = data.formattedTime
+                    val messageDateObj=Date(data.timeStamp)
+                    holder.voiceSendTime.text = dateFormatForMessage.format(messageDateObj)
+
                     seekBar.max = 100
 
                     playButton.setOnClickListener {
@@ -1482,7 +1505,9 @@ class ChatAdapter(
 
                 val localUri = preferencesHelper.getString(data.key,"")
 
-                holder.voiceSendTime.text =data.formattedTime
+                val messageDateObj=Date(data.timeStamp)
+                holder.voiceSendTime.text = dateFormatForMessage.format(messageDateObj)
+
 
                 holder.seekBar.setOnLongClickListener { v ->
                     longClicked.invoke(v,true,data,position)
@@ -1725,6 +1750,8 @@ class ChatAdapter(
             adapte?.notifyDataSetChanged()
         }
     }
+
+
 
 
     fun getReaction(reactionId:Int):String{

@@ -10,6 +10,8 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.media.MediaPlayer
 import android.media.MediaRecorder
 import android.net.Uri
@@ -87,6 +89,7 @@ import com.atta.chatspherapp.utils.NewUtils.getAccessToken
 import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.SendNotification
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
@@ -165,6 +168,8 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
+
         list= ArrayList()
         preferencesHelper= SharedPreferencesHelper(this)
         setStatusBarColor(R.color.green)
@@ -305,10 +310,7 @@ class ChatActivity : AppCompatActivity() {
                 if (it.isNotEmpty()){
                     list=it as ArrayList
                 }
-                updatedList = it.map { message ->
-                    message.copy(formattedTime = message.timeStamp.getFormattedDateAndTime("hh:mm a"))
-                }
-                adapter.setList(updatedList)
+                adapter.setList(it)
                 adapter.notifyDataSetChanged()
                 setAdapter(adapter)
             }
@@ -327,20 +329,16 @@ class ChatActivity : AppCompatActivity() {
                     }
 
                     RecyclerView.SCROLL_STATE_IDLE->{
-
                         hideDateJob?.cancel()
                         hideDateJob = lifecycleScope.launch {
                             delay(3000)
                             binding.dateTv.visibility = View.GONE
                         }
-
                         val currentPosition = layoutManager.findLastVisibleItemPosition()
                         val totalItemCount = layoutManager.itemCount
-
                         if (currentPosition == totalItemCount - 1) {
                             binding.dropDownImg.visibility = View.GONE
                         }
-
                     }
                 }
             }
@@ -350,17 +348,15 @@ class ChatActivity : AppCompatActivity() {
                 if (dy < 0) {
                     binding.dropDownImg.visibility = View.VISIBLE
                     if(toggle){
-                        val animation = AnimationUtils.loadAnimation(this@ChatActivity, android.R.anim.fade_in)
-                        binding.dropDownImg.startAnimation(animation)
+                        binding.dropDownImg.setAnimationOnView(R.anim.slide_in_bottom,1000)
                         toggle=false
                     }
                 }
             }
-
         })
 
         binding.dropDownImg.setOnClickListener {
-            binding.recyclerView.scrollToPosition(updatedList.size-1)
+            binding.recyclerView.scrollToPosition(list.size-1)
             binding.dropDownImg.visibility = View.GONE
         }
 
@@ -457,10 +453,10 @@ class ChatActivity : AppCompatActivity() {
 
             }
         }
+
         // swipe listener
         val itemTouchHelper = ItemTouchHelper(swipeHandler)
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
-
 
         binding.cameraButton.setOnClickListener {
 
@@ -483,6 +479,7 @@ class ChatActivity : AppCompatActivity() {
                 pickVideo(pickVideoRequestCode, this@ChatActivity)
                 alert.dismiss()
             }
+            alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
 
         binding.attachment.setOnClickListener {

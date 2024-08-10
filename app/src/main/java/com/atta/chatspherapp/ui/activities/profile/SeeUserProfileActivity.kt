@@ -26,6 +26,7 @@ class SeeUserProfileActivity : AppCompatActivity() {
         setContentView(binding.root)
         setStatusBarColor(R.color.green)
         userBundle=intent.getParcelableExtra("userModel")
+        overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
 
         binding.backImg.setOnClickListener {
             finish()

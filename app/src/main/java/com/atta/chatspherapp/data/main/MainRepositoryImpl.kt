@@ -141,7 +141,11 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
         return try {
             val snapshot = databaseReference.child(path).get().await()
             snapshot.logT("getAnyData->snapshot","firebase")
-            snapshot.getValue(clazz)
+            return if (snapshot.exists()){
+                snapshot.getValue(clazz)
+            }else{
+                null
+            }
         } catch (e: Exception) {
             Log.e("TAG", "Failed to retrieve data: ${e.message}")
             null
