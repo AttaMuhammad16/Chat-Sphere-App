@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="@dimen/_5sdp"
-    app:strokeColor="@color/light_green"
+    app:strokeColor="@color/green"
     android:backgroundTint="@color/white">
 
     <LinearLayout
@@ -21,6 +21,7 @@
             android:background="@color/green"
             android:padding="@dimen/_5sdp"
             android:text="Choose an option"
+            android:fontFamily="@font/baloo_2_medium"
             android:textColor="@color/white"
             android:textSize="@dimen/_15sdp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -44,7 +45,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/_1sdp"
-            android:background="@color/cement" />
+            android:background="@color/green" />
 
         <TextView
             android:id="@+id/galleryTv"
@@ -61,7 +62,7 @@
         <View
             android:layout_width="match_parent"
             android:layout_height="@dimen/_1sdp"
-            android:background="@color/cement" />
+            android:background="@color/green" />
         <TextView
             android:id="@+id/selectVideo"
             android:layout_width="match_parent"

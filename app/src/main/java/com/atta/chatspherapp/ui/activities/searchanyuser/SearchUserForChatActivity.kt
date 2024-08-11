@@ -76,16 +76,13 @@ class SearchUserForChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             mainViewModel.collectAnyModel(USERS,UserModel::class.java).collect{
-                binding.totalUsers.text=if (it.size==1){"${it.size} User"}else{"${it.size} Users"}
-                setUpRecyclerView(it)
-
                 val filteredUsers = it.filter { it.fullName?.isNotEmpty() == true }
                 binding.totalUsers.text = if (filteredUsers.size == 1) {
                     "${filteredUsers.size} User"
                 } else {
                     "${filteredUsers.size} Users"
                 }
-                list=filteredList
+                list=filteredUsers
                 setUpRecyclerView(filteredUsers)
             }
         }
@@ -93,7 +90,6 @@ class SearchUserForChatActivity : AppCompatActivity() {
         binding.searchEdt.onTextChange {
             filterList(it)
         }
-
     }
 
     private fun filterList(query: String) {

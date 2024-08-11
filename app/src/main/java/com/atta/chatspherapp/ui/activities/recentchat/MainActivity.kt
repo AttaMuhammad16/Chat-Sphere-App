@@ -210,7 +210,6 @@ class MainActivity : AppCompatActivity() {
 
             }
         }
-
     }
 
     fun setUpRecyclerView(sortedList: List<RecentChatModel>,isLoading:Boolean = false) {
@@ -265,6 +264,7 @@ class MainActivity : AppCompatActivity() {
                     binding.mainConstraint.setAnimationOnView(R.anim.slide_up, duration)
                     animatedItemKey.add(recentModel.key)
                 }
+
             }
         }else{
             binding.recyclerView.setData(sortedList,RecentChatItemPlaceHolderBinding::inflate,isLoading){binding, recentModel, position, holder -> }

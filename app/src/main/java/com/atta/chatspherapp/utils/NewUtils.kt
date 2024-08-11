@@ -64,6 +64,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.airbnb.lottie.LottieAnimationView
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.ui.activities.room.EditImageActivity
+import com.atta.chatspherapp.utils.NewUtils.slideUpAnimation
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.request.RequestOptions
@@ -280,6 +281,35 @@ object NewUtils {
         view.translationY = view.height.toFloat()
         view.animate().translationY(0f).setDuration(duration).setListener(null).start()
     }
+    fun View.slideUpAnimation() {
+        val animator = ObjectAnimator.ofFloat(this, "translationY", this.height.toFloat(), 0f)
+        animator.duration = 1500 // Duration in milliseconds
+        animator.start()
+    }
+
+    fun View.slideDownAnimation() {
+        val animator = ObjectAnimator.ofFloat(this, "translationY", 0f, this.height.toFloat())
+        animator.duration = 500 // Duration in milliseconds
+        animator.start()
+    }
+
+    fun View.animateIcon(showIcon: ImageView, hideIcon: ImageView, isShowingVoice: Boolean) {
+        ObjectAnimator.ofFloat(hideIcon, "alpha", 1f, 0f).apply {
+            duration = 1000
+            start()
+        }
+        hideIcon.visibility = View.GONE
+
+        showIcon.visibility = View.VISIBLE
+        ObjectAnimator.ofFloat(showIcon, "alpha", 0f, 1f).apply {
+            duration = 1000
+            start()
+        }
+    }
+
+
+
+
 
 //    fun animateViewHideToBottom(view: View, duration: Long = 500L) {
 //        view.animate().translationY(-view.height.toFloat()).setDuration(duration).setListener(null).start()
@@ -972,10 +1002,7 @@ object NewUtils {
 
 
     fun Context.showUserImage(profileUrl: String, fullName: String) {
-        val alert = androidx.appcompat.app.AlertDialog.Builder(this)
-            .setView(R.layout.pop_up_image_dialog)
-            .show()
-
+        val alert = androidx.appcompat.app.AlertDialog.Builder(this).setView(R.layout.pop_up_image_dialog).show()
         val window = alert.window
         window?.let {
             val displayMetrics = DisplayMetrics()

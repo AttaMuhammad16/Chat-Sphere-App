@@ -358,9 +358,4 @@ class SignUpActivity : AppCompatActivity() {
         }
     }
 
-
-
-
-
-
 }

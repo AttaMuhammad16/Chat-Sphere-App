@@ -90,6 +90,8 @@ import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
+import com.atta.chatspherapp.utils.NewUtils.slideDownAnimation
+import com.atta.chatspherapp.utils.NewUtils.slideUpAnimation
 import com.atta.chatspherapp.utils.SendNotification
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
@@ -486,20 +488,29 @@ class ChatActivity : AppCompatActivity() {
             pickDocument(pickDocumentRequestCode,this@ChatActivity)
         }
 
+        var setBol=true
         binding.messageBox.onTextChange {
             if (it.isNotEmpty()) {
-                binding.voiceAndSendImage.setImageResource(R.drawable.baseline_send_24)
+                if (setBol){
+                    binding.voiceAndSendImage.setImageResource(R.drawable.baseline_send_24)
+                    binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,600)
+                    setBol=false
+                }
             } else {
-                with(binding.voiceAndSendImage) {
-                    setImageResource(R.drawable.baseline_keyboard_voice_24)
+                if (!setBol){
+                    with(binding.voiceAndSendImage) {
+                        setImageResource(R.drawable.baseline_keyboard_voice_24)
+                        binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,600)
+                    }
+                    setBol=true
                 }
             }
         }
 
 
         binding.voiceAndSendImage.setOnClickListener {
+            binding.dropDownImg.visibility=View.GONE
             val message = binding.messageBox.text.toString()
-
             if (message.isNotEmpty()) {
                 lifecycleScope.launch {
 
@@ -557,20 +568,32 @@ class ChatActivity : AppCompatActivity() {
                 }
 
             }else {
+
+                binding.voiceSenderLinearLayout.slideUpAnimation()
                 binding.voiceSenderLinearLayout.visibility = View.VISIBLE
+
+                binding.deleteImg.setAnimationOnView(R.anim.scale,1200)
+                binding.sendImg.setAnimationOnView(R.anim.scale,1200)
+
+                binding.linear02.slideDownAnimation()
                 binding.linear02.visibility = View.GONE
-                animateViewFromBottom(binding.voiceSenderLinearLayout)
+
                 mediaRecorder = MediaRecorder()
                 startRecording()
+
             }
         }
 
 
         binding.deleteImg.setOnClickListener {
+
             binding.chronometer.base = SystemClock.elapsedRealtime()
-            animateViewHideToBottom(binding.voiceSenderLinearLayout)
+            binding.voiceSenderLinearLayout.slideDownAnimation()
             binding.voiceSenderLinearLayout.visibility = View.GONE
+
+            binding.linear02.slideUpAnimation()
             binding.linear02.visibility = View.VISIBLE
+
             stopRecording()
             val fileToDelete = File(filePath!!)
             if (fileToDelete.exists()) {

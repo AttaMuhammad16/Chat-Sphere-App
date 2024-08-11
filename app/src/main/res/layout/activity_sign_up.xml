@@ -7,6 +7,7 @@
     android:background="@color/white"
     android:orientation="vertical"
     tools:context=".ui.auth.SignUpActivity">
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolBar"
         android:layout_width="match_parent"
@@ -27,8 +28,6 @@
             android:textColor="@color/white"
             android:textSize="@dimen/_20sdp"
             android:layout_height="wrap_content"/>
-
-
     </androidx.appcompat.widget.Toolbar>
 
     <com.airbnb.lottie.LottieAnimationView
