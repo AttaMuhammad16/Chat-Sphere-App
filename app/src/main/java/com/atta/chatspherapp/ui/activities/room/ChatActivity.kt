@@ -85,6 +85,7 @@ import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.MyExtensions.shrink
+import com.atta.chatspherapp.utils.NewUtils.addColorRevealAnimation
 import com.atta.chatspherapp.utils.NewUtils.getAccessToken
 import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
@@ -246,10 +247,9 @@ class ChatActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this@ChatActivity)
         binding.recyclerView.layoutManager = layoutManager
 
-        adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth,myModel) { it, from, messageModel, position->
+        adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth,myModel) { it, from, messageModel, position,itemView->
 
             if (from){
-
                 val location = IntArray(2)
                 it.getLocationOnScreen(location)
                 val yPosition = location[1]-100
@@ -283,9 +283,7 @@ class ChatActivity : AppCompatActivity() {
             }else{
                 hideReactionViews()
             }
-
         }
-
 
         lifecycleScope.launch(Dispatchers.IO) {
             mainViewModel.isRecentChatUploaded.collect{
@@ -380,8 +378,6 @@ class ChatActivity : AppCompatActivity() {
 
             referenceMessageModel=messageModel
 
-            binding.edtLinear.setBackgroundResource(R.drawable.bottom_coners_round_edt_bac)
-            binding.messageBox.showSoftKeyboard()
 
             binding.tvClearImg.setOnClickListener {
                 binding.tvRefLinear.visibility= View.GONE
@@ -403,7 +399,9 @@ class ChatActivity : AppCompatActivity() {
 
             if (messageModel.message.isNotEmpty()){
 
+                binding.tvRefLinear.slideUpAnimation(300)
                 binding.tvRefLinear.visibility= View.VISIBLE
+
                 binding.imgRefConstraint.visibility= View.GONE
                 binding.documentImg.visibility= View.GONE
                 binding.voiceRefConstraint.visibility= View.GONE
@@ -411,9 +409,12 @@ class ChatActivity : AppCompatActivity() {
                 binding.refMessageTv.text=messageModel.message
                 binding.nameTv.text=myModel.fullName
 
+
             }else if (messageModel.imageUrl.isNotEmpty()){
 
+                binding.imgRefConstraint.slideUpAnimation(300)
                 binding.imgRefConstraint.visibility= View.VISIBLE
+
                 binding.tvRefLinear.visibility= View.GONE
                 binding.documentImg.visibility= View.GONE
                 binding.voiceRefConstraint.visibility= View.GONE
@@ -425,7 +426,9 @@ class ChatActivity : AppCompatActivity() {
 
             }else if (messageModel.videoUrl.isNotEmpty()){
 
+                binding.imgRefConstraint.slideUpAnimation(300)
                 binding.imgRefConstraint.visibility= View.VISIBLE
+
                 binding.tvRefLinear.visibility= View.GONE
                 binding.documentImg.visibility= View.GONE
                 binding.voiceRefConstraint.visibility= View.GONE
@@ -439,6 +442,7 @@ class ChatActivity : AppCompatActivity() {
 
                 binding.imgRefConstraint.visibility= View.GONE
                 binding.voiceRefConstraint.visibility= View.GONE
+                binding.tvRefLinear.slideUpAnimation(300)
                 binding.tvRefLinear.visibility= View.VISIBLE
                 binding.documentImg.visibility= View.VISIBLE
 
@@ -446,14 +450,17 @@ class ChatActivity : AppCompatActivity() {
 
             }else if (messageModel.voiceUrl.isNotEmpty()){
 
+                binding.voiceRefConstraint.slideUpAnimation(300)
                 binding.voiceRefConstraint.visibility= View.VISIBLE
                 binding.refNameForVoice.text=myModel.fullName
 
                 binding.imgRefConstraint.visibility= View.GONE
                 binding.tvRefLinear.visibility= View.GONE
                 binding.documentImg.visibility= View.GONE
-
             }
+
+            binding.edtLinear.setBackgroundResource(R.drawable.bottom_coners_round_edt_bac)
+            binding.messageBox.showSoftKeyboard()
         }
 
         // swipe listener
@@ -556,10 +563,6 @@ class ChatActivity : AppCompatActivity() {
 
                     val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
 
-                    messageUploadResult.whenSuccess {
-
-                    }
-
                     messageUploadResult.whenError {
                         showToast(it.toString())
                         Log.i("TAG", "onCreate:${it.message} ")
@@ -588,6 +591,7 @@ class ChatActivity : AppCompatActivity() {
         binding.deleteImg.setOnClickListener {
 
             binding.chronometer.base = SystemClock.elapsedRealtime()
+            binding.chronometer.setAnimationOnView(R.anim.bounce_anim,2000)
             binding.voiceSenderLinearLayout.slideDownAnimation()
             binding.voiceSenderLinearLayout.visibility = View.GONE
 
@@ -609,15 +613,15 @@ class ChatActivity : AppCompatActivity() {
 
 
         binding.sendImg.setOnClickListener {
-
-
             stopRecording()
-
+            binding.voiceSenderLinearLayout.slideDownAnimation()
             binding.voiceSenderLinearLayout.visibility = View.GONE
+
+            binding.linear02.slideUpAnimation()
             binding.linear02.visibility = View.VISIBLE
-            animateViewHideToBottom(binding.voiceSenderLinearLayout)
 
             lifecycleScope.launch {
+
                 withContext(Dispatchers.IO){
                     uploadToRecentChat("Voice", VOICE)
                 }
@@ -641,6 +645,7 @@ class ChatActivity : AppCompatActivity() {
                 list.add(messageModel)
                 adapter.setList(list)
                 adapter.notifyDataSetChanged()
+                binding.recyclerView.scrollToPosition(list.size-1)
 
                 firebaseUrlResult.whenSuccess {
                     lifecycleScope.launch {
@@ -655,11 +660,16 @@ class ChatActivity : AppCompatActivity() {
                         )
                         mainViewModel.uploadAnyModel(chatUploadPath, messageModelForUpload)
                         sendNotification("Voice")
-                        adapter.notifyDataSetChanged()
+
                     }
                 }
+
+
                 firebaseUrlResult.whenError {
-                    Toast.makeText(this@ChatActivity,it.message.toString(), Toast.LENGTH_SHORT).show()
+                    val job=lifecycleScope.launch {
+                        Toast.makeText(this@ChatActivity,it.message.toString(), Toast.LENGTH_SHORT).show()
+                    }
+                    job.cancel()
                 }
             }
         }
@@ -686,6 +696,7 @@ class ChatActivity : AppCompatActivity() {
                 setOutputFile(filePath)
                 prepare()
                 start()
+
                 handler.postDelayed(object : Runnable {
                     override fun run() {
                         val currentMaxAmplitude = mediaRecorder?.maxAmplitude ?: 0
@@ -693,6 +704,7 @@ class ChatActivity : AppCompatActivity() {
                         handler.postDelayed(this, 300)
                     }
                 }, 300)
+
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -820,6 +832,8 @@ class ChatActivity : AppCompatActivity() {
             list.add(messageModel)
             adapter.setList(list)
             adapter.notifyDataSetChanged()
+            binding.recyclerView.scrollToPosition(list.size - 1)
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ContextCompat.startForegroundService(this, intent)
@@ -863,6 +877,8 @@ class ChatActivity : AppCompatActivity() {
             list.add(messageModel)
             adapter.setList(list)
             adapter.notifyDataSetChanged()
+            binding.recyclerView.scrollToPosition(list.size - 1)
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ContextCompat.startForegroundService(this, intent)
@@ -906,6 +922,8 @@ class ChatActivity : AppCompatActivity() {
             list.add(messageModel)
             adapter.setList(list)
             adapter.notifyDataSetChanged()
+            binding.recyclerView.scrollToPosition(list.size - 1)
+
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 ContextCompat.startForegroundService(this, intent)

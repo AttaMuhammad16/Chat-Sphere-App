@@ -3,6 +3,7 @@ package com.atta.chatspherapp.ui.activities.recentchat
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -34,6 +35,7 @@ import com.atta.chatspherapp.service.DeleteMessagesService
 import com.atta.chatspherapp.ui.activities.profile.ProfileSettingActivity
 import com.atta.chatspherapp.ui.activities.room.ChatActivity
 import com.atta.chatspherapp.ui.activities.searchanyuser.SearchUserForChatActivity
+import com.atta.chatspherapp.ui.auth.SignInActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
@@ -47,6 +49,7 @@ import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.share
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
+import com.atta.chatspherapp.utils.NewUtils.startNewActivity
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
 import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
@@ -92,6 +95,7 @@ class MainActivity : AppCompatActivity() {
         val profileTextView = findViewById<TextView>(R.id.tx_profil)
         val shareTextView = findViewById<TextView>(R.id.tx_share)
         val rateTextView = findViewById<TextView>(R.id.tx_rate)
+        val logOut = findViewById<TextView>(R.id.logOut)
         val mainRelative = findViewById<RelativeLayout>(R.id.mainRelative)
 
         toolbar=binding.toolbar2
@@ -117,6 +121,7 @@ class MainActivity : AppCompatActivity() {
                 profileTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
                 shareTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
                 rateTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
+                logOut.setAnimationOnView(R.anim.slide_in_bottom,1500)
             }
             override fun onDrawerClosed(drawerView: View) {
                 setStatusBarColor(R.color.green)
@@ -149,6 +154,11 @@ class MainActivity : AppCompatActivity() {
             rateUS()
             true
         }
+
+        logOut.setOnClickListener {
+            showLogoutDialog()
+        }
+
 
 
 
@@ -276,7 +286,6 @@ class MainActivity : AppCompatActivity() {
     fun addToSelectedList(recentChatModel:RecentChatModel,view:View){
         mainViewModel.addToSelectedList(recentChatModel){
             if (it){
-//                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.light_green))
                 addColorRevealAnimation(view,500,ContextCompat.getColor(this@MainActivity, R.color.light_green))
             }else{
                 view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.white))
@@ -400,6 +409,24 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+    private fun showLogoutDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle("Logout")
+        builder.setMessage("Do you want to logout?")
+
+        builder.setPositiveButton("Logout") { dialog: DialogInterface, _: Int ->
+            auth.signOut()
+            startNewActivity(SignInActivity::class.java,true)
+            dialog.dismiss()
+        }
+
+        builder.setNegativeButton("Cancel") { dialog: DialogInterface, _: Int ->
+            dialog.dismiss()
+        }
+        val alertDialog = builder.create()
+        alertDialog.show()
+    }
 
 
 

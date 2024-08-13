@@ -4,12 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_5sdp"
-        android:backgroundTint="#7684A6"
+        android:backgroundTint="#F1F1F1"
         app:cardCornerRadius="@dimen/_6sdp"
+        app:cardElevation="@dimen/_5sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -28,8 +29,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Delete message?"
-                android:textColor="@color/white"
-                android:textSize="@dimen/_18sdp"
+                android:textColor="@color/black"
+                android:textSize="@dimen/_16sdp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -43,8 +44,9 @@
                 android:fontFamily="@font/alatsi"
                 android:gravity="end"
                 android:text="Delete for everyone"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:textColor="#3ADD11"
-                android:textSize="@dimen/_16sdp" />
+                android:textSize="@dimen/_15sdp" />
 
             <TextView
                 android:id="@+id/deleteForMe"
@@ -55,7 +57,8 @@
                 android:fontFamily="@font/alatsi"
                 android:text="Delete for me"
                 android:textColor="#3ADD11"
-                android:textSize="@dimen/_16sdp" />
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:textSize="@dimen/_15sdp" />
 
             <TextView
                 android:id="@+id/cancel"
@@ -64,9 +67,10 @@
                 android:layout_margin="@dimen/_3sdp"
                 android:gravity="end"
                 android:text="cancel"
+                android:background="?attr/selectableItemBackgroundBorderless"
                 android:fontFamily="@font/alatsi"
                 android:textColor="#3ADD11"
-                android:textSize="@dimen/_16sdp" />
+                android:textSize="@dimen/_15sdp" />
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -14,7 +14,6 @@
         android:elevation="20dp"
         android:src="@drawable/person" />
 
-
     <TextView
         android:id="@+id/tx_name"
         android:layout_width="wrap_content"
@@ -70,7 +69,6 @@
             android:layout_marginTop="10dp"
             android:drawableRight="@drawable/baseline_share_24"
             android:background="?attr/selectableItemBackground"
-
             android:drawableTint="#2196F3"
             android:text="Share App"
             android:textColor="#2196F3"
@@ -93,6 +91,22 @@
             android:layout_marginBottom="@dimen/_5sdp"
             android:textSize="@dimen/_17sdp"
             android:fontFamily="@font/alatsi" />
+        <TextView
+            android:id="@+id/logOut"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tx_share"
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="30dp"
+            android:layout_marginTop="10dp"
+            android:background="?attr/selectableItemBackground"
+            android:text="Log out"
+            android:drawableRight="@drawable/baseline_logout_24"
+            android:textColor="@color/red"
+            android:layout_marginBottom="@dimen/_5sdp"
+            android:textSize="@dimen/_17sdp"
+            android:fontFamily="@font/alatsi" />
+
     </LinearLayout>
 
 

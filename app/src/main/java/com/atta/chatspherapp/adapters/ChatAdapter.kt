@@ -97,7 +97,7 @@ class ChatAdapter(
     var userModel: UserModel,
     var auth:FirebaseAuth,
     var myModel:UserModel,
-    var longClicked: (View, Boolean, MessageModel, Int) -> Unit
+    var longClicked: (View, Boolean, MessageModel, Int,View) -> Unit
 
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -379,6 +379,9 @@ class ChatAdapter(
     val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
     val dateFormatForMessage = SimpleDateFormat("hh:mm a", Locale.getDefault())
     val animatedItemList = mutableListOf<String>()
+
+    var glide=Glide.with(context)
+
     @SuppressLint("ClickableViewAccessibility", "NotifyDataSetChanged", "SetTextI18n")
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         val data = mylist[position]
@@ -391,31 +394,26 @@ class ChatAdapter(
             animatedItemList.add(data.key)
         }
 
-        if (position!=0){
-            val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
-            layoutParams.topMargin = 0
-            holder.itemView.layoutParams = layoutParams
-
-            if (mylist[position-1].senderUid!=mylist[position].senderUid){
-                if (mylist[position-1].senderUid!=myUid){
-                    val receiverLayoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
-                    receiverLayoutParams.topMargin = 10
-                    holder.itemView.layoutParams = receiverLayoutParams
-                }else{
-                    val receiverLayoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
-                    receiverLayoutParams.topMargin = 10
-                    holder.itemView.layoutParams = receiverLayoutParams
+        val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
+        if (position != 0) {
+            if (mylist[position - 1].senderUid != mylist[position].senderUid) {
+                if (mylist[position - 1].senderUid != myUid) {
+                    layoutParams.topMargin = 4
                 }
+            }else{
+                layoutParams.topMargin = 3
             }
         }
+        holder.itemView.layoutParams = layoutParams
+
 
         holder.itemView.setOnLongClickListener { v ->
-            longClicked.invoke(v,true,data,position)
+            longClicked.invoke(v,true,data,position,holder.itemView)
             true
         }
 
         holder.itemView.setOnClickListener { v ->
-            longClicked.invoke(v,false,data,position)
+            longClicked.invoke(v,false,data,position,holder.itemView)
         }
 
 
@@ -424,899 +422,733 @@ class ChatAdapter(
             // for text
             is SenderViewHolder -> {
 
+                // Set common data
                 holder.senderMessageText.text = data.message
-                val messageDateObj=Date(data.timeStamp)
-                holder.senderTime.text = dateFormatForMessage.format(messageDateObj)
+                holder.senderTime.text = dateFormatForMessage.format(Date(data.timeStamp))
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
-                }
+                // Set message owner name
+                holder.messageOwnerNameTv.text = if (data.senderUid == myUid) "you" else data.referenceMessageSenderName
 
-                if (data.senderUid==myUid){
-                    holder.messageOwnerNameTv.text="you"
-                }else{
-                    holder.messageOwnerNameTv.text=data.referenceMessageSenderName
-                }
-
-                if(data.referenceMessage.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.visibility=View.VISIBLE
-                    holder.refMessageLinear.visibility=View.VISIBLE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.refImgCard.visibility=View.GONE
-
-                    holder.referenceMessageTv.text=data.referenceMessage
-
-                }else if (data.referenceImgUrl.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-
-                    holder.referenceMessageTv.visibility=View.GONE
-                    holder.refMessageLinear.visibility=View.GONE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.VISIBLE
-                    holder.referenceImage.visibility=View.VISIBLE
-                    holder.refImgCard.visibility=View.VISIBLE
-                    holder.refImgType.setImageResource(R.drawable.photo)
-                    holder.refType.text="photo"
-                    Glide.with(context).load(data.referenceImgUrl).placeholder(R.drawable.photo).into(holder.referenceImage)
-
-                }else if (data.referenceVideoUrl.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.visibility=View.GONE
-                    holder.refMessageLinear.visibility=View.GONE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.VISIBLE
-                    holder.referenceImage.visibility=View.VISIBLE
-                    holder.refImgCard.visibility=View.VISIBLE
-
-                    holder.refImgType.setImageResource(R.drawable.video)
-                    holder.refType.text="video"
-                    holder.referenceImage.loadThumbnail(data.referenceVideoUrl)
-
-                }else if (data.referenceDocumentName.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.text=data.referenceDocumentName
-                    holder.documentImg.setImageResource(R.drawable.file)
-
-                    holder.refMessageLinear.visibility=View.VISIBLE
-                    holder.referenceMessageTv.visibility=View.VISIBLE
-                    holder.documentImg.visibility=View.VISIBLE
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.refImgCard.visibility=View.GONE
-
-
-                }else if(data.referenceVoiceUrl.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.text="Voice message"
-                    holder.documentImg.setImageResource(R.drawable.baseline_keyboard_voice_24)
-
-                    holder.refMessageLinear.visibility=View.VISIBLE
-                    holder.referenceMessageTv.visibility=View.VISIBLE
-                    holder.documentImg.visibility=View.VISIBLE
-
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.refImgCard.visibility=View.GONE
-
-                }else{
-
-                    holder.referenceMessageTv.visibility=View.GONE
-                    holder.refMessageLinear.visibility=View.GONE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.reference_card.visibility=View.GONE
-                }
-
-
-
-
-
-                holder.reference_card.setOnLongClickListener { v ->
-                    longClicked.invoke(v,true,data,position)
+                // Set click listeners
+                holder.feelingCard.setOnClickListener { showReactedBottomSheet(data) }
+                holder.reference_card.setOnLongClickListener {
+                    longClicked.invoke(it, true, data, position, holder.itemView)
                     true
                 }
 
                 holder.reference_card.setOnClickListener {
-                    if (data.referenceMessageId.isNotEmpty()){
-                        scrollToMessage(data.referenceMessageId,position)
-                    }else{
-                        showToast(context,"Reference id not found")
+                    if (data.referenceMessageId.isNotEmpty()) {
+                        scrollToMessage(data.referenceMessageId, position)
+                    } else {
+                        showToast(context, "Reference id not found")
                     }
                 }
 
-//                holder.reference_card.setOnClickListener { v ->
-//                    longClicked.invoke(v,false,data,position)
-//                }
 
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
+                // Set default visibility
+                holder.apply {
+                    reference_card.visibility = View.GONE
+                    referenceMessageTv.visibility = View.GONE
+                    refMessageLinear.visibility = View.GONE
+                    documentImg.visibility = View.GONE
+                    photoLinear.visibility = View.GONE
+                    referenceImage.visibility = View.GONE
+                    refImgCard.visibility = View.GONE
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
+                }
 
+                // Handle reference content
+                when {
+                    data.referenceMessage.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.referenceMessageTv.apply {
+                            visibility = View.VISIBLE
+                            text = data.referenceMessage
+                        }
+                        holder.refMessageLinear.visibility = View.VISIBLE
+                    }
+                    data.referenceImgUrl.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.photoLinear.visibility = View.VISIBLE
+                        holder.referenceImage.apply {
+                            visibility = View.VISIBLE
+                            glide.load(data.referenceImgUrl).placeholder(R.drawable.photo).into(this)
+                        }
+                        holder.refImgCard.visibility = View.VISIBLE
+                        holder.refImgType.setImageResource(R.drawable.photo)
+                        holder.refType.text = "photo"
+                    }
+                    data.referenceVideoUrl.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.photoLinear.visibility = View.VISIBLE
+                        holder.referenceImage.apply {
+                            visibility = View.VISIBLE
+                            loadThumbnail(data.referenceVideoUrl)
+                        }
+                        holder.refImgCard.visibility = View.VISIBLE
+                        holder.refImgType.setImageResource(R.drawable.video)
+                        holder.refType.text = "video"
+                    }
+                    data.referenceDocumentName.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.refMessageLinear.visibility = View.VISIBLE
+                        holder.referenceMessageTv.apply {
+                            visibility = View.VISIBLE
+                            text = data.referenceDocumentName
+                        }
+                        holder.documentImg.apply {
+                            visibility = View.VISIBLE
+                            setImageResource(R.drawable.file)
+                        }
+                    }
+                    data.referenceVoiceUrl.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.refMessageLinear.visibility = View.VISIBLE
+                        holder.referenceMessageTv.apply {
+                            visibility = View.VISIBLE
+                            text = "Voice message"
+                        }
+                        holder.documentImg.apply {
+                            visibility = View.VISIBLE
+                            setImageResource(R.drawable.baseline_keyboard_voice_24)
+                        }
+                    }
+                }
 
-                if (data.deleteMessageFromMe){
-                    holder.linearSender.visibility=View.GONE
-                }else{
-                    holder.linearSender.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-                    if (count>0){
+                // Handle reaction icons and feelings
+                if (data.deleteMessageFromMe) {
+                    holder.linearSender.visibility = View.GONE
+                } else {
+                    holder.linearSender.visibility = View.VISIBLE
+                    val count = data.like + data.heart + data.surprise + data.happy + data.angry
+                    if (count > 0) {
                         holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
+                        holder.countTv.apply {
+                            visibility = View.VISIBLE
+                            text = count.toString()
+                        }
                     }
 
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
-                    }
+                    // Update visibility for each reaction
+                    holder.likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                    holder.heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                    holder.surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                    holder.happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                    holder.angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                 }
             }
             is ReceiverViewHolder -> {
-
+                // Set common data
                 holder.receiverMessageText.text = data.message
-                val messageDateObj=Date(data.timeStamp)
-                holder.receiverTime.text = dateFormatForMessage.format(messageDateObj)
+                holder.receiverTime.text = dateFormatForMessage.format(Date(data.timeStamp))
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
-                }
+                // Set message owner name
+                holder.messageOwnerNameTv.text = if (data.senderUid == myUid) "you" else data.referenceMessageSenderName
 
-                if (data.senderUid==myUid){
-                    holder.messageOwnerNameTv.text="you"
-                }else{
-                    holder.messageOwnerNameTv.text=data.referenceMessageSenderName
-                }
-
-                if(data.referenceMessage.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.visibility=View.VISIBLE
-                    holder.refMessageLinear.visibility=View.VISIBLE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.refImgCard.visibility=View.GONE
-
-                    holder.referenceMessageTv.text=data.referenceMessage
-
-                }else if (data.referenceImgUrl.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.visibility=View.GONE
-                    holder.refMessageLinear.visibility=View.GONE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.VISIBLE
-                    holder.referenceImage.visibility=View.VISIBLE
-                    holder.refImgCard.visibility=View.VISIBLE
-                    holder.refImgType.setImageResource(R.drawable.photo)
-                    holder.refType.text="photo"
-                    Glide.with(context).load(data.referenceImgUrl).placeholder(R.drawable.photo).into(holder.referenceImage)
-
-                }else if (data.referenceVideoUrl.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.visibility=View.GONE
-                    holder.refMessageLinear.visibility=View.GONE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.VISIBLE
-                    holder.referenceImage.visibility=View.VISIBLE
-                    holder.refImgCard.visibility=View.VISIBLE
-
-                    holder.refImgType.setImageResource(R.drawable.video)
-                    holder.refType.text="video"
-                    holder.referenceImage.loadThumbnail(data.referenceVideoUrl)
-
-                }else if (data.referenceDocumentName.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.text=data.referenceDocumentName
-                    holder.documentImg.setImageResource(R.drawable.file)
-
-                    holder.refMessageLinear.visibility=View.VISIBLE
-                    holder.referenceMessageTv.visibility=View.VISIBLE
-                    holder.documentImg.visibility=View.VISIBLE
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.refImgCard.visibility=View.GONE
-
-
-                }else if(data.referenceVoiceUrl.isNotEmpty()){
-                    holder.reference_card.visibility=View.VISIBLE
-
-                    holder.referenceMessageTv.text="Voice message"
-                    holder.documentImg.setImageResource(R.drawable.baseline_keyboard_voice_24)
-
-                    holder.refMessageLinear.visibility=View.VISIBLE
-                    holder.referenceMessageTv.visibility=View.VISIBLE
-                    holder.documentImg.visibility=View.VISIBLE
-
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.refImgCard.visibility=View.GONE
-
-                }else{
-
-                    holder.referenceMessageTv.visibility=View.GONE
-                    holder.refMessageLinear.visibility=View.GONE
-                    holder.documentImg.visibility=View.GONE
-
-                    holder.photoLinear.visibility=View.GONE
-                    holder.referenceImage.visibility=View.GONE
-                    holder.reference_card.visibility=View.GONE
-                }
-
-
-                holder.reference_card.setOnLongClickListener { v ->
-                    longClicked.invoke(v,true,data,position)
+                // Set click listeners
+                holder.feelingCard.setOnClickListener { showReactedBottomSheet(data) }
+                holder.reference_card.setOnLongClickListener {
+                    longClicked.invoke(it, true, data, position, holder.itemView)
                     true
                 }
-
                 holder.reference_card.setOnClickListener {
-                    if (data.referenceMessageId.isNotEmpty()){
-                        scrollToMessage(data.referenceMessageId,position)
-                    }else{
-                        showToast(context,"Reference id not found")
+                    if (data.referenceMessageId.isNotEmpty()) {
+                        scrollToMessage(data.referenceMessageId, position)
+                    } else {
+                        showToast(context, "Reference id not found")
                     }
                 }
 
+                // Set default visibility
+                holder.apply {
+                    reference_card.visibility = View.GONE
+                    referenceMessageTv.visibility = View.GONE
+                    refMessageLinear.visibility = View.GONE
+                    documentImg.visibility = View.GONE
+                    photoLinear.visibility = View.GONE
+                    referenceImage.visibility = View.GONE
+                    refImgCard.visibility = View.GONE
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
+                }
 
-//                holder.reference_card.setOnClickListener { v ->
-//                    longClicked.invoke(v,false,data,position)
-//                }
-
-
-
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
-
-
-                if (data.deletedMessagesList.contains(myUid)){
-                    holder.linearReceiver.visibility=View.GONE
-                }else{
-                    holder.linearReceiver.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-
-                    if (count>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
+                // Handle reference content
+                when {
+                    data.referenceMessage.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.referenceMessageTv.apply {
+                            visibility = View.VISIBLE
+                            text = data.referenceMessage
+                        }
+                        holder.refMessageLinear.visibility = View.VISIBLE
                     }
-
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
+                    data.referenceImgUrl.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.photoLinear.visibility = View.VISIBLE
+                        holder.referenceImage.apply {
+                            visibility = View.VISIBLE
+                            glide.load(data.referenceImgUrl).placeholder(R.drawable.photo).into(this)
+                        }
+                        holder.refImgCard.visibility = View.VISIBLE
+                        holder.refImgType.setImageResource(R.drawable.photo)
+                        holder.refType.text = "photo"
                     }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
+                    data.referenceVideoUrl.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.photoLinear.visibility = View.VISIBLE
+                        holder.referenceImage.apply {
+                            visibility = View.VISIBLE
+                            loadThumbnail(data.referenceVideoUrl)
+                        }
+                        holder.refImgCard.visibility = View.VISIBLE
+                        holder.refImgType.setImageResource(R.drawable.video)
+                        holder.refType.text = "video"
                     }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
+                    data.referenceDocumentName.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.refMessageLinear.visibility = View.VISIBLE
+                        holder.referenceMessageTv.apply {
+                            visibility = View.VISIBLE
+                            text = data.referenceDocumentName
+                        }
+                        holder.documentImg.apply {
+                            visibility = View.VISIBLE
+                            setImageResource(R.drawable.file)
+                        }
                     }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
+                    data.referenceVoiceUrl.isNotEmpty() -> {
+                        holder.reference_card.visibility = View.VISIBLE
+                        holder.refMessageLinear.visibility = View.VISIBLE
+                        holder.referenceMessageTv.apply {
+                            visibility = View.VISIBLE
+                            text = "Voice message"
+                        }
+                        holder.documentImg.apply {
+                            visibility = View.VISIBLE
+                            setImageResource(R.drawable.baseline_keyboard_voice_24)
+                        }
                     }
+                }
 
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
+                // Handle reaction icons and feelings
+                if (data.deletedMessagesList.contains(myUid)) {
+                    holder.linearReceiver.visibility = View.GONE
+                } else {
+                    holder.linearReceiver.visibility = View.VISIBLE
+                    val count = data.like + data.heart + data.surprise + data.happy + data.angry
+                    if (count > 0) {
+                        holder.feelingCard.apply {
+                            visibility = View.VISIBLE
+                            holder.countTv.apply {
+                                visibility = View.VISIBLE
+                                text = count.toString()
+                            }
+                        }
                     }
+                    // Update visibility for each reaction
+                    holder.likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                    holder.heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                    holder.surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                    holder.happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                    holder.angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                 }
             }
+
 
 
             // for image
             is ImageSenderViewHolder -> {
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
-                }
-
-                val messageDateObj=Date(data.timeStamp)
+                // Set time
+                val messageDateObj = Date(data.timeStamp)
                 holder.senderTime.text = dateFormatForMessage.format(messageDateObj)
 
+                // Load image
                 val uri = preferencesHelper.getString(data.key, "1")
+                val imageUrl = if (uri.isNotEmpty() && uri != "1") uri else data.imageUrl
+                glide.load(imageUrl).into(holder.senderImageView)
 
-                if (uri.isNotEmpty() && uri!="1"){
-                    Glide.with(context).load(uri).into(holder.senderImageView)
-                }else{
-                    Glide.with(context).load(data.imageUrl).into(holder.senderImageView)
-                }
-
-//                holder.senderImageView.setOnLongClickListener {
-//                    showEmojiDialogOnLongClick(data,position,it)
-//                    true
-//                }
-
-                holder.senderImageView.setOnLongClickListener { v ->
-                    longClicked.invoke(v,true,data,position)
-                    true
-                }
-
-                holder.senderImageView.setOnClickListener { v ->
-                    longClicked.invoke(v,false,data,position)
-                }
-
-
-                holder.senderImageView.setOnClickListener {
-                    val intent = Intent(context, PhotoViewActivity::class.java)
-                    intent.putExtra("image", data.imageUrl)
-                    context.startActivity(intent)
-                }
-
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
-
-                if (data.deleteMessageFromMe){
-                    holder.linearSender.visibility=View.GONE
-                }else{
-                    holder.linearSender.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-                    if (count>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
+                // Set click listeners
+                holder.senderImageView.apply {
+                    setOnClickListener {
+                        val intent = Intent(context, PhotoViewActivity::class.java).apply {
+                            putExtra("image", data.imageUrl)
+                        }
+                        context.startActivity(intent)
                     }
-
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
+                    setOnLongClickListener { v ->
+                        longClicked.invoke(v, true, data, position, holder.itemView)
+                        true
                     }
                 }
 
+                // Handle visibility and feeling card
+                holder.apply {
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
+
+                    if (data.deleteMessageFromMe) {
+                        linearSender.visibility = View.GONE
+                    } else {
+                        linearSender.visibility = View.VISIBLE
+                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
+
+                        if (count > 0) {
+                            feelingCard.visibility = View.VISIBLE
+                            countTv.apply {
+                                visibility = View.VISIBLE
+                                text = count.toString()
+                            }
+                        }
+
+                        // Set visibility for reaction icons
+                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
+                    }
+                }
             }
             is ImageReceiverViewHolder -> {
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
+                // Set click listeners
+                holder.receiverImageView.apply {
+                    setOnClickListener {
+                        val intent = Intent(context, PhotoViewActivity::class.java).apply {
+                            putExtra("image", data.imageUrl)
+                        }
+                        context.startActivity(intent)
+                    }
+                    setOnLongClickListener {
+                        longClicked.invoke(it, true, data, position, holder.itemView)
+                        true
+                    }
                 }
 
-                Glide.with(context).load(data.imageUrl).into(holder.receiverImageView)
-                val messageDateObj=Date(data.timeStamp)
+                // Load image
+                glide.load(data.imageUrl).into(holder.receiverImageView)
+
+                // Set message time
+                val messageDateObj = Date(data.timeStamp)
                 holder.receiverTime.text = dateFormatForMessage.format(messageDateObj)
 
+                // Handle visibility and feeling card
+                holder.apply {
+                    // Initially hide all
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
 
-                holder.receiverImageView.setOnClickListener {
-                    val intent = Intent(context, PhotoViewActivity::class.java)
-                    intent.putExtra("image", data.imageUrl)
-                    context.startActivity(intent)
-                }
+                    if (data.deletedMessagesList.contains(myUid)) {
+                        linearReceiver.visibility = View.GONE
+                    } else {
+                        linearReceiver.visibility = View.VISIBLE
+                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
 
-                holder.receiverImageView.setOnLongClickListener {
-                    longClicked.invoke(it,true,data,position)
-                    true
-                }
+                        if (count > 0) {
+                            feelingCard.visibility = View.VISIBLE
+                            countTv.apply {
+                                visibility = View.VISIBLE
+                                text = count.toString()
+                            }
+                        }
 
-
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
-
-                if (data.deletedMessagesList.contains(myUid)){
-                    holder.linearReceiver.visibility=View.GONE
-                }else{
-                    holder.linearReceiver.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-
-                    if (count>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
-                    }
-
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
+                        // Set visibility for reaction icons
+                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                     }
                 }
-
             }
+
+
 
             // for video
             is VideoSenderViewHolder -> {
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
+                // Set click listeners
+                holder.apply {
+                    feelingCard.setOnClickListener {
+                        showReactedBottomSheet(data)
+                    }
+
+                    senderVideThumbnail.setOnLongClickListener {
+                        longClicked.invoke(it, true, data, position, itemView)
+                        true
+                    }
+
+                    playVideoImg.setOnClickListener {
+                        val intent = Intent(context, VideosActivity::class.java).apply {
+                            putExtra("videoUrl", preferencesHelper.getString(data.key, "1"))
+                        }
+                        context.startActivity(intent)
+                    }
+
+                    downloadFileImg.setOnClickListener {
+                        key = data.key
+                        CoroutineScope(Dispatchers.Main).launch {
+                            downloadVideo(
+                                context,
+                                data.videoUrl,
+                                "chat_sphere_app${System.currentTimeMillis()}.mp4",
+                                downloadManager,
+                                "Downloading Video",
+                                "Downloading Video"
+                            )
+                        }
+                        downloadFileImg.visibility = View.INVISIBLE
+                        circularProgressIndicator.visibility = View.VISIBLE
+                    }
+
+                    itemView.setOnClickListener {
+                        val uri = preferencesHelper.getString(data.key, "1")
+                        if (uri.isNotEmpty() && uri != "1") {
+                            val intent = Intent(context, VideosActivity::class.java).apply {
+                                putExtra("videoUrl", uri)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, "Download file", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
 
-                val messageDateObj=Date(data.timeStamp)
-                holder.senderTime.text = dateFormatForMessage.format(messageDateObj)
-
+                // Load video thumbnail
                 val uri = preferencesHelper.getString(data.key, "1")
-
-                if (uri.isNotEmpty() && uri!="1"){
-                    holder.senderVideThumbnail.loadThumbnail(uri)
-                }else{
-                    holder.senderVideThumbnail.loadThumbnail(data.videoUrl)
-                }
-
                 if (uri.isNotEmpty() && uri != "1") {
+                    holder.senderVideThumbnail.loadThumbnail(uri)
                     holder.playVideoImg.visibility = View.VISIBLE
                     holder.downloadFileImg.visibility = View.INVISIBLE
                     holder.circularProgressIndicator.visibility = View.INVISIBLE
+                } else {
+                    holder.senderVideThumbnail.loadThumbnail(data.videoUrl)
                 }
 
-                holder.playVideoImg.setOnClickListener {
-                    val intent = Intent(context, VideosActivity::class.java)
-                    intent.putExtra("videoUrl", uri)
-                    context.startActivity(intent)
-                }
+                // Set message time
+                val messageDateObj = Date(data.timeStamp)
+                holder.senderTime.text = dateFormatForMessage.format(messageDateObj)
 
-                holder.senderVideThumbnail.setOnLongClickListener {
-                    longClicked.invoke(it,true,data,position)
-                    true
-                }
+                // Handle visibility and feeling card
+                holder.apply {
+                    // Initially hide all
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
 
-
-                holder.downloadFileImg.setOnClickListener {
-                    key = data.key
-                    CoroutineScope(Dispatchers.Main).launch {
-                        downloadVideo(
-                            context,
-                            data.videoUrl,
-                            "teacher_portal_video${System.currentTimeMillis()}.mp4",
-                            downloadManager,
-                            "Downloading Video",
-                            "Downloading Video"
-                        )
-                    }
-                    holder.downloadFileImg.visibility = View.INVISIBLE
-                    holder.circularProgressIndicator.visibility = View.VISIBLE
-                }
-
-                holder.itemView.setOnClickListener {
-
-                    if (uri.isNotEmpty() && uri != "1") {
-                        val intent = Intent(context, VideosActivity::class.java)
-                        intent.putExtra("videoUrl", uri)
-                        context.startActivity(intent)
+                    if (data.deleteMessageFromMe) {
+                        linearSender.visibility = View.GONE
                     } else {
-                        Toast.makeText(context, "download file", Toast.LENGTH_SHORT).show()
-                    }
+                        linearSender.visibility = View.VISIBLE
+                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
 
-                }
+                        if (count > 0) {
+                            feelingCard.visibility = View.VISIBLE
+                            countTv.apply {
+                                visibility = View.VISIBLE
+                                text = count.toString()
+                            }
+                        }
 
-
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
-
-
-                if (data.deleteMessageFromMe){
-                    holder.linearSender.visibility=View.GONE
-                }else{
-                    holder.linearSender.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-                    if (count>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
-                    }
-
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
+                        // Set visibility for reaction icons
+                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                     }
                 }
             }
             is VideoReceiverViewHolder -> {
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
+                // Set click listeners
+                holder.apply {
+                    feelingCard.setOnClickListener {
+                        showReactedBottomSheet(data)
+                    }
+
+                    receiverThumbnailImageView.setOnLongClickListener {
+                        longClicked.invoke(it, true, data, position, itemView)
+                        true
+                    }
+
+                    playImg.setOnClickListener {
+                        val intent = Intent(context, VideosActivity::class.java).apply {
+                            putExtra("videoUrl", preferencesHelper.getString(data.key, "1"))
+                        }
+                        context.startActivity(intent)
+                    }
+
+                    downloadFileImg.setOnClickListener {
+                        key = data.key
+                        CoroutineScope(Dispatchers.Main).launch {
+                            downloadVideo(
+                                context,
+                                data.videoUrl,
+                                "chat_sphere_app${System.currentTimeMillis()}.mp4",
+                                downloadManager,
+                                "Downloading Video",
+                                "Downloading Video"
+                            )
+                        }
+                        downloadFileImg.visibility = View.INVISIBLE
+                        circularProgressIndicator.visibility = View.VISIBLE
+                    }
+
+                    itemView.setOnClickListener {
+                        val uri = preferencesHelper.getString(data.key, "1")
+                        if (uri.isNotEmpty() && uri != "1") {
+                            val intent = Intent(context, VideosActivity::class.java).apply {
+                                putExtra("videoUrl", uri)
+                            }
+                            context.startActivity(intent)
+                        } else {
+                            Toast.makeText(context, "Download file", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
+
+                // Load video thumbnail
                 holder.receiverThumbnailImageView.loadThumbnail(data.videoUrl)
 
-                val messageDateObj=Date(data.timeStamp)
+                // Set message time
+                val messageDateObj = Date(data.timeStamp)
                 holder.receiverTime.text = dateFormatForMessage.format(messageDateObj)
 
-                val uri = preferencesHelper.getString(data.key, "1")
+                // Handle visibility and feeling card
+                holder.apply {
+                    // Initially hide all
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
 
-                if (uri.isNotEmpty() && uri != "1") {
-                    holder.playImg.visibility = View.VISIBLE
-                    holder.downloadFileImg.visibility = View.INVISIBLE
-                    holder.circularProgressIndicator.visibility = View.INVISIBLE
-                }
-
-                holder.playImg.setOnClickListener {
-                    val intent = Intent(context, VideosActivity::class.java)
-                    intent.putExtra("videoUrl", uri)
-                    context.startActivity(intent)
-                }
-
-                holder.receiverThumbnailImageView.setOnLongClickListener {
-                    longClicked.invoke(it,true,data,position)
-                    true
-                }
-
-
-                holder.downloadFileImg.setOnClickListener {
-                    key = data.key
-                    CoroutineScope(Dispatchers.Main).launch {
-                        downloadVideo(
-                            context,
-                            data.videoUrl,
-                            "teacher_portal_${System.currentTimeMillis()}.mp4",
-                            downloadManager,
-                            "Downloading Video",
-                            "Downloading Video"
-                        )
-                    }
-                    holder.downloadFileImg.visibility = View.INVISIBLE
-                    holder.circularProgressIndicator.visibility = View.VISIBLE
-                }
-
-                holder.itemView.setOnClickListener {
-                    if (uri.isNotEmpty() && uri != "1") {
-                        val intent = Intent(context, VideosActivity::class.java)
-                        intent.putExtra("videoUrl", uri)
-                        context.startActivity(intent)
+                    if (data.deletedMessagesList.contains(myUid)) {
+                        linearReceiver.visibility = View.GONE
                     } else {
-                        Toast.makeText(context, "download file", Toast.LENGTH_SHORT).show()
+                        linearReceiver.visibility = View.VISIBLE
+                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
+
+                        if (count > 0) {
+                            feelingCard.visibility = View.VISIBLE
+                            countTv.apply {
+                                visibility = View.VISIBLE
+                                text = count.toString()
+                            }
+                        }
+
+                        // Set visibility for reaction icons
+                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
+                    }
+
+                    // Handle play and download icons visibility
+                    val uri = preferencesHelper.getString(data.key, "1")
+                    if (uri.isNotEmpty() && uri != "1") {
+                        playImg.visibility = View.VISIBLE
+                        downloadFileImg.visibility = View.INVISIBLE
+                        circularProgressIndicator.visibility = View.INVISIBLE
                     }
                 }
-
-
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
-
-
-                if (data.deletedMessagesList.contains(myUid)){
-                    holder.linearReceiver.visibility=View.GONE
-                }else{
-                    holder.linearReceiver.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-
-                    if (count>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
-                    }
-
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
-                    }
-                }
-
             }
+
+
 
             // for documents
             is DocumentSenderViewHolder -> {
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
-                }
-
-                val messageDateObj=Date(data.timeStamp)
-                holder.send_time_tv.text = dateFormatForMessage.format(messageDateObj)
-
-                holder.file_name_tv.text = data.documentFileName
-
-                val uri = preferencesHelper.getString(data.key, "1")
-
-                if (uri.isNotEmpty() && uri != "1") {
-                    holder.downloadImg.visibility = View.GONE
-                    holder.progressBar.visibility = View.GONE
-                } else {
-                    holder.downloadImg.visibility = View.VISIBLE
-                    holder.progressBar.visibility = View.GONE
-                }
-
-                holder.downloadImg.setOnClickListener {
-                    key = data.key
-                    CoroutineScope(Dispatchers.Main).launch {
-                        holder.downloadImg.visibility = View.GONE
-                        holder.progressBar.visibility = View.VISIBLE
-                        downloadVideo(
-                            context,
-                            data.documentUrl,
-                            data.documentFileName,
-                            downloadManager,
-                            "Downloading Document",
-                            data.documentFileName
-                        )
+                // Set click listeners
+                holder.apply {
+                    feelingCard.setOnClickListener {
+                        showReactedBottomSheet(data)
                     }
-                }
 
-                holder.itemView.setOnClickListener {
-                    if (uri.isNotEmpty()) {
-                        openDocument(Uri.parse(uri), context)
+                    downloadImg.setOnClickListener {
+                        key = data.key
+                        CoroutineScope(Dispatchers.Main).launch {
+                            downloadImg.visibility = View.GONE
+                            progressBar.visibility = View.VISIBLE
+                            downloadVideo(
+                                context,
+                                data.documentUrl,
+                                data.documentFileName,
+                                downloadManager,
+                                "Downloading Document",
+                                data.documentFileName
+                            )
+                        }
+                    }
+
+                    itemView.setOnClickListener {
+                        val uri = preferencesHelper.getString(data.key, "1")
+                        if (uri.isNotEmpty()) {
+                            openDocument(Uri.parse(uri), context)
+                        } else {
+                            Toast.makeText(context, "Download file", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    // Set time and file name
+                    val messageDateObj = Date(data.timeStamp)
+                    send_time_tv.text = dateFormatForMessage.format(messageDateObj)
+                    file_name_tv.text = data.documentFileName
+
+                    // Handle visibility
+                    val uri = preferencesHelper.getString(data.key, "1")
+                    if (uri.isNotEmpty() && uri != "1") {
+                        downloadImg.visibility = View.GONE
+                        progressBar.visibility = View.GONE
                     } else {
-                        Toast.makeText(context, "download file", Toast.LENGTH_SHORT).show()
+                        downloadImg.visibility = View.VISIBLE
+                        progressBar.visibility = View.GONE
+                    }
+
+                    // Initial visibility setup
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
+
+                    // Handle message visibility and feeling card
+                    if (data.deleteMessageFromMe) {
+                        linearSender.visibility = View.GONE
+                    } else {
+                        linearSender.visibility = View.VISIBLE
+                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
+
+                        if (count > 0) {
+                            feelingCard.visibility = View.VISIBLE
+                            countTv.apply {
+                                visibility = View.VISIBLE
+                                text = count.toString()
+                            }
+                        }
+
+                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                     }
                 }
-
-
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
-
-                if (data.deleteMessageFromMe){
-                    holder.linearSender.visibility=View.GONE
-                }else{
-                    holder.linearSender.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-                    if (count>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
-                    }
-
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
-                    }
-                }
-
             }
             is DocumentReceiverViewHolder -> {
 
-                holder.feelingCard.setOnClickListener{
-                    showReactedBottomSheet(data)
-                }
-
-                val messageDateObj=Date(data.timeStamp)
-                holder.receiver_timeTv.text = dateFormatForMessage.format(messageDateObj)
-
-
-                holder.file_name_tv.text = data.documentFileName
-                val uri = preferencesHelper.getString(data.key, "1")
-
-                if (uri.isNotEmpty() && uri != "1") {
-                    holder.downloadImg.visibility = View.GONE
-                    holder.progressBar.visibility = View.GONE
-                } else {
-                    holder.downloadImg.visibility = View.VISIBLE
-                    holder.progressBar.visibility = View.GONE
-                }
-
-                holder.downloadImg.setOnClickListener {
-                    key = data.key
-                    CoroutineScope(Dispatchers.Main).launch {
-                        holder.downloadImg.visibility = View.GONE
-                        holder.progressBar.visibility = View.VISIBLE
-                        downloadVideo(
-                            context,
-                            data.documentUrl,
-                            data.documentFileName,
-                            downloadManager,
-                            "Downloading Document",
-                            data.documentFileName
-                        )
+                // Set click listeners
+                holder.apply {
+                    feelingCard.setOnClickListener {
+                        showReactedBottomSheet(data)
                     }
-                }
 
-                holder.itemView.setOnClickListener {
-                    if (uri.isNotEmpty()) {
-                        openDocument(Uri.parse(uri), context)
+                    downloadImg.setOnClickListener {
+                        key = data.key
+                        CoroutineScope(Dispatchers.Main).launch {
+                            downloadImg.visibility = View.GONE
+                            progressBar.visibility = View.VISIBLE
+                            downloadVideo(
+                                context,
+                                data.documentUrl,
+                                data.documentFileName,
+                                downloadManager,
+                                "Downloading Document",
+                                data.documentFileName
+                            )
+                        }
+                    }
+
+                    itemView.setOnClickListener {
+                        val uri = preferencesHelper.getString(data.key, "1")
+                        if (uri.isNotEmpty()) {
+                            openDocument(Uri.parse(uri), context)
+                        } else {
+                            Toast.makeText(context, "Download file", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    // Set time and file name
+                    val messageDateObj = Date(data.timeStamp)
+                    receiver_timeTv.text = dateFormatForMessage.format(messageDateObj)
+                    file_name_tv.text = data.documentFileName
+
+                    // Handle visibility
+                    val uri = preferencesHelper.getString(data.key, "1")
+                    if (uri.isNotEmpty() && uri != "1") {
+                        downloadImg.visibility = View.GONE
+                        progressBar.visibility = View.GONE
                     } else {
-                        Toast.makeText(context, "download file", Toast.LENGTH_SHORT).show()
+                        downloadImg.visibility = View.VISIBLE
+                        progressBar.visibility = View.GONE
+                    }
+
+                    // Initial visibility setup
+                    feelingCard.visibility = View.GONE
+                    countTv.visibility = View.GONE
+                    likeImg.visibility = View.GONE
+                    heartImg.visibility = View.GONE
+                    surpriseImg.visibility = View.GONE
+                    happyImg.visibility = View.GONE
+                    angryImg.visibility = View.GONE
+
+                    // Handle message visibility and feeling card
+                    if (data.deletedMessagesList.contains(myUid)) {
+                        linearReceiver.visibility = View.GONE
+                    } else {
+                        linearReceiver.visibility = View.VISIBLE
+                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
+
+                        if (count > 0) {
+                            feelingCard.visibility = View.VISIBLE
+                            countTv.apply {
+                                visibility = View.VISIBLE
+                                text = count.toString()
+                            }
+                        }
+
+                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                     }
                 }
-
-
-                holder.feelingCard.visibility = View.GONE
-                holder.countTv.visibility = View.GONE
-                holder.likeImg.visibility = View.GONE
-                holder.heartImg.visibility = View.GONE
-                holder.surpriseImg.visibility = View.GONE
-                holder.happyImg.visibility = View.GONE
-                holder.angryImg.visibility = View.GONE
-
-                if (data.deletedMessagesList.contains(myUid)){
-                    holder.linearReceiver.visibility=View.GONE
-                }else{
-                    holder.linearReceiver.visibility=View.VISIBLE
-                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
-
-                    if (count>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.countTv.visibility = View.VISIBLE
-                        holder.countTv.text = count.toString()
-                    }
-
-                    if (data.like>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.likeImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.heart>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.heartImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.surprise>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.surpriseImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.happy>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.happyImg.visibility = View.VISIBLE
-                    }
-
-                    if (data.angry>0){
-                        holder.feelingCard.visibility = View.VISIBLE
-                        holder.angryImg.visibility = View.VISIBLE
-                    }
-                }
-
             }
+
+
 
             // for sender voice.
             is VoiceSenderViewHolder -> {
@@ -1324,7 +1156,7 @@ class ChatAdapter(
                 val localUri = preferencesHelper.getString(data.key,"")
 
                 holder.seekBar.setOnLongClickListener { v ->
-                    longClicked.invoke(v,true,data,position)
+                    longClicked.invoke(v,true,data,position,holder.itemView)
                     true
                 }
 
@@ -1361,6 +1193,7 @@ class ChatAdapter(
                                         data.currentAudioPosition = it.currentPosition
                                         it.pause()
                                         playButton.setImageResource(R.drawable.baseline_play_arrow_24)
+                                        playButton.setAnimationOnView(R.anim.scale,500)
                                     }
 
                                 } else {
@@ -1380,6 +1213,7 @@ class ChatAdapter(
 
                                     currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                     playButton.setImageResource(R.drawable.baseline_pause_24)
+                                    playButton.setAnimationOnView(R.anim.scale,500)
 
                                     // Update seek bar
                                     handler.postDelayed(object : Runnable {
@@ -1409,7 +1243,7 @@ class ChatAdapter(
 
                                 currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                 playButton.setImageResource(R.drawable.baseline_pause_24)
-
+                                playButton.setAnimationOnView(R.anim.scale,500)
                                 // Update seek bar
                                 handler.postDelayed(object : Runnable {
                                     override fun run() {
@@ -1428,6 +1262,7 @@ class ChatAdapter(
                                 data.currentAudioPosition = 0
                                 stopCurrentMediaPlayer(data, true)
                             }
+
                         } else {
                             showToast(context, "URI not found")
                         }
@@ -1449,7 +1284,6 @@ class ChatAdapter(
                             // Optional: Add any additional logic when the user stops moving the seek bar
                         }
                     })
-
 
 
                     holder.feelingCard.visibility = View.GONE
@@ -1497,9 +1331,7 @@ class ChatAdapter(
                             holder.angryImg.visibility = View.VISIBLE
                         }
                     }
-
                 }
-
             }
             is VoiceReceiverViewHolder -> {
 
@@ -1510,7 +1342,7 @@ class ChatAdapter(
 
 
                 holder.seekBar.setOnLongClickListener { v ->
-                    longClicked.invoke(v,true,data,position)
+                    longClicked.invoke(v,true,data,position,holder.itemView)
                     true
                 }
 
@@ -1540,6 +1372,7 @@ class ChatAdapter(
                                             data.currentAudioPosition = it.currentPosition
                                             it.pause()
                                             playButton.setImageResource(R.drawable.baseline_play_arrow_24)
+                                            playButton.setAnimationOnView(R.anim.scale,500)
                                         }
 
                                     } else {
@@ -1559,6 +1392,8 @@ class ChatAdapter(
 
                                         currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                         playButton.setImageResource(R.drawable.baseline_pause_24)
+                                        playButton.setAnimationOnView(R.anim.scale,500)
+
 
                                         // Update seek bar
                                         handler.postDelayed(object : Runnable {
@@ -1591,6 +1426,8 @@ class ChatAdapter(
 
                                     currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                     playButton.setImageResource(R.drawable.baseline_pause_24)
+                                    playButton.setAnimationOnView(R.anim.scale,500)
+
 
                                     // Update seek bar
                                     handler.postDelayed(object : Runnable {

@@ -281,15 +281,15 @@ object NewUtils {
         view.translationY = view.height.toFloat()
         view.animate().translationY(0f).setDuration(duration).setListener(null).start()
     }
-    fun View.slideUpAnimation() {
+    fun View.slideUpAnimation(duration: Long = 1500) {
         val animator = ObjectAnimator.ofFloat(this, "translationY", this.height.toFloat(), 0f)
-        animator.duration = 1500 // Duration in milliseconds
+        animator.duration = duration // Duration in milliseconds
         animator.start()
     }
 
-    fun View.slideDownAnimation() {
+    fun View.slideDownAnimation(duration: Long = 500) {
         val animator = ObjectAnimator.ofFloat(this, "translationY", 0f, this.height.toFloat())
-        animator.duration = 500 // Duration in milliseconds
+        animator.duration = duration // Duration in milliseconds
         animator.start()
     }
 

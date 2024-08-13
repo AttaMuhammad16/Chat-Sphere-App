@@ -122,7 +122,7 @@ class SignInActivity : AppCompatActivity() {
                     if (account.idToken!=null){
 
                         lifecycleScope.launch {
-                            var showProgress=showProgressDialog("Login...")
+                            val showProgress=showProgressDialog("Login...")
 
                             val result=authViewModel.signInWithGoogleFirebase(this@SignInActivity,account.idToken!!)
                             result.whenSuccess { loginSuccess->
@@ -133,12 +133,13 @@ class SignInActivity : AppCompatActivity() {
                                 val authKey=auth.currentUser!!.uid
 
                                 lifecycleScope.launch {
-                                    val uploadResult=mainViewModel.uploadAnyModel(USERS,UserModel(key = authKey,profileUrl=profileUrl, fullName = name, email = email))
+                                    val uploadResult=mainViewModel.uploadAnyModel(USERS,UserModel(key = authKey,profileUrl=profileUrl, fullName = name, email = email, timeStamp = System.currentTimeMillis()))
 
                                     uploadResult.whenSuccess {
-                                        startNewActivity(MainActivity::class.java,true)
                                         showSuccessToast(loginSuccess)
                                         showProgress.dismiss()
+                                        startActivity(Intent(this@SignInActivity,MainActivity::class.java))
+                                        finish()
                                     }
 
                                     uploadResult.whenError {
@@ -159,7 +160,6 @@ class SignInActivity : AppCompatActivity() {
             }
         }
     }
-
 
     fun viewAnimation(){
         binding.card.setAnimationOnView(R.anim.slide_up,2000)

@@ -57,7 +57,7 @@ class NotificationManager {
             val summaryNotification = NotificationCompat.Builder(context, channelId)
                 .setContentTitle("Chat Sphere")
                 .setContentText("You have new messages")
-                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .setSmallIcon(R.drawable.app_icon)
                 .setStyle(inboxStyle)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setGroup(GROUP_KEY_CHAT)

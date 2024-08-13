@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_gravity="start"
     android:orientation="vertical"
-    android:layout_margin="@dimen/_5sdp"
+    android:layout_marginStart="@dimen/_5sdp"
     android:gravity="start">
 
     <LinearLayout
@@ -15,7 +15,6 @@
         android:layout_height="wrap_content"
         android:background="@drawable/receiver_background"
         android:orientation="vertical"
-        android:layout_marginTop="@dimen/_5sdp"
         app:layout_constraintEnd_toEndOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -42,19 +41,23 @@
 
             <ImageView
                 android:id="@+id/playButton"
-                android:layout_width="@dimen/_35sdp"
-                android:layout_height="@dimen/_35sdp"
+                android:layout_width="@dimen/_29sdp"
+                android:layout_height="@dimen/_29sdp"
                 android:layout_gravity="center_vertical"
                 android:src="@drawable/baseline_play_arrow_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/white" />
 
-            <SeekBar
+            <androidx.appcompat.widget.AppCompatSeekBar
                 android:id="@+id/seekBar"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/_10sdp"
+                android:padding="@dimen/_3sdp"
                 android:layout_gravity="center_vertical"
+                android:progressDrawable="@drawable/receiver_seekbar_style"
+                android:thumb="@drawable/receiver_custom_thumb"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.457"
@@ -78,6 +81,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="8:04 PM"
+                android:textColor="@color/white"
                 android:layout_marginEnd="@dimen/_5sdp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/seekBar" />

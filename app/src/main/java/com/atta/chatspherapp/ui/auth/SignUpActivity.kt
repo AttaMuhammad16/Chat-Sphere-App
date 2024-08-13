@@ -172,7 +172,7 @@ class SignUpActivity : AppCompatActivity() {
                     val progress= showProgressDialog("Register...")
                     val registerResult=authViewModel.registerWithEmailAndPassword(email, password)
 
-                    val model=UserModel(fullName = name, email = email, password = password)
+                    val model=UserModel(fullName = name, email = email, password = password , timeStamp = System.currentTimeMillis())
 
                     registerResult.whenSuccess {authResult->
 
@@ -223,6 +223,7 @@ class SignUpActivity : AppCompatActivity() {
                 }
             }
         }
+
     }
 
     fun checkAndOpenCamera(){

@@ -153,7 +153,7 @@ class UploadDocumentService : Service() {
 
         builder = NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
             .setContentTitle("Sending Document..")
-            .setSmallIcon(R.drawable.alarm)
+            .setSmallIcon(R.drawable.app_icon)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
             .setOngoing(true)
