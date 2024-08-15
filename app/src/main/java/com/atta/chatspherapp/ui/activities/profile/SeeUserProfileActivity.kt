@@ -11,8 +11,10 @@ import androidx.core.view.WindowInsetsCompat
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivitySeeUserProfileBinding
 import com.atta.chatspherapp.models.UserModel
+import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
 import com.atta.chatspherapp.utils.NewUtils.loadImageFromResource
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showToast
 
@@ -28,6 +30,13 @@ class SeeUserProfileActivity : AppCompatActivity() {
         userBundle=intent.getParcelableExtra("userModel")
         overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
 
+        binding.imgConstraint.setAnimationOnView(R.anim.scale,1000)
+        binding.nameLinear.setAnimationOnView(R.anim.bounce_anim,1200)
+        binding.aboutLinear.setAnimationOnView(R.anim.bounce_anim,1200)
+        binding.joiningLinear.setAnimationOnView(R.anim.bounce_anim,1200)
+
+
+
         binding.backImg.setOnClickListener {
             finish()
         }
@@ -36,14 +45,7 @@ class SeeUserProfileActivity : AppCompatActivity() {
             binding.profileImg.loadImageViaLink(profileUrl)
             binding.userNameTv.text=fullName
             binding.statusTv.text=if (status.isNotEmpty()){status}else{"Hey there! i am using chat sphere"}
-            binding.phoneNumberTv.text="empty"
-        }
-
-        binding.phoneLinear.setOnClickListener {
-            val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-            val clip = ClipData.newPlainText("phoneNumber copied", userBundle?.fullName)
-            clipboard.setPrimaryClip(clip)
-            showToast("phoneNumber copied.")
+            binding.joiningDate.text= formatDateFromMillis(timeStamp,"dd MMM yyyy hh:mm a")
         }
 
     }

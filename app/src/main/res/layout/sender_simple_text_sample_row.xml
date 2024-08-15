@@ -15,7 +15,7 @@
 
         <LinearLayout
             android:id="@+id/parent"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="end"
             android:minWidth="@dimen/_130sdp"
@@ -35,10 +35,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/_5sdp"
+                    app:cardElevation="@dimen/_1sdp"
                     android:backgroundTint="@color/white"
-                    android:visibility="gone"
                     app:cardCornerRadius="@dimen/_7sdp"
-                    app:strokeColor="@android:color/transparent">
+                    app:strokeColor="@color/light_green">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
@@ -163,7 +163,7 @@
                     android:layout_marginStart="10dp"
                     android:layout_marginEnd="10dp"
                     android:minWidth="@dimen/_80sdp"
-                    android:text="GoodGoodGoodGoo"
+                    android:text="GoodGoodGoodGooasdfghadsfghgsfdghgdg"
                     android:textColor="@color/black"
                     android:textSize="@dimen/_16sdp" />
 

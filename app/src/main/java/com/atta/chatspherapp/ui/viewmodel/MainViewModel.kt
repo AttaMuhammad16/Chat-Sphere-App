@@ -1,10 +1,7 @@
 package com.atta.chatspherapp.ui.viewmodel
 
 import android.util.Log
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import com.atta.chatspherapp.R
 import com.atta.chatspherapp.data.main.MainRepository
 import com.atta.chatspherapp.data.storage.StorageRepository
 import com.atta.chatspherapp.models.RecentChatModel
@@ -16,7 +13,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
-import java.lang.Thread.State
 import javax.inject.Inject
 
 
@@ -33,6 +29,8 @@ class MainViewModel @Inject constructor(private val storageRepository: StorageRe
     private var _selectedItemFlow : MutableStateFlow<MutableList<RecentChatModel>> = MutableStateFlow(mutableListOf())
     val selectedItemFlow : StateFlow<List<RecentChatModel>> = _selectedItemFlow
 
+    var changesProfileUrl=""
+    var changedName=""
 
 
     fun <T> collectAnyModel(path: String, clazz: Class<T>, numberOfItems: Int = 0): Flow<List<T>>{

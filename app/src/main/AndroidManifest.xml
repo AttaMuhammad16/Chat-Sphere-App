@@ -96,6 +96,7 @@
             android:name=".ui.activities.room.ImageCropActivity"
             android:exported="false" />
 
+
         <activity
             android:name=".ui.activities.room.EditImageActivity"
             android:exported="false" />
@@ -164,6 +165,9 @@
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="remoteMessaging" />
+
+
+
     </application>
 
 </manifest>

@@ -26,9 +26,14 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.text.Editable
+import android.text.SpannableString
+import android.text.Spanned
 import android.text.TextWatcher
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.util.DisplayMetrics
 import android.util.Log
+import android.util.Patterns
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -942,8 +947,8 @@ object NewUtils {
 
 
 
-    fun formatDateFromMillis(milliseconds: Long): String {
-        val dateFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
+    fun formatDateFromMillis(milliseconds: Long,format:String="dd MMM yyyy"): String {
+        val dateFormat = SimpleDateFormat(format, Locale.getDefault())
         val date = Date(milliseconds)
         return dateFormat.format(date)
     }
@@ -1218,6 +1223,33 @@ object NewUtils {
         }
     }
 
+
+    fun isValidUrl(url: String): Boolean {
+        return Patterns.WEB_URL.matcher(url).matches()
+    }
+
+    fun TextView.makeUrlClickable(text: String) {
+        val spannableString = SpannableString(text)
+
+        val matcher = Patterns.WEB_URL.matcher(text)
+        while (matcher.find()) {
+            val start = matcher.start()
+            val end = matcher.end()
+            val url = matcher.group(0)
+            val clickableSpan = object : ClickableSpan() {
+                override fun onClick(widget: View) {
+                    val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
+                    widget.context.startActivity(intent)
+                }
+            }
+
+            spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannableString.setSpan(ForegroundColorSpan(Color.BLUE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        this.text = spannableString
+        this.movementMethod = android.text.method.LinkMovementMethod.getInstance()
+    }
 
 
 

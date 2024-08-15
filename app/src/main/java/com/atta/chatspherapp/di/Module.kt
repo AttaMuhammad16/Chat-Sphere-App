@@ -1,5 +1,6 @@
 package com.atta.chatspherapp.di
 
+import android.content.Context
 import com.atta.chatspherapp.data.auth.email.AuthRepositoryWithEmail
 import com.atta.chatspherapp.data.auth.email.AuthRepositoryWithEmailImpl
 import com.atta.chatspherapp.data.auth.google.SignInWIthGoogle
@@ -18,9 +19,11 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import com.atta.chatspherapp.data.auth.phone.AuthRepositoryWithPhoneImpl
+import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -107,6 +110,14 @@ object Module {
     fun provideGoogleSignIn(auth: FirebaseAuth):SignInWIthGoogle{
         return SignInWithGoogleImpl(auth)
     }
+
+
+    @Provides
+    fun provideContext(@ApplicationContext context: Context) : Context = context.applicationContext
+
+    @Provides
+    fun provideGson(): Gson = Gson()
+
 
 
 

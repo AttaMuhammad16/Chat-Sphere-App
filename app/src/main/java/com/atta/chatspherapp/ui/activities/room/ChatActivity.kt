@@ -33,6 +33,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -134,9 +135,10 @@ class ChatActivity : AppCompatActivity() {
 
     @Inject
     lateinit var storageViewModel: StorageViewModel
-
     @Inject
     lateinit var storageReference: StorageReference
+
+
 
     lateinit var chatUploadPath: String
 
@@ -184,6 +186,8 @@ class ChatActivity : AppCompatActivity() {
         userModel = intent.getParcelableExtra("userModel")
         myModel = intent.getParcelableExtra("myModel")!!
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
+
+
 
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -1226,5 +1230,14 @@ class ChatActivity : AppCompatActivity() {
         super.onResume()
         updateActivityStateAndChatKey(true,userModel!!.key)
     }
+
+    override fun onBackPressed() {
+        if (binding.reactionView.visibility==View.VISIBLE) {
+            hideReactionViews()
+        }else{
+            super.onBackPressed()
+        }
+    }
+
 
 }

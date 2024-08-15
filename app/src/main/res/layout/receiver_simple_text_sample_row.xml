@@ -32,10 +32,10 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/_5sdp"
-                    android:visibility="gone"
                     app:cardCornerRadius="@dimen/_7sdp"
+                    app:cardElevation="@dimen/_1sdp"
                     android:backgroundTint="@color/white"
-                    app:strokeColor="@android:color/transparent">
+                    app:strokeColor="@color/light_green">
 
                     <LinearLayout
                         android:layout_width="wrap_content"

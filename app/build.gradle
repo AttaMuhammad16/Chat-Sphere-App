@@ -165,6 +165,11 @@ dependencies {
     implementation 'com.infideap.drawerbehavior:drawer-behavior:1.0.3'
 
 
+    //web rtc
+    implementation 'com.guolindev.permissionx:permissionx:1.6.1'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    implementation 'com.mesibo.api:webrtc:1.0.5'
+
 }
 kapt {
     correctErrorTypes = true

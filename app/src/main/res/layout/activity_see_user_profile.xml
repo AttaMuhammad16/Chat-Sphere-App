@@ -46,6 +46,7 @@
                 android:orientation="vertical">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
+                    android:id="@+id/imgConstraint"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
@@ -173,7 +174,7 @@
                     android:background="@color/gray" />
 
                 <LinearLayout
-                    android:id="@+id/phoneLinear"
+                    android:id="@+id/joiningLinear"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="@dimen/_10sdp"
@@ -186,7 +187,8 @@
                         android:layout_width="@dimen/_25sdp"
                         android:layout_height="@dimen/_25sdp"
                         android:layout_marginTop="@dimen/_5sdp"
-                        android:src="@drawable/baseline_call_24" />
+                        app:tint="@color/black"
+                        android:src="@drawable/outline_date_range_24" />
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -199,7 +201,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:fontFamily="@font/alatsi"
-                            android:text="Phone"
+                            android:text="Joining date"
                             android:textColor="@color/black"
                             android:textSize="@dimen/_16sdp" />
 
@@ -209,7 +211,7 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/phoneNumberTv"
+                                android:id="@+id/joiningDate"
                                 android:layout_width="0dp"
                                 android:layout_height="wrap_content"
                                 android:layout_weight="1"

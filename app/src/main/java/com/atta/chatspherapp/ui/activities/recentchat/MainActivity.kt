@@ -1,19 +1,16 @@
 package com.atta.chatspherapp.ui.activities.recentchat
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
-import android.view.MenuItem
 import android.view.View
-import android.view.WindowManager
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -22,7 +19,6 @@ import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
@@ -51,7 +47,6 @@ import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.startNewActivity
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
-import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
@@ -77,6 +72,7 @@ class MainActivity : AppCompatActivity() {
     var animatedItemKey = mutableSetOf<String>() // Set to track animated items
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
+
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -113,16 +109,29 @@ class MainActivity : AppCompatActivity() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 // You can update UI or handle animations here
             }
+
             override fun onDrawerOpened(drawerView: View) {
+                val url=mainViewModel.changesProfileUrl
+                val name=mainViewModel.changedName
+
+                if (url.isNotEmpty()){
+                    drawerImgProfile.loadImageViaLink(url)
+                }
+
+                if (name.isNotEmpty()){
+                    drawerName.text=name
+                }
+
                 mainRelative.visibility=View.VISIBLE
-                drawerImgProfile.setAnimationOnView(R.anim.bounce_anim,1500)
-                drawerName.setAnimationOnView(R.anim.bounce_anim,1500)
-                drawerEmail.setAnimationOnView(R.anim.slide_in_bottom,1500)
-                profileTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
-                shareTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
-                rateTextView.setAnimationOnView(R.anim.slide_in_bottom,1500)
-                logOut.setAnimationOnView(R.anim.slide_in_bottom,1500)
+                drawerImgProfile.setAnimationOnView(R.anim.bounce_anim,1300)
+                drawerName.setAnimationOnView(R.anim.bounce_anim,1300)
+                drawerEmail.setAnimationOnView(R.anim.slide_in_bottom,1300)
+                profileTextView.setAnimationOnView(R.anim.slide_in_bottom,1300)
+                shareTextView.setAnimationOnView(R.anim.slide_in_bottom,1300)
+                rateTextView.setAnimationOnView(R.anim.slide_in_bottom,1300)
+                logOut.setAnimationOnView(R.anim.slide_in_bottom,1300)
             }
+
             override fun onDrawerClosed(drawerView: View) {
                 setStatusBarColor(R.color.green)
                 mainRelative.visibility=View.GONE
@@ -177,9 +186,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.chatCard.setOnClickListener{
             startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
-//            animatedItemKey = mutableSetOf()
-//            duration=1000
-//            setUpRecyclerView(sortedList)
         }
 
         lifecycleScope.launch {
@@ -259,7 +265,7 @@ class MainActivity : AppCompatActivity() {
                         } else {
                             val intent = Intent(this@MainActivity, ChatActivity::class.java)
                             intent.putExtra("userModel", recentModel.userModel)
-                            intent.putExtra("myModel", myModel)
+                            intent.putExtra("myModel",myModel)
                             intent.putExtra("fromRecentChat", true)
                             startActivity(intent)
                         }
@@ -280,7 +286,6 @@ class MainActivity : AppCompatActivity() {
             binding.recyclerView.setData(sortedList,RecentChatItemPlaceHolderBinding::inflate,isLoading){binding, recentModel, position, holder -> }
         }
     }
-
 
     @SuppressLint("SetTextI18n")
     fun addToSelectedList(recentChatModel:RecentChatModel,view:View){
@@ -428,6 +433,30 @@ class MainActivity : AppCompatActivity() {
         alertDialog.show()
     }
 
+    override fun onResume() {
+        super.onResume()
+        val url = mainViewModel.changesProfileUrl
+        val name = mainViewModel.changedName
+        val myKey = auth.currentUser!!.uid
+        if (url.isNotEmpty()||name.isNotEmpty()){
+            val updatedList = sortedList.map { item ->
+                if (item.key == myKey) {
+                    item.copy(userModel = item.userModel.copy(profileUrl = url.ifEmpty { item.userModel.profileUrl}, fullName = name.ifEmpty { item.userModel.fullName }))
+                } else {
+                    item
+                }
+            }
+            setUpRecyclerView(updatedList)
 
+            if (url.isNotEmpty()){
+                myModel=myModel?.copy(profileUrl = url)
+            }
+
+            if (name.isNotEmpty()){
+                myModel=myModel?.copy(fullName = name)
+            }
+
+        }
+    }
 
 }

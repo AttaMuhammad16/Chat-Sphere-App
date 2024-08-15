@@ -16,15 +16,18 @@ import com.atta.chatspherapp.databinding.ActivityProfileSettingBinding
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.ui.viewmodel.StorageViewModel
+import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.pickImageFromGallery
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
+import com.atta.chatspherapp.utils.NewUtils.showErrorToast
 import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showSoftKeyboard
+import com.atta.chatspherapp.utils.NewUtils.showSuccessToast
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.firebase.auth.FirebaseAuth
-import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -49,12 +52,19 @@ class ProfileSettingActivity : AppCompatActivity() {
         myModel=intent.getParcelableExtra("myModel")
         overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
 
+        binding.imgConstraint.setAnimationOnView(R.anim.scale,1000)
+        binding.nameLinear.setAnimationOnView(R.anim.bounce_anim,1200)
+        binding.aboutLinear.setAnimationOnView(R.anim.bounce_anim,1200)
+        binding.joiningDateLinear.setAnimationOnView(R.anim.bounce_anim,1200)
+
+
+
         myModel?.apply {
             val s=if (status.isNotEmpty()){status}else{"Available"}
             binding.profileImg.loadImageViaLink(profileUrl)
             binding.userNameTv.text=fullName
             binding.statusTv.text=s
-            binding.phoneNumberTv.text=fullName
+            binding.joiningDate.text= formatDateFromMillis(timeStamp,"dd MMM yyyy hh:mm a")
             status=s
         }
 
@@ -73,14 +83,16 @@ class ProfileSettingActivity : AppCompatActivity() {
         binding.aboutLinear.setOnClickListener {
            showBottomSheet(myModel!!.status,false)
         }
+
+
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == 12 &&resultCode==Activity.RESULT_OK) {
             uri=data!!.data!!
-            binding.profileImg.setImageURI(uri)
             lifecycleScope.launch {
+                binding.profileImg.setImageURI(uri)
                 val progress= showProgressDialog("Changing...")
                 storageViewModel.deleteDocumentToFirebaseStorage(myModel!!.profileUrl)
                 val result=storageViewModel.uploadImageToFirebaseStorage(uri.toString())
@@ -88,18 +100,20 @@ class ProfileSettingActivity : AppCompatActivity() {
                     lifecycleScope.launch {
                         val map=HashMap<String,Any>()
                         map["profileUrl"]=it
+                        mainViewModel.changesProfileUrl = it
                         val updateResult=mainViewModel.uploadMap("Users"+"/"+auth.currentUser!!.uid,map)
                         updateResult.whenError {
-                            showToast(it.message.toString())
+                            showErrorToast(it.message.toString())
                             progress.dismiss()
                         }
                         updateResult.whenSuccess {
+                            showSuccessToast("Image changed successfully")
                             progress.dismiss()
                         }
                     }
                 }
                 result.whenError {
-                    showToast(it.message.toString())
+                    showErrorToast(it.message.toString())
                     progress.dismiss()
                 }
             }
@@ -124,19 +138,22 @@ class ProfileSettingActivity : AppCompatActivity() {
             val text=edt.text.toString().trim()
             if (from) {
                 if (text.isNotEmpty()){
+                    binding.userNameTv.text=text
+                    mainViewModel.changedName=text
                     lifecycleScope.launch {
                         val map=HashMap<String,Any>()
                         map["fullName"]=text
                         val updateResult=mainViewModel.uploadMap("Users"+"/"+auth.currentUser!!.uid,map)
                         updateResult.whenError {
-                            showToast(it.message.toString())
+                            showErrorToast(it.message.toString())
                         }
                         updateResult.whenSuccess {
+                            showSuccessToast("Name changed successfully")
                             bottomSheetDialog.dismiss()
                         }
                     }
                 }else{
-                    showToast("Enter your name.")
+                    showErrorToast("Enter your name.")
                 }
             }else{
                 if (text.isNotEmpty()){
@@ -146,20 +163,23 @@ class ProfileSettingActivity : AppCompatActivity() {
                         map["status"]=text
                         val updateResult=mainViewModel.uploadMap("Users"+"/"+auth.currentUser!!.uid,map)
                         updateResult.whenError {
-                            showToast(it.message.toString())
+                            showErrorToast(it.message.toString())
                         }
                         updateResult.whenSuccess {
+
                             bottomSheetDialog.dismiss()
                         }
                     }
                 }else{
-                    showToast("Enter your status.")
+                    showErrorToast("Enter your status.")
                 }
             }
         }
+
         cancelBtn.setOnClickListener {
             bottomSheetDialog.dismiss()
         }
+
         bottomSheetDialog.show()
     }
 

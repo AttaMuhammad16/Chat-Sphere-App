@@ -24,6 +24,7 @@ import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -55,9 +56,11 @@ import com.atta.chatspherapp.utils.NewUtils.downloadVideo
 import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
 import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
+import com.atta.chatspherapp.utils.NewUtils.isValidUrl
 import com.atta.chatspherapp.utils.NewUtils.loadImageFromResource
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.loadThumbnail
+import com.atta.chatspherapp.utils.NewUtils.makeUrlClickable
 import com.atta.chatspherapp.utils.NewUtils.openDocument
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setData
@@ -423,8 +426,17 @@ class ChatAdapter(
             is SenderViewHolder -> {
 
                 // Set common data
-                holder.senderMessageText.text = data.message
+                if (isValidUrl(data.message)){
+                    holder.senderMessageText.makeUrlClickable(data.message)
+                }else{
+                    holder.senderMessageText.text = data.message
+                }
                 holder.senderTime.text = dateFormatForMessage.format(Date(data.timeStamp))
+
+                holder.senderMessageText.setOnLongClickListener { v ->
+                    longClicked.invoke(v,true,data,position,holder.itemView)
+                    true
+                }
 
                 // Set message owner name
                 holder.messageOwnerNameTv.text = if (data.senderUid == myUid) "you" else data.referenceMessageSenderName
@@ -543,10 +555,20 @@ class ChatAdapter(
                     holder.angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                 }
             }
+
             is ReceiverViewHolder -> {
                 // Set common data
-                holder.receiverMessageText.text = data.message
+                if (isValidUrl(data.message)){
+                    holder.receiverMessageText.makeUrlClickable(data.message)
+                }else{
+                    holder.receiverMessageText.text = data.message
+                }
                 holder.receiverTime.text = dateFormatForMessage.format(Date(data.timeStamp))
+
+                holder.receiverMessageText.setOnLongClickListener { v ->
+                    longClicked.invoke(v,true,data,position,holder.itemView)
+                    true
+                }
 
                 // Set message owner name
                 holder.messageOwnerNameTv.text = if (data.senderUid == myUid) "you" else data.referenceMessageSenderName
