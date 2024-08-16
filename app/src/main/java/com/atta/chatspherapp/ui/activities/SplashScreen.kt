@@ -16,6 +16,9 @@ import com.atta.chatspherapp.ui.auth.SignInActivity
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.startNewActivity
+import com.google.android.gms.tasks.Task
+import com.google.android.play.core.appupdate.AppUpdateInfo
+import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.ktx.Firebase
 import dagger.hilt.android.AndroidEntryPoint
@@ -33,6 +36,7 @@ class SplashScreen : AppCompatActivity() {
         val splashText = findViewById<TextView>(R.id.splashText)
 
         splashText.setAnimationOnView(R.anim.slide_up,1500)
+
         Handler().postDelayed({
             if (auth.currentUser!=null){
                 startNewActivity(MainActivity::class.java,true)
@@ -40,7 +44,6 @@ class SplashScreen : AppCompatActivity() {
                 startNewActivity(SignInActivity::class.java,true)
             }
         },2500)
-
 
 
     }

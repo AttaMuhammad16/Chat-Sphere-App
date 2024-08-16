@@ -92,6 +92,8 @@ class SignInActivity : AppCompatActivity() {
                     val progress= showProgressDialog("Login...")
                     val loginResult=authViewModel.loginWithEmailAndPassword(email, password)
                     loginResult.whenSuccess {
+                        startActivity(Intent(this@SignInActivity,MainActivity::class.java))
+                        finishAffinity()
                         showSuccessToast(it)
                         progress.dismiss()
                     }
@@ -139,7 +141,7 @@ class SignInActivity : AppCompatActivity() {
                                         showSuccessToast(loginSuccess)
                                         showProgress.dismiss()
                                         startActivity(Intent(this@SignInActivity,MainActivity::class.java))
-                                        finish()
+                                        finishAffinity()
                                     }
 
                                     uploadResult.whenError {

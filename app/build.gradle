@@ -16,8 +16,8 @@ android {
         applicationId "com.atta.chatspherapp"
         minSdk 24
         targetSdk 35
-        versionCode 5
-        versionName "1.5"
+        versionCode 7
+        versionName "1.7"
         multiDexEnabled = true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -55,6 +55,7 @@ dependencies {
     implementation libs.firebase.database
     implementation libs.firebase.storage
     implementation libs.firebase.messaging
+    implementation libs.firebase.inappmessaging.display
     testImplementation libs.junit
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
@@ -165,10 +166,10 @@ dependencies {
     implementation 'com.infideap.drawerbehavior:drawer-behavior:1.0.3'
 
 
-    //web rtc
-    implementation 'com.guolindev.permissionx:permissionx:1.6.1'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'com.mesibo.api:webrtc:1.0.5'
+    // in app update
+    implementation("com.google.android.play:app-update:2.1.0")
+
 
 }
 kapt {
