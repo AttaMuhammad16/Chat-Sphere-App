@@ -76,11 +76,7 @@
                 android:src="@drawable/baseline_delete_24"
                 android:visibility="gone"
                 app:tint="@color/white" />
-
-
         </LinearLayout>
-
-
     </androidx.appcompat.widget.Toolbar>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -88,6 +84,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="@dimen/_5sdp"
+        tools:listitem="@layout/user_sample_row"
         app:layout_constraintBottom_toTopOf="@+id/linear02"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -332,21 +329,22 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
             android:orientation="horizontal">
 
             <LinearLayout
                 android:id="@+id/edt_linear"
-                android:layout_width="match_parent"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_weight="1"
+                android:layout_weight=".8"
                 android:background="@drawable/rounded_bac"
                 android:orientation="horizontal"
                 android:padding="@dimen/_6sdp">
 
                 <EditText
                     android:id="@+id/messageBox"
-                    android:layout_width="wrap_content"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="start|center_vertical"
                     android:layout_marginStart="@dimen/_12sdp"
@@ -379,22 +377,16 @@
                     app:tint="#ffffff" />
             </LinearLayout>
 
-            <com.google.android.material.card.MaterialCardView
-                android:id="@+id/voiceAndSendCard"
+            <ImageView
+                android:id="@+id/voiceAndSendImage"
                 android:layout_width="@dimen/_40sdp"
-                app:cardCornerRadius="@dimen/_100sdp"
-                android:layout_marginStart="@dimen/_3sdp"
-                android:backgroundTint="@color/green"
-                android:layout_height="@dimen/_40sdp">
-                <ImageView
-                    android:id="@+id/voiceAndSendImage"
-                    android:layout_width="@dimen/_40sdp"
-                    android:layout_height="@dimen/_40sdp"
-                    android:layout_gravity="center_vertical"
-                    android:padding="@dimen/_10sdp"
-                    android:src="@drawable/baseline_keyboard_voice_24"
-                    app:tint="#EDFFFFFF" />
-            </com.google.android.material.card.MaterialCardView>
+                android:layout_height="@dimen/_40sdp"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/_9sdp"
+                android:layout_marginStart="@dimen/_2sdp"
+                android:background="@drawable/circle"
+                android:src="@drawable/baseline_keyboard_voice_24"
+                app:tint="#EDFFFFFF" />
 
         </LinearLayout>
     </LinearLayout>

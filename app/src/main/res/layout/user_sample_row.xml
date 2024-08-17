@@ -12,7 +12,7 @@
             android:id="@+id/userImage"
             android:layout_width="@dimen/_40sdp"
             android:layout_height="@dimen/_40sdp"
-            android:elevation="@dimen/_10sdp"
+            android:elevation="@dimen/_3sdp"
             android:layout_margin="@dimen/_6sdp"
             android:src="@drawable/person" />
         <LinearLayout

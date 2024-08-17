@@ -92,6 +92,7 @@ import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
+import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.slideDownAnimation
 import com.atta.chatspherapp.utils.NewUtils.slideUpAnimation
 import com.atta.chatspherapp.utils.SendNotification
@@ -137,7 +138,6 @@ class ChatActivity : AppCompatActivity() {
     lateinit var storageViewModel: StorageViewModel
     @Inject
     lateinit var storageReference: StorageReference
-
 
 
     lateinit var chatUploadPath: String
@@ -190,6 +190,7 @@ class ChatActivity : AppCompatActivity() {
 
 
 
+
         lifecycleScope.launch(Dispatchers.IO) {
             myModel.chattingWith=userModel!!.key
             updateActivityStateAndChatKey(true,userModel!!.key)
@@ -215,6 +216,10 @@ class ChatActivity : AppCompatActivity() {
 
         binding.profileImg.loadImageViaLink(userModel!!.profileUrl)
         userUid=myModel.key
+        binding.profileImg.setOnClickListener {
+            showUserImage(userModel!!.profileUrl, userModel!!.fullName?: "Name not found")
+        }
+
 
         binding.backPressImg.setOnClickListener {
             if (binding.reactionView.visibility== View.VISIBLE){
@@ -317,9 +322,10 @@ class ChatActivity : AppCompatActivity() {
                 adapter.setList(it)
                 adapter.notifyDataSetChanged()
                 setAdapter(adapter)
+                binding.recyclerView.scrollToPosition(it.size-1)
+                binding.dropDownImg.isVisible=false
             }
         }
-
 
         var toggle=true
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -504,14 +510,14 @@ class ChatActivity : AppCompatActivity() {
             if (it.isNotEmpty()) {
                 if (setBol){
                     binding.voiceAndSendImage.setImageResource(R.drawable.baseline_send_24)
-                    binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,600)
+                    binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,400)
                     setBol=false
                 }
             } else {
                 if (!setBol){
                     with(binding.voiceAndSendImage) {
                         setImageResource(R.drawable.baseline_keyboard_voice_24)
-                        binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,600)
+                        binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,400)
                     }
                     setBol=true
                 }

@@ -400,11 +400,9 @@ class ChatAdapter(
         val layoutParams = holder.itemView.layoutParams as ViewGroup.MarginLayoutParams
         if (position != 0) {
             if (mylist[position - 1].senderUid != mylist[position].senderUid) {
-                if (mylist[position - 1].senderUid != myUid) {
-                    layoutParams.topMargin = 4
-                }
+                layoutParams.topMargin = 6
             }else{
-                layoutParams.topMargin = 3
+                layoutParams.topMargin = 5
             }
         }
         holder.itemView.layoutParams = layoutParams
@@ -785,6 +783,7 @@ class ChatAdapter(
                     if (data.deletedMessagesList.contains(myUid)) {
                         linearReceiver.visibility = View.GONE
                     } else {
+
                         linearReceiver.visibility = View.VISIBLE
                         val count = data.like + data.heart + data.surprise + data.happy + data.angry
 
@@ -1215,7 +1214,7 @@ class ChatAdapter(
                                         data.currentAudioPosition = it.currentPosition
                                         it.pause()
                                         playButton.setImageResource(R.drawable.baseline_play_arrow_24)
-                                        playButton.setAnimationOnView(R.anim.scale,500)
+                                        playButton.setAnimationOnView(R.anim.scale,200)
                                     }
 
                                 } else {
@@ -1235,7 +1234,7 @@ class ChatAdapter(
 
                                     currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                     playButton.setImageResource(R.drawable.baseline_pause_24)
-                                    playButton.setAnimationOnView(R.anim.scale,500)
+                                    playButton.setAnimationOnView(R.anim.scale,200)
 
                                     // Update seek bar
                                     handler.postDelayed(object : Runnable {
@@ -1265,7 +1264,7 @@ class ChatAdapter(
 
                                 currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                 playButton.setImageResource(R.drawable.baseline_pause_24)
-                                playButton.setAnimationOnView(R.anim.scale,500)
+                                playButton.setAnimationOnView(R.anim.scale,200)
                                 // Update seek bar
                                 handler.postDelayed(object : Runnable {
                                     override fun run() {
@@ -1394,7 +1393,7 @@ class ChatAdapter(
                                             data.currentAudioPosition = it.currentPosition
                                             it.pause()
                                             playButton.setImageResource(R.drawable.baseline_play_arrow_24)
-                                            playButton.setAnimationOnView(R.anim.scale,500)
+                                            playButton.setAnimationOnView(R.anim.scale,200)
                                         }
 
                                     } else {
@@ -1414,7 +1413,7 @@ class ChatAdapter(
 
                                         currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                         playButton.setImageResource(R.drawable.baseline_pause_24)
-                                        playButton.setAnimationOnView(R.anim.scale,500)
+                                        playButton.setAnimationOnView(R.anim.scale,200)
 
 
                                         // Update seek bar
@@ -1448,7 +1447,7 @@ class ChatAdapter(
 
                                     currentSeekBar.progress = (100 * data.currentAudioPosition / currentlyPlayingMediaPlayer?.duration!!)
                                     playButton.setImageResource(R.drawable.baseline_pause_24)
-                                    playButton.setAnimationOnView(R.anim.scale,500)
+                                    playButton.setAnimationOnView(R.anim.scale,200)
 
 
                                     // Update seek bar

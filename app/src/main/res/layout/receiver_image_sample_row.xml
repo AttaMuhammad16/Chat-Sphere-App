@@ -22,6 +22,7 @@
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
+                android:background="@color/black"
                 android:layout_height="match_parent">
 
                 <ImageView
@@ -29,6 +30,10 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:scaleType="centerCrop"
+                    android:scaleX="1.2"
+                    android:src="@drawable/image_placeholder"
+                    android:scaleY="1.4"
+                    android:adjustViewBounds="true"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"

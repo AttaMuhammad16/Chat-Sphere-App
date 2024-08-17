@@ -13,11 +13,12 @@
 
     <color name="tool_bar_color">#556080</color>
     <color name="dark_blue_nav">#162059</color>
+    <color name="link_color">#4360FF</color>
     <color name="Primary_dark">#263238</color>
     <color name="main_app_color">#556080</color>
     <color name="green">#299F0B</color>
     <color name="light_green">#88E470</color>
-    <color name="ver_light_green">#9DF886</color>
+    <color name="ver_light_green">#BDFBAC</color>
     <color name="yellow">#D6C20A</color>
     <color name="light_yellow">#E3D768</color>
     <color name="blue">#1E3CE4</color>

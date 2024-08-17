@@ -938,10 +938,10 @@ object NewUtils {
             .into(this)
     }
 
-    fun ImageView.loadImageViaLink(url: String) {
+    fun ImageView.loadImageViaLink(url: String,placeHolder:Int=R.drawable.person) {
         Glide.with(this.context)
             .load(url)
-            .placeholder(R.drawable.person)
+            .placeholder(placeHolder)
             .into(this)
     }
 
@@ -1242,9 +1242,8 @@ object NewUtils {
                     widget.context.startActivity(intent)
                 }
             }
-
             spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-            spannableString.setSpan(ForegroundColorSpan(Color.BLUE), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this.context,R.color.link_color)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
 
         this.text = spannableString

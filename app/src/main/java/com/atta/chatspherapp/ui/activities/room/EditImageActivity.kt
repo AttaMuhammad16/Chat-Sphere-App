@@ -15,6 +15,8 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.databinding.ActivityEditImageBinding
+import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
+import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,8 +30,11 @@ class EditImageActivity : AppCompatActivity() {
         binding= ActivityEditImageBinding.inflate(layoutInflater)
         setContentView(binding.root)
         val imageUri=intent.getStringExtra("DATA")!!
+        setStatusBarColor(R.color.green)
 
         binding.photoView.setImageURI(Uri.parse(imageUri))
+        binding.sendImage.setAnimationOnView(R.anim.scale,300)
+        binding.linearLayout4.setAnimationOnView(R.anim.scale,300)
 
         binding.cropImg.setOnClickListener {
             binding.photoView.clearCanvas()
@@ -44,8 +49,7 @@ class EditImageActivity : AppCompatActivity() {
                 binding.photoView.setZoomable(true)
             } else {
                 visibleColorLayout()
-                val myAnim: Animation = AnimationUtils.loadAnimation(this, R.anim.bounce_anim)
-                binding.colorLinearLayout.startAnimation(myAnim)
+                binding.colorLinearLayout.setAnimationOnView(R.anim.bounce_anim,500)
                 binding.photoView.setZoomable(false)
             }
             isColorLayoutVisible = !isColorLayoutVisible
@@ -91,11 +95,11 @@ class EditImageActivity : AppCompatActivity() {
             lifecycleScope.launch {
 
                 val location = IntArray(2)
-                binding.imageLinear.getLocationOnScreen(location)
-                val bitmap = Bitmap.createBitmap(binding.imageLinear.width, binding.imageLinear.height, Bitmap.Config.ARGB_8888)
+                binding.photoView.getLocationOnScreen(location)
+                val bitmap = Bitmap.createBitmap(binding.photoView.width, binding.photoView.height, Bitmap.Config.ARGB_8888)
 
                 val canvas = Canvas(bitmap)
-                binding.imageLinear.draw(canvas)
+                binding.photoView.draw(canvas)
 
                 val uri = withContext(Dispatchers.IO) { binding.photoView.saveImageToFile(this@EditImageActivity, bitmap) }
 

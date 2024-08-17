@@ -56,7 +56,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
-// for audio calling will add agora or zegocloud
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -124,13 +123,13 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 mainRelative.visibility=View.VISIBLE
-                drawerImgProfile.setAnimationOnView(R.anim.bounce_anim,1300)
-                drawerName.setAnimationOnView(R.anim.bounce_anim,1300)
-                drawerEmail.setAnimationOnView(R.anim.slide_in_bottom,1300)
-                profileTextView.setAnimationOnView(R.anim.slide_in_bottom,1300)
-                shareTextView.setAnimationOnView(R.anim.slide_in_bottom,1300)
-                rateTextView.setAnimationOnView(R.anim.slide_in_bottom,1300)
-                logOut.setAnimationOnView(R.anim.slide_in_bottom,1300)
+                drawerImgProfile.setAnimationOnView(R.anim.bounce_anim,400)
+                drawerName.setAnimationOnView(R.anim.bounce_anim,500)
+                drawerEmail.setAnimationOnView(R.anim.slide_in_bottom,600)
+                profileTextView.setAnimationOnView(R.anim.slide_in_bottom,700)
+                shareTextView.setAnimationOnView(R.anim.slide_in_bottom,800)
+                rateTextView.setAnimationOnView(R.anim.slide_in_bottom,900)
+                logOut.setAnimationOnView(R.anim.slide_in_bottom,1000)
             }
 
             override fun onDrawerClosed(drawerView: View) {
@@ -278,7 +277,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (!animatedItemKey.contains(recentModel.key)) {
-                    binding.mainConstraint.setAnimationOnView(R.anim.slide_up, duration)
+                    binding.mainConstraint.setAnimationOnView(R.anim.slide_up, 700)
                     animatedItemKey.add(recentModel.key)
                 }
 
@@ -292,9 +291,9 @@ class MainActivity : AppCompatActivity() {
     fun addToSelectedList(recentChatModel:RecentChatModel,view:View){
         mainViewModel.addToSelectedList(recentChatModel){
             if (it){
-                addColorRevealAnimation(view,500,ContextCompat.getColor(this@MainActivity, R.color.light_green))
+                addColorRevealAnimation(view,500,ContextCompat.getColor(this@MainActivity, R.color.ver_light_green))
             }else{
-                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, com.atta.chatspherapp.R.color.white))
+                view.setBackgroundColor(ContextCompat.getColor(this@MainActivity, R.color.white))
             }
             toolBarSettings()
         }
