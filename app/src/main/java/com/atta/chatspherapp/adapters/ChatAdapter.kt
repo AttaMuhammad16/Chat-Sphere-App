@@ -138,7 +138,6 @@ class ChatAdapter(
         val refType: TextView = view.findViewById(R.id.refType)
         val refImgCard: CardView = view.findViewById(R.id.refImgCard)
 
-
         var feelingCard: CardView = view.findViewById(R.id.feelingCard)
         var likeImg: ImageView = view.findViewById(R.id.likeImg)
         var heartImg: ImageView = view.findViewById(R.id.heartImg)
@@ -148,8 +147,6 @@ class ChatAdapter(
         var countTv: TextView = view.findViewById(R.id.countTv)
 
     }
-
-    // for text
     class ReceiverViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val receiverMessageText: TextView = view.findViewById(R.id.message)
         val receiverTime: TextView = view.findViewById(R.id.message_time)
@@ -234,7 +231,6 @@ class ChatAdapter(
         var countTv: TextView = view.findViewById(R.id.countTv)
 
     }
-
     class ImageReceiverViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val receiverImageView: ImageView = view.findViewById(R.id.receiverImageView)
         val receiverTime: TextView = view.findViewById(R.id.receiver_timeTv)
@@ -269,7 +265,6 @@ class ChatAdapter(
 
 
     }
-
     class VideoReceiverViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val receiverThumbnailImageView: ImageView = view.findViewById(R.id.receiverThumbnailImageView)
         val downloadFileImg: ImageView = view.findViewById(R.id.downloadFileImg)
@@ -288,6 +283,8 @@ class ChatAdapter(
         var countTv: TextView = view.findViewById(R.id.countTv)
 
     }
+
+
     // for document
     class DocumentSenderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val file_name_tv: TextView = view.findViewById(R.id.file_name_tv)
@@ -304,7 +301,6 @@ class ChatAdapter(
         var surpriseImg: ImageView = view.findViewById(R.id.surpriseImg)
         var countTv: TextView = view.findViewById(R.id.countTv)
     }
-
     class DocumentReceiverViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val file_name_tv: TextView = view.findViewById(R.id.file_name_tv)
         val downloadImg: ImageView = view.findViewById(R.id.downloadImg)

@@ -170,8 +170,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
-
 //       generate FCM token
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
             if (it.isSuccessful) {

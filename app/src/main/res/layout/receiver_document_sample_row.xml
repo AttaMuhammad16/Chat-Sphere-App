@@ -94,12 +94,12 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/feelingCardHeight"
         android:layout_marginTop="-6dp"
-        android:backgroundTint="#E3E3E3"
         android:visibility="invisible"
+        android:backgroundTint="@android:color/transparent"
+        app:cardCornerRadius="@dimen/_20sdp"
         android:layout_marginStart="@dimen/_12sdp"
         android:layout_marginBottom="@dimen/_3sdp"
         android:outlineSpotShadowColor="@android:color/transparent"
-        app:cardCornerRadius="@dimen/_16sdp"
         app:cardElevation="@dimen/_3sdp">
 
         <LinearLayout
@@ -135,8 +135,8 @@
 
             <ImageView
                 android:id="@+id/happyImg"
-                android:layout_width="@dimen/feelingImageSize"
-                android:layout_height="@dimen/feelingImageSize"
+                android:layout_width="13dp"
+                android:layout_height="10dp"
                 android:layout_gravity="center_vertical"
                 android:layout_margin="@dimen/_2sdp"
                 android:src="@drawable/ic_laugh" />

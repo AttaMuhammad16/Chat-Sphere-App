@@ -313,17 +313,21 @@ class ChatActivity : AppCompatActivity() {
         layoutManager.stackFromEnd=true
 
         lifecycleScope.launch {
-
+            var previousList= listOf<MessageModel>()
             mainViewModel.collectAnyModel(chatUploadPath, MessageModel::class.java).collect {
-
                 if (it.isNotEmpty()){
                     list=it as ArrayList
                 }
                 adapter.setList(it)
                 adapter.notifyDataSetChanged()
                 setAdapter(adapter)
-                binding.recyclerView.scrollToPosition(it.size-1)
-                binding.dropDownImg.isVisible=false
+
+                if (previousList.size!=it.size){
+                    binding.recyclerView.scrollToPosition(it.size-1)
+                    binding.dropDownImg.isVisible=false
+                    previousList=it
+                }
+
             }
         }
 

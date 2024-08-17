@@ -187,10 +187,10 @@
                 android:layout_marginStart="@dimen/_12sdp"
                 android:layout_marginTop="-6dp"
                 android:layout_marginBottom="@dimen/_3sdp"
-                android:backgroundTint="#E3E3E3"
+                android:backgroundTint="@android:color/transparent"
                 android:outlineSpotShadowColor="@android:color/transparent"
-                android:visibility="invisible"
                 app:cardCornerRadius="@dimen/_16sdp"
+                android:visibility="invisible"
                 app:cardElevation="@dimen/_3sdp">
 
                 <LinearLayout
