@@ -117,6 +117,7 @@ class DeleteMessagesService : Service() {
     }
 
     private suspend fun startDeleting(recentMessagesList: ArrayList<RecentChatModel>?) {
+
         withContext(Dispatchers.IO) {
 
             recentMessagesList?.let { messagesList ->
@@ -133,7 +134,6 @@ class DeleteMessagesService : Service() {
             }
 
             val listOfLinks = mutableListOf<String>()
-
             val linkResults = recentMessagesList?.map { model ->
                 async {
                     val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)

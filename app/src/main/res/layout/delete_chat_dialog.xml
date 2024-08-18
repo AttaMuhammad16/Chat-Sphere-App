@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent">
 
     <com.google.android.material.card.MaterialCardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_10sdp"
-        android:backgroundTint="#6D799C">
+        android:backgroundTint="@color/white"
+        app:cardCornerRadius="@dimen/_20sdp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:padding="@dimen/_5sdp"
             android:layout_margin="@dimen/_6sdp"
             android:orientation="vertical">
 
@@ -19,36 +22,47 @@
                 android:id="@+id/dialogTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/baloo_2_medium"
                 android:paddingStart="@dimen/_8sdp"
                 android:text="Delete chats?"
-                android:textColor="@color/white"
-                android:textSize="@dimen/_20sdp" />
+                android:textColor="@color/black"
+                android:textSize="@dimen/_17sdp"
+                android:textStyle="bold" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="end"
+                android:layout_marginTop="@dimen/_10sdp"
                 android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
+                <TextView
                     android:id="@+id/cancelBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@android:color/transparent"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="@dimen/_5sdp"
+                    android:background="@drawable/red_outline"
                     android:text="cancel"
-                    android:layout_marginEnd="-8dp"
-                    android:textColor="#3AFF08"
-                    android:textSize="@dimen/_15sdp" />
+                    android:gravity="center"
+                    android:paddingHorizontal="@dimen/_15sdp"
+                    android:paddingVertical="@dimen/_7sdp"
+                    android:textColor="@color/red"
+                    android:textSize="@dimen/_13sdp" />
 
-                <com.google.android.material.button.MaterialButton
+                <TextView
                     android:id="@+id/deleteBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@android:color/transparent"
-                    android:text="Delete chats"
-                    android:textColor="#3AFF08"
-                    android:textSize="@dimen/_15sdp" />
+                    android:layout_gravity="center_vertical"
+                    android:background="@drawable/green_outline"
+                    android:gravity="center"
+                    android:paddingHorizontal="@dimen/_17sdp"
+                    android:paddingVertical="@dimen/_7sdp"
+                    android:text="Delete"
+                    android:textColor="@color/white"
+                    android:textSize="@dimen/_13sdp" />
+
+
             </LinearLayout>
         </LinearLayout>
     </com.google.android.material.card.MaterialCardView>

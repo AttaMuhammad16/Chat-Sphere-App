@@ -275,7 +275,7 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 if (!animatedItemKey.contains(recentModel.key)) {
-                    binding.mainConstraint.setAnimationOnView(R.anim.slide_up, 700)
+                    binding.mainConstraint.setAnimationOnView(R.anim.slide_up, 500)
                     animatedItemKey.add(recentModel.key)
                 }
 
@@ -309,14 +309,14 @@ class MainActivity : AppCompatActivity() {
             showDrawerIcon(false)
             val size=list.size
             binding.toolBarTitle.text="${size} selected"
-            binding.toolBarTitle.setAnimationOnView(R.anim.scale,800)
+            binding.toolBarTitle.setAnimationOnView(R.anim.scale,500)
             binding.profileSettingImg.visibility=View.GONE
             binding.deleteImg.visibility=View.VISIBLE
             binding.backArrow.visibility=View.VISIBLE
 
             if (animationApplied){
-                binding.deleteImg.setAnimationOnView(R.anim.slide_in_bottom,800)
-                binding.backArrow.setAnimationOnView(R.anim.slide_in_bottom,800)
+                binding.deleteImg.setAnimationOnView(R.anim.slide_in_bottom,500)
+                binding.backArrow.setAnimationOnView(R.anim.slide_in_bottom,500)
                 animationApplied=false
             }
 
@@ -329,10 +329,10 @@ class MainActivity : AppCompatActivity() {
             binding.backArrow.visibility=View.GONE
 
             if (!animationApplied){
-                binding.backArrow.setAnimationOnView(R.anim.slide_out_bottom,800)
-                binding.deleteImg.setAnimationOnView(R.anim.slide_out_bottom,800)
-                binding.profileSettingImg.setAnimationOnView(R.anim.slide_in_bottom,800)
-                binding.toolBarTitle.setAnimationOnView(R.anim.slide_in_bottom,800)
+                binding.backArrow.setAnimationOnView(R.anim.slide_out_bottom,500)
+                binding.deleteImg.setAnimationOnView(R.anim.slide_out_bottom,500)
+                binding.profileSettingImg.setAnimationOnView(R.anim.slide_in_bottom,500)
+                binding.toolBarTitle.setAnimationOnView(R.anim.slide_in_bottom,500)
                 animationApplied=true
             }
 
@@ -341,9 +341,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         binding.deleteImg.setOnClickListener {
-            val alert=AlertDialog.Builder(this@MainActivity).setView(com.atta.chatspherapp.R.layout.delete_chat_dialog).show()
-            val cancelBtn=alert.findViewById<Button>(com.atta.chatspherapp.R.id.cancelBtn)
-            val deleteBtn=alert.findViewById<Button>(com.atta.chatspherapp.R.id.deleteBtn)
+            val alert=AlertDialog.Builder(this@MainActivity).setView(R.layout.delete_chat_dialog).show()
+            val cancelBtn=alert.findViewById<TextView>(com.atta.chatspherapp.R.id.cancelBtn)
+            val deleteBtn=alert.findViewById<TextView>(com.atta.chatspherapp.R.id.deleteBtn)
             val dialogTitle=alert.findViewById<TextView>(com.atta.chatspherapp.R.id.dialogTitle)
 
             if (list.size>1) {
@@ -357,21 +357,26 @@ class MainActivity : AppCompatActivity() {
             }
 
             deleteBtn.setOnClickListener {
+
                 alert.dismiss()
-                val intent = Intent(this@MainActivity,DeleteMessagesService::class.java)
                 val arraylist=ArrayList(list)
+
+                val intent = Intent(this@MainActivity,DeleteMessagesService::class.java)
                 intent.putExtra("selectedMessages",arraylist)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(intent)
                 }else{
                     startService(intent)
                 }
+
                 for ((i,model) in list.withIndex()){
                     sortedList.remove(model)
                 }
+
                 setUpRecyclerView(sortedList)
                 mainViewModel.clearSelectedItemsList()
                 toolBarSettings()
+
             }
             alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 

@@ -16,8 +16,8 @@ data class MessageModel (
     var timeStamp:Long = 0,
     var currentAudioPosition:Int = 0,
     var senderUid:String = "",
-    var blockList:ArrayList<String> = arrayListOf(),
 
+    //urls
     var imageUrl:String = "",
     var voiceUrl:String = "",
     var documentUrl:String = "",
@@ -49,6 +49,8 @@ data class MessageModel (
     var referenceMessageId:String="",
 //    for voice
     var referenceVoiceUrl:String="",
+
+
 ): Parcelable
 
 
@@ -57,5 +59,4 @@ data class ReactionModel(
     var reactionId:Int=0,
     var senderName:String="",
     var senderImageUrl:String="",
-
 )

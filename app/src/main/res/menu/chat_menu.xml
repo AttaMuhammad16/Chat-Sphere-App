@@ -1,0 +1,9 @@
+<!-- res/menu/menu_example.xml -->
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/action_clear_chat"
+        android:title="Clear Chat" />
+    <item
+        android:id="@+id/action_block_text"
+        android:title="Block" />
+</menu>

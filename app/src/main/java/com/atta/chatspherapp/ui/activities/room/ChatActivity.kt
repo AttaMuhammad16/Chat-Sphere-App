@@ -22,6 +22,8 @@ import android.os.Looper
 import android.os.SystemClock
 import android.provider.MediaStore
 import android.util.Log
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.animation.AnimationUtils
 import android.widget.TextView
@@ -30,6 +32,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.PopupMenu
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -118,13 +121,15 @@ import javax.inject.Inject
 class ChatActivity : AppCompatActivity() {
 
     lateinit var binding: ActivityChatBinding
-
     @Inject
     lateinit var mainViewModel: MainViewModel
-
     @Inject
     lateinit var databaseReference: DatabaseReference
-    var bol = false
+    @Inject
+    lateinit var storageViewModel: StorageViewModel
+    @Inject
+    lateinit var storageReference: StorageReference
+
     var mediaRecorder: MediaRecorder? = null
     private var filePath: String? = null
     val handler = Handler(Looper.getMainLooper())
@@ -133,12 +138,6 @@ class ChatActivity : AppCompatActivity() {
     var userUid = ""
     lateinit var adapter: ChatAdapter
     lateinit var mediaPlayer: MediaPlayer
-
-    @Inject
-    lateinit var storageViewModel: StorageViewModel
-    @Inject
-    lateinit var storageReference: StorageReference
-
 
     lateinit var chatUploadPath: String
 
@@ -163,9 +162,8 @@ class ChatActivity : AppCompatActivity() {
     lateinit var auth: FirebaseAuth
     var myModel=UserModel()
     var fromRecentChat=false
-    var userActivityState:Boolean=false
-    var updatedList= listOf<MessageModel>()
 
+    var isBlocked=false
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -186,10 +184,6 @@ class ChatActivity : AppCompatActivity() {
         userModel = intent.getParcelableExtra("userModel")
         myModel = intent.getParcelableExtra("myModel")!!
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
-
-
-
-
 
         lifecycleScope.launch(Dispatchers.IO) {
             myModel.chattingWith=userModel!!.key
@@ -234,6 +228,10 @@ class ChatActivity : AppCompatActivity() {
 
         binding.recyclerView.setOnClickListener{
             hideReactionViews()
+        }
+
+        binding.menuImg.setOnClickListener {
+            showMenu()
         }
 
         binding.toolBarTitle.setOnClickListener {
@@ -354,6 +352,7 @@ class ChatActivity : AppCompatActivity() {
                             binding.dropDownImg.visibility = View.GONE
                         }
                     }
+
                 }
             }
 
@@ -530,60 +529,63 @@ class ChatActivity : AppCompatActivity() {
 
 
         binding.voiceAndSendImage.setOnClickListener {
+
             binding.dropDownImg.visibility=View.GONE
             val message = binding.messageBox.text.toString()
+
             if (message.isNotEmpty()) {
-                lifecycleScope.launch {
+                if (!isBlocked){
+                    lifecycleScope.launch {
 
-                    withContext(Dispatchers.IO){
-                        uploadToRecentChat(message,TEXT)
+                        withContext(Dispatchers.IO){
+                            uploadToRecentChat(message,TEXT)
+                        }
+
+                        val key=databaseReference.push().key.toString()
+
+                        val messageModel = MessageModel(
+                            key = key,
+                            senderName = "",
+                            senderImageUrl = "",
+                            senderPhone = "",
+                            message = message,
+                            timeStamp = System.currentTimeMillis(),
+                            senderUid = userUid,
+                            blockList = arrayListOf(""),
+                            imageUrl = "",
+                            voiceUrl = "",
+                            documentUrl = "",
+                            referenceMessageSenderName = myModel.fullName?:"Name not found",
+                            referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
+                            referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
+                            referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
+                            referenceVideoUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.videoUrl.isNotEmpty()){referenceMessageModel.videoUrl} else{""},
+                            referenceDocumentName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.documentFileName.isNotEmpty()){referenceMessageModel.documentFileName} else{""},
+                            referenceVoiceUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.voiceUrl.isNotEmpty()){referenceMessageModel.voiceUrl} else{""},
+                        )
+
+                        list.add(messageModel)
+                        adapter.setList(list)
+                        adapter.notifyDataSetChanged()
+
+                        binding.messageBox.setText("")
+
+                        referenceMessageModel=MessageModel()
+                        binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
+
+                        binding.tvRefLinear.visibility= View.GONE
+                        binding.imgRefConstraint.visibility= View.GONE
+                        binding.voiceRefConstraint.visibility= View.GONE
+
+                        val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
+
+                        messageUploadResult.whenError {
+                            showToast(it.toString())
+                            Log.i("TAG", "onCreate:${it.message} ")
+                        }
+                        binding.recyclerView.scrollToPosition(list.size - 1)
                     }
-
-                    val key=databaseReference.push().key.toString()
-
-                    val messageModel = MessageModel(
-                        key = key,
-                        senderName = "",
-                        senderImageUrl = "",
-                        senderPhone = "",
-                        message = message,
-                        timeStamp = System.currentTimeMillis(),
-                        senderUid = userUid,
-                        blockList = arrayListOf(""),
-                        imageUrl = "",
-                        voiceUrl = "",
-                        documentUrl = "",
-                        referenceMessageSenderName = myModel.fullName?:"Name not found",
-                        referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
-                        referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
-                        referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
-                        referenceVideoUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.videoUrl.isNotEmpty()){referenceMessageModel.videoUrl} else{""},
-                        referenceDocumentName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.documentFileName.isNotEmpty()){referenceMessageModel.documentFileName} else{""},
-                        referenceVoiceUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.voiceUrl.isNotEmpty()){referenceMessageModel.voiceUrl} else{""},
-                    )
-
-                    list.add(messageModel)
-                    adapter.setList(list)
-                    adapter.notifyDataSetChanged()
-
-                    binding.messageBox.setText("")
-
-                    referenceMessageModel=MessageModel()
-                    binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
-
-                    binding.tvRefLinear.visibility= View.GONE
-                    binding.imgRefConstraint.visibility= View.GONE
-                    binding.voiceRefConstraint.visibility= View.GONE
-
-                    val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
-
-                    messageUploadResult.whenError {
-                        showToast(it.toString())
-                        Log.i("TAG", "onCreate:${it.message} ")
-                    }
-                    binding.recyclerView.scrollToPosition(list.size - 1)
                 }
-
             }else {
 
                 binding.voiceSenderLinearLayout.slideUpAnimation()
@@ -692,6 +694,24 @@ class ChatActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(permission, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.CAMERA), 11)
         }
+    }
+
+    private fun showMenu() {
+        val popup = PopupMenu(this, binding.menuImg)
+        val inflater: MenuInflater = popup.menuInflater
+        inflater.inflate(R.menu.chat_menu, popup.menu)
+        popup.setOnMenuItemClickListener { item: MenuItem ->
+            when (item.itemId) {
+                R.id.action_block_text -> {
+                    true
+                }
+                R.id.action_clear_chat -> {
+                    true
+                }
+                else -> false
+            }
+        }
+        popup.show()
     }
 
 

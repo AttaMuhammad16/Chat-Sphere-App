@@ -44,7 +44,7 @@
 
             <TextView
                 android:id="@+id/toolBarTitle"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:layout_weight="1"
@@ -71,11 +71,21 @@
                 android:id="@+id/deleteMessageImg"
                 android:layout_width="@dimen/_21sdp"
                 android:layout_height="@dimen/_21sdp"
+                android:visibility="gone"
                 android:layout_gravity="center_vertical"
                 android:layout_marginEnd="@dimen/_5sdp"
                 android:src="@drawable/baseline_delete_24"
-                android:visibility="gone"
                 app:tint="@color/white" />
+
+            <ImageView
+                android:id="@+id/menuImg"
+                android:layout_width="@dimen/_21sdp"
+                android:layout_height="@dimen/_21sdp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginEnd="@dimen/_5sdp"
+                android:src="@drawable/baseline_more_vert_24"
+                app:tint="@color/white" />
+
         </LinearLayout>
     </androidx.appcompat.widget.Toolbar>
 
@@ -84,7 +94,6 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_margin="@dimen/_5sdp"
-        tools:listitem="@layout/user_sample_row"
         app:layout_constraintBottom_toTopOf="@+id/linear02"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -327,6 +336,7 @@
 
 
         <LinearLayout
+            android:id="@+id/messageBoxLinear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"

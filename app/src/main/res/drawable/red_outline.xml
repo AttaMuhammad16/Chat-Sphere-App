@@ -1,0 +1,12 @@
+<!-- res/drawable/red_outline.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Transparent solid fill -->
+    <solid android:color="@android:color/transparent" />
+
+    <!-- Red outline stroke -->
+    <stroke
+        android:width="2dp"
+        android:color="@color/red" />
+
+    <corners android:radius="@dimen/_20sdp" />
+</shape>
