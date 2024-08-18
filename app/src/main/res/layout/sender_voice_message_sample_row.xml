@@ -72,76 +72,67 @@
 
     </LinearLayout>
 
-    <androidx.cardview.widget.CardView
-        android:id="@+id/feelingCard"
-        android:layout_width="wrap_content"
-        android:layout_height="@dimen/feelingCardHeight"
-        android:layout_marginTop="-6dp"
-        android:backgroundTint="@android:color/transparent"
-        app:cardCornerRadius="@dimen/_20sdp"
-        android:visibility="invisible"
-        android:layout_marginEnd="@dimen/_12sdp"
-        android:layout_marginBottom="@dimen/_3sdp"
-        android:outlineSpotShadowColor="@android:color/transparent"
-        app:cardElevation="@dimen/_3sdp">
+    <LinearLayout
+        android:id="@+id/feelingLinear"
+        android:layout_width="match_parent"
+        android:layout_gravity="end"
+        android:gravity="end"
+        android:layout_marginTop="-5dp"
+        android:layout_height="match_parent">
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+        <ImageView
+            android:id="@+id/likeImg"
+            android:layout_width="@dimen/feelingImageSize"
+            android:layout_height="@dimen/feelingImageSize"
+            android:layout_gravity="center|center_vertical"
+            android:layout_marginStart="@dimen/_4sdp"
+            android:layout_marginTop="@dimen/_2sdp"
+            android:layout_marginEnd="@dimen/_2sdp"
+            android:layout_marginBottom="@dimen/_3sdp"
+            android:src="@drawable/ic_like" />
 
-            <ImageView
-                android:id="@+id/likeImg"
-                android:layout_width="@dimen/feelingImageSize"
-                android:layout_height="@dimen/feelingImageSize"
-                android:layout_marginTop="@dimen/_2sdp"
-                android:layout_marginBottom="@dimen/_3sdp"
-                android:layout_marginStart="@dimen/_4sdp"
-                android:layout_marginEnd="@dimen/_2sdp"
-                android:layout_gravity="center|center_vertical"
-                android:src="@drawable/ic_like" />
+        <ImageView
+            android:id="@+id/heartImg"
+            android:layout_width="@dimen/feelingImageSize"
+            android:layout_height="@dimen/feelingImageSize"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="@dimen/_2sdp"
+            android:src="@drawable/ic_love" />
 
-            <ImageView
-                android:id="@+id/heartImg"
-                android:layout_width="@dimen/feelingImageSize"
-                android:layout_height="@dimen/feelingImageSize"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="@dimen/_2sdp"
-                android:src="@drawable/ic_love" />
+        <ImageView
+            android:id="@+id/surpriseImg"
+            android:layout_width="@dimen/feelingImageSize"
+            android:layout_height="@dimen/feelingImageSize"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="@dimen/_2sdp"
+            android:src="@drawable/surprise_img"
+            android:visibility="gone" />
 
-            <ImageView
-                android:id="@+id/surpriseImg"
-                android:layout_width="@dimen/feelingImageSize"
-                android:layout_height="@dimen/feelingImageSize"
-                android:layout_gravity="center_vertical"
-                android:layout_margin="@dimen/_2sdp"
-                android:src="@drawable/surprise_img" />
+        <ImageView
+            android:id="@+id/happyImg"
+            android:layout_width="@dimen/feelingImageSize"
+            android:layout_height="@dimen/feelingImageSize"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="@dimen/_2sdp"
+            android:src="@drawable/ic_laugh" />
 
-            <ImageView
-                android:id="@+id/happyImg"
-                android:layout_width="@dimen/feelingImageSize"
-                android:layout_height="@dimen/feelingImageSize"
-                android:layout_margin="@dimen/_2sdp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_laugh" />
+        <ImageView
+            android:id="@+id/angryImg"
+            android:layout_width="@dimen/feelingImageSize"
+            android:layout_height="@dimen/feelingImageSize"
+            android:layout_gravity="center_vertical"
+            android:layout_margin="@dimen/_2sdp"
+            android:src="@drawable/ic_angry" />
 
-            <ImageView
-                android:id="@+id/angryImg"
-                android:layout_width="@dimen/feelingImageSize"
-                android:layout_height="@dimen/feelingImageSize"
-                android:layout_margin="@dimen/_2sdp"
-                android:layout_gravity="center_vertical"
-                android:src="@drawable/ic_angry" />
-
-            <TextView
-                android:id="@+id/countTv"
-                android:layout_width="wrap_content"
-                android:layout_height="@dimen/_10sdp"
-                android:gravity="center|center_vertical"
-                android:textColor="@color/black"
-                android:layout_marginEnd="@dimen/_5sdp"
-                android:layout_marginStart="@dimen/_2sdp"
-                android:layout_gravity="center|center_vertical"
-                android:textSize="@dimen/_8sdp" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
+        <TextView
+            android:id="@+id/countTv"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/_10sdp"
+            android:layout_gravity="center|center_vertical"
+            android:layout_marginStart="@dimen/_2sdp"
+            android:layout_marginEnd="@dimen/_5sdp"
+            android:gravity="center|center_vertical"
+            android:textColor="@color/black"
+            android:textSize="@dimen/_8sdp" />
+    </LinearLayout>
 </LinearLayout>

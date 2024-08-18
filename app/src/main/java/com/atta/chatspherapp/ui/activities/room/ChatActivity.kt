@@ -220,7 +220,6 @@ class ChatActivity : AppCompatActivity() {
             showUserImage(userModel!!.profileUrl, userModel!!.fullName?: "Name not found")
         }
 
-
         binding.backPressImg.setOnClickListener {
             if (binding.reactionView.visibility== View.VISIBLE){
                 hideReactionViews()
@@ -259,6 +258,7 @@ class ChatActivity : AppCompatActivity() {
         adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth,myModel) { it, from, messageModel, position,itemView->
 
             if (from){
+
                 val location = IntArray(2)
                 it.getLocationOnScreen(location)
                 val yPosition = location[1]-100
@@ -288,6 +288,7 @@ class ChatActivity : AppCompatActivity() {
                 showReactionDialog(messageModel) {selectedReaction->
                     addReactionOnDB(messageModel, selectedReaction)
                 }
+
                 this.messageModel = messageModel
             }else{
                 hideReactionViews()
@@ -327,7 +328,6 @@ class ChatActivity : AppCompatActivity() {
                     binding.dropDownImg.isVisible=false
                     previousList=it
                 }
-
             }
         }
 
