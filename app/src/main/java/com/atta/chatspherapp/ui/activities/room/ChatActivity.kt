@@ -551,7 +551,6 @@ class ChatActivity : AppCompatActivity() {
                             message = message,
                             timeStamp = System.currentTimeMillis(),
                             senderUid = userUid,
-                            blockList = arrayListOf(""),
                             imageUrl = "",
                             voiceUrl = "",
                             documentUrl = "",

@@ -64,6 +64,7 @@ class DeleteMessagesService : Service() {
     inner class LocalBinder : Binder() {
         fun getService(): DeleteMessagesService = this@DeleteMessagesService
     }
+
     var mykey:String?=""
 
     override fun onBind(intent: Intent?): IBinder {
