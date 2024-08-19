@@ -88,8 +88,9 @@ class SearchUserForChatActivity : AppCompatActivity() {
         }
 
         binding.searchEdt.onTextChange {
-            filterList(it)
+            filterList(it.trim())
         }
+
     }
 
     private fun filterList(query: String) {
@@ -112,7 +113,7 @@ class SearchUserForChatActivity : AppCompatActivity() {
             binding.userNameTv.text=if (auth.currentUser!!.uid==item.key){"${item.fullName} (You)"}else{item.fullName}
             binding.statusTv.text=if (item.status.isEmpty()){"Hey there i am using Chat Sphere"}else{item.status}
             binding.userImage.setOnClickListener{
-                showUserImage(item.profileUrl,item?.fullName?:"Name not found")
+                showUserImage(item.profileUrl,item.fullName?:"Name not found")
             }
 
             binding.main.setOnClickListener {
@@ -125,12 +126,10 @@ class SearchUserForChatActivity : AppCompatActivity() {
                 }
             }
 
-
             if (!animatedItemKey.contains(item.key)) {
-                holder.itemView.setAnimationOnView(R.anim.slide_up, 800)
+                holder.itemView.setAnimationOnView(R.anim.slide_up, 500)
                 animatedItemKey.add(item.key)
             }
-
         })
     }
 

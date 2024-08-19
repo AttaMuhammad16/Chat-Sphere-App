@@ -20,6 +20,7 @@ object Constants {
     const val ROOM="room"
     const val REACTIONDETAILS="reactionsDetails"
     const val GOOGLEREQUESTCODE=12
+    const val BLOCKLIST="blockList"
 
 
     //sender

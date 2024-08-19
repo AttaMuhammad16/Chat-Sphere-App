@@ -763,8 +763,6 @@ object NewUtils {
     }
 
 
-
-
     fun showWithRevealAnimation(showView: View, hideView: View) {
         val centerX = (showView.left + showView.right) / 2
         val centerY = (showView.top + showView.bottom) / 2
@@ -772,7 +770,7 @@ object NewUtils {
         val finalRadius = kotlin.math.hypot(showView.width.toDouble(), showView.height.toDouble()).toFloat()
         val circularReveal = ViewAnimationUtils.createCircularReveal(showView, centerX, centerY, 0f, finalRadius)
 
-        circularReveal.duration = 700
+        circularReveal.duration = 500
 
         circularReveal.addListener(object : AnimatorListenerAdapter() {
             override fun onAnimationStart(animation: Animator) {
@@ -882,7 +880,7 @@ object NewUtils {
 
             override fun getItemCount(): Int {
                 return if (isLoading) {
-                    12
+                    9
                 } else {
                     items.size
                 }

@@ -35,7 +35,7 @@ import kotlin.reflect.jvm.isAccessible
 class MainRepositoryImpl @Inject constructor(private val databaseReference: DatabaseReference) : MainRepository {
 
     override fun <T> collectAnyModel(path: String, clazz: Class<T>): Flow<List<T>> = callbackFlow {
-        path.logT("collectAnyModel->path","path")
+        path.logT("collectAnyModel->path","atta")
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(dataSnapshot: DataSnapshot) {
                 dataSnapshot.logT("collectAnyModel->dataSnapshot:","firebase")
@@ -64,8 +64,8 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
         numberOfItems: Int ,
     ): Flow<List<T>> = callbackFlow {
 
-        path.logT("collectAnyModel->path ", "path")
-        numberOfItems.logT("numberOfItems", "path")
+        path.logT("collectAnyModel->path ", "atta")
+        numberOfItems.logT("numberOfItems", "atta")
         clazz.simpleName.logT("clazz.simpleName")
 
         val query:Query =  if (numberOfItems == 0){
@@ -98,7 +98,7 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
 
 
     override suspend fun <T : Any> uploadAnyModel(path: String, model: T): MyResult<String> {
-        path.logT("uploadAnyModel->path","path")
+        path.logT("uploadAnyModel->path","atta")
         return try {
             val keyProperty = model::class.declaredMemberProperties.find { it.name == "key" }
             if (keyProperty != null) {
@@ -126,7 +126,7 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
 
 
     override suspend fun deleteAnyModel(path: String): MyResult<String> {
-        path.logT("deleteAnyModel->path","path")
+        path.logT("deleteAnyModel->path","atta")
         return try {
             databaseReference.child(path).removeValue().await()
             MyResult.Success("deleted Successfully")
@@ -137,7 +137,7 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
 
 
     override suspend fun <T> getAnyData(path: String, clazz: Class<T>): T? {
-        path.logT("getAnyData->path","path")
+        path.logT("getAnyData->path","atta")
         return try {
             val snapshot = databaseReference.child(path).get().await()
             snapshot.logT("getAnyData->snapshot","firebase")

@@ -80,6 +80,7 @@ import com.atta.chatspherapp.managers.NotificationManager.Companion.clearNotific
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.ui.activities.profile.SeeUserProfileActivity
 import com.atta.chatspherapp.utils.Constants.ACTIVITYSTATEOFTHEUSER
+import com.atta.chatspherapp.utils.Constants.BLOCKLIST
 import com.atta.chatspherapp.utils.Constants.CHATTINGWITH
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
 import com.atta.chatspherapp.utils.Constants.IMAGE
@@ -163,7 +164,9 @@ class ChatActivity : AppCompatActivity() {
     var myModel=UserModel()
     var fromRecentChat=false
 
-    var isBlocked=false
+    var listOfBlockedUsers = arrayListOf<String>()
+    val mapOfBlockList = HashMap<String,Any>()
+
     @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -184,6 +187,13 @@ class ChatActivity : AppCompatActivity() {
         userModel = intent.getParcelableExtra("userModel")
         myModel = intent.getParcelableExtra("myModel")!!
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
+        listOfBlockedUsers = myModel.blockList
+
+        if (listOfBlockedUsers.contains(userModel!!.key)){
+            binding.messageBoxLinear.isVisible = false
+        }else{
+            binding.messageBoxLinear.isVisible = true
+        }
 
         lifecycleScope.launch(Dispatchers.IO) {
             myModel.chattingWith=userModel!!.key
@@ -196,8 +206,6 @@ class ChatActivity : AppCompatActivity() {
                 userModel?.chattingWith=it.chattingWith
             }
         }
-
-
         if (fromRecentChat){
             lifecycleScope.launch(Dispatchers.IO) {
                 mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
@@ -210,6 +218,7 @@ class ChatActivity : AppCompatActivity() {
 
         binding.profileImg.loadImageViaLink(userModel!!.profileUrl)
         userUid=myModel.key
+
         binding.profileImg.setOnClickListener {
             showUserImage(userModel!!.profileUrl, userModel!!.fullName?: "Name not found")
         }
@@ -534,56 +543,54 @@ class ChatActivity : AppCompatActivity() {
             val message = binding.messageBox.text.toString()
 
             if (message.isNotEmpty()) {
-                if (!isBlocked){
-                    lifecycleScope.launch {
+                lifecycleScope.launch {
 
-                        withContext(Dispatchers.IO){
-                            uploadToRecentChat(message,TEXT)
-                        }
-
-                        val key=databaseReference.push().key.toString()
-
-                        val messageModel = MessageModel(
-                            key = key,
-                            senderName = "",
-                            senderImageUrl = "",
-                            senderPhone = "",
-                            message = message,
-                            timeStamp = System.currentTimeMillis(),
-                            senderUid = userUid,
-                            imageUrl = "",
-                            voiceUrl = "",
-                            documentUrl = "",
-                            referenceMessageSenderName = myModel.fullName?:"Name not found",
-                            referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
-                            referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
-                            referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
-                            referenceVideoUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.videoUrl.isNotEmpty()){referenceMessageModel.videoUrl} else{""},
-                            referenceDocumentName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.documentFileName.isNotEmpty()){referenceMessageModel.documentFileName} else{""},
-                            referenceVoiceUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.voiceUrl.isNotEmpty()){referenceMessageModel.voiceUrl} else{""},
-                        )
-
-                        list.add(messageModel)
-                        adapter.setList(list)
-                        adapter.notifyDataSetChanged()
-
-                        binding.messageBox.setText("")
-
-                        referenceMessageModel=MessageModel()
-                        binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
-
-                        binding.tvRefLinear.visibility= View.GONE
-                        binding.imgRefConstraint.visibility= View.GONE
-                        binding.voiceRefConstraint.visibility= View.GONE
-
-                        val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
-
-                        messageUploadResult.whenError {
-                            showToast(it.toString())
-                            Log.i("TAG", "onCreate:${it.message} ")
-                        }
-                        binding.recyclerView.scrollToPosition(list.size - 1)
+                    withContext(Dispatchers.IO){
+                        uploadToRecentChat(message,TEXT)
                     }
+
+                    val key=databaseReference.push().key.toString()
+
+                    val messageModel = MessageModel(
+                        key = key,
+                        senderName = "",
+                        senderImageUrl = "",
+                        senderPhone = "",
+                        message = message,
+                        timeStamp = System.currentTimeMillis(),
+                        senderUid = userUid,
+                        imageUrl = "",
+                        voiceUrl = "",
+                        documentUrl = "",
+                        referenceMessageSenderName = myModel.fullName?:"Name not found",
+                        referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
+                        referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
+                        referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
+                        referenceVideoUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.videoUrl.isNotEmpty()){referenceMessageModel.videoUrl} else{""},
+                        referenceDocumentName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.documentFileName.isNotEmpty()){referenceMessageModel.documentFileName} else{""},
+                        referenceVoiceUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.voiceUrl.isNotEmpty()){referenceMessageModel.voiceUrl} else{""},
+                    )
+
+                    list.add(messageModel)
+                    adapter.setList(list)
+                    adapter.notifyDataSetChanged()
+
+                    binding.messageBox.setText("")
+
+                    referenceMessageModel=MessageModel()
+                    binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
+
+                    binding.tvRefLinear.visibility= View.GONE
+                    binding.imgRefConstraint.visibility= View.GONE
+                    binding.voiceRefConstraint.visibility= View.GONE
+
+                    val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
+
+                    messageUploadResult.whenError {
+                        showToast(it.toString())
+                        Log.i("TAG", "onCreate:${it.message} ")
+                    }
+                    binding.recyclerView.scrollToPosition(list.size - 1)
                 }
             }else {
 
@@ -701,10 +708,38 @@ class ChatActivity : AppCompatActivity() {
         inflater.inflate(R.menu.chat_menu, popup.menu)
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
-                R.id.action_block_text -> {
+                R.id.action_clear_chat -> {
                     true
                 }
-                R.id.action_clear_chat -> {
+                R.id.action_block_text -> {
+                    lifecycleScope.launch {
+                        val key = userModel!!.key
+                        val myKey = myModel.key
+                        val isBlocked = listOfBlockedUsers.contains(key)
+
+                        if (!isBlocked) {
+                            // Add the key to the list of blocked users
+                            listOfBlockedUsers.add(key)
+                            mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
+
+                            // Update the map in the ViewModel
+                            mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
+
+                            // Hide the message box
+                            binding.messageBoxLinear.isVisible = false
+                        } else {
+                            // Remove the key from the list of blocked users
+                            listOfBlockedUsers.remove(key)
+                            mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
+
+                            // Update the map in the ViewModel
+                            mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
+
+                            // Show the message box
+                            binding.messageBoxLinear.isVisible = true
+                        }
+                    }
+
                     true
                 }
                 else -> false

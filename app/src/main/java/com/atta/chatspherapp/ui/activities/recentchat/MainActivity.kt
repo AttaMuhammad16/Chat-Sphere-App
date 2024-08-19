@@ -52,6 +52,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.messaging.FirebaseMessaging
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -72,6 +74,8 @@ class MainActivity : AppCompatActivity() {
     var animatedItemKey = mutableSetOf<String>() // Set to track animated items
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var toolbar: Toolbar
+    var previousName=""
+    var previousUrl=""
 
 
     @SuppressLint("SetTextI18n")
@@ -188,9 +192,17 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             myModel=mainViewModel.getAnyData("$USERS/${auth.currentUser!!.uid}",UserModel::class.java)
+
             drawerImgProfile.loadImageViaLink(myModel?.profileUrl?:"empty")
             drawerName.text=myModel?.fullName?:"Name not found"
             drawerEmail.text=myModel?.email?:"Email not found"
+        }
+
+        // myModel listener for updates.
+        lifecycleScope.launch {
+            mainViewModel.userFlow.collect{
+                myModel=it
+            }
         }
 
         binding.profileSettingImg.setOnClickListener {
@@ -202,43 +214,41 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            setUpRecyclerView(sortedList,true)
-            mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}",RecentChatModel::class.java).collect{it->
+            setUpRecyclerView(sortedList, true)
 
-                for (i in it){
-                    val model=mainViewModel.getAnyData("$USERS/${i.key}",UserModel::class.java)
-                    if (model!=null){
-                        i.userModel=model
+            mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}", RecentChatModel::class.java).collect { recentChatList ->
+                if (recentChatList.isEmpty()) {
+                    binding.noRecentChatMessage.visibility = View.VISIBLE
+                    setUpRecyclerView(sortedList, false)
+                    return@collect
+                } else {
+                    binding.noRecentChatMessage.visibility = View.GONE
+                }
+
+                // Fetch UserModel data in parallel using async
+                val deferredModels = recentChatList.map { recentChat ->
+                    async {
+                        val model = mainViewModel.getAnyData("$USERS/${recentChat.key}", UserModel::class.java)
+                        if (model != null) {
+                            recentChat.userModel = model
+                        }
+                        recentChat
                     }
                 }
 
-                if (it.isEmpty()){
-                    binding.noRecentChatMessage.visibility=View.VISIBLE
-                    setUpRecyclerView(sortedList,false)
-                }else{
-                    binding.noRecentChatMessage.visibility=View.GONE
-                }
-
-                sortedList = it.sortedByDescending { recentModel -> recentModel.timeStamp }.toMutableList()
-                setUpRecyclerView(sortedList,false)
+                val updatedList = deferredModels.awaitAll()
+                sortedList = updatedList.sortedByDescending { it.timeStamp }.toMutableList()
+                setUpRecyclerView(sortedList, false)
 
             }
         }
+
     }
 
     fun setUpRecyclerView(sortedList: List<RecentChatModel>,isLoading:Boolean = false) {
         if (!isLoading){
             binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position, holder ->
                 binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
-
-//                val maxLength = 20
-//                val nameLength = recentModel.userModel.fullName?.length ?: 0
-//                val name = recentModel.userModel.fullName
-//                val truncatedText = if (nameLength > maxLength) {
-//                    name?.substring(0, maxLength) + "..."
-//                } else {
-//
-//                }
 
                 binding.nameTv.text = recentModel.userModel.fullName
                 binding.recentMessage.text = recentModel.recentMessage
@@ -440,27 +450,36 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
         val url = mainViewModel.changesProfileUrl
         val name = mainViewModel.changedName
         val myKey = auth.currentUser!!.uid
-        if (url.isNotEmpty()||name.isNotEmpty()){
+
+        if ((url.isNotEmpty() && url != previousUrl) || (name.isNotEmpty() && name != previousName)) {
+
             val updatedList = sortedList.map { item ->
                 if (item.key == myKey) {
-                    item.copy(userModel = item.userModel.copy(profileUrl = url.ifEmpty { item.userModel.profileUrl}, fullName = name.ifEmpty { item.userModel.fullName }))
+                    item.copy(userModel = item.userModel.copy(
+                        profileUrl = url.ifEmpty { item.userModel.profileUrl },
+                        fullName = name.ifEmpty { item.userModel.fullName }
+                    ))
                 } else {
                     item
                 }
             }
+
             setUpRecyclerView(updatedList)
 
-            if (url.isNotEmpty()){
-                myModel=myModel?.copy(profileUrl = url)
+            // Update the previous values only if there were changes
+            if (url.isNotEmpty()) {
+                myModel = myModel?.copy(profileUrl = url)
+                previousUrl = url
             }
 
-            if (name.isNotEmpty()){
-                myModel=myModel?.copy(fullName = name)
+            if (name.isNotEmpty()) {
+                myModel = myModel?.copy(fullName = name)
+                previousName = name
             }
-
         }
     }
 
