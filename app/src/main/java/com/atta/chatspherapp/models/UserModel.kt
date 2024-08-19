@@ -16,5 +16,7 @@ data class UserModel(
     var fullName: String? = "",
     var email:String?="",
     var password:String="",
-    var blockList:ArrayList<String> = arrayListOf()
+    var blockList:ArrayList<String> = arrayListOf(),
+    var isOnline:Boolean = false,
+    var lastSeen:String=""
 ) : Parcelable

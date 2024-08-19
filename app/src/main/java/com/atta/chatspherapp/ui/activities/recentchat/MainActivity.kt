@@ -231,16 +231,16 @@ class MainActivity : AppCompatActivity() {
             binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position, holder ->
                 binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
 
-                val maxLength = 20
-                val nameLength = recentModel.userModel.fullName?.length ?: 0
-                val name = recentModel.userModel.fullName
-                val truncatedText = if (nameLength > maxLength) {
-                    name?.substring(0, maxLength) + "..."
-                } else {
-                    name
-                }
+//                val maxLength = 20
+//                val nameLength = recentModel.userModel.fullName?.length ?: 0
+//                val name = recentModel.userModel.fullName
+//                val truncatedText = if (nameLength > maxLength) {
+//                    name?.substring(0, maxLength) + "..."
+//                } else {
+//
+//                }
 
-                binding.nameTv.text = truncatedText
+                binding.nameTv.text = recentModel.userModel.fullName
                 binding.recentMessage.text = recentModel.recentMessage
                 binding.lastMessageTime.text = recentModel.timeStamp.toTimeAgo()
 

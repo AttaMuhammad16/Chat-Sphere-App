@@ -28,16 +28,17 @@
 
         <TextView
             android:id="@+id/nameTv"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/_6sdp"
             android:layout_marginTop="@dimen/_5sdp"
             android:ellipsize="end"
             android:singleLine="true"
-            android:text="Atta Muhammad (App Developer)"
+            android:text="Atta Muhammad"
             android:textColor="@color/black"
             android:textSize="@dimen/_15sdp"
             android:textStyle="bold"
+            app:layout_constraintEnd_toStartOf="@+id/lastMessageTime"
             app:layout_constraintStart_toEndOf="@+id/profileImage"
             app:layout_constraintTop_toTopOf="parent" />
 
