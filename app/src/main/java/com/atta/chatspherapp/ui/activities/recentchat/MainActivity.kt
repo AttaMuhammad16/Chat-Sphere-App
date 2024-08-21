@@ -200,6 +200,10 @@ class MainActivity : AppCompatActivity() {
 
         // myModel listener for updates.
         lifecycleScope.launch {
+            mainViewModel.getAnyModelFlow(USERS+"/"+auth.currentUser!!.uid,UserModel())
+        }
+
+        lifecycleScope.launch {
             mainViewModel.userFlow.collect{
                 myModel=it
             }

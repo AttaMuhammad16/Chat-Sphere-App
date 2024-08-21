@@ -1,6 +1,7 @@
 package com.atta.chatspherapp.adapters
 
 import android.animation.Animator
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.annotation.SuppressLint
 import android.app.DownloadManager
@@ -56,6 +57,7 @@ import com.atta.chatspherapp.utils.NewUtils.downloadVideo
 import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
 import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
+import com.atta.chatspherapp.utils.NewUtils.highlightAndZoomMessage
 import com.atta.chatspherapp.utils.NewUtils.isValidUrl
 import com.atta.chatspherapp.utils.NewUtils.loadImageFromResource
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
@@ -98,9 +100,10 @@ class ChatAdapter(
     var layoutManager: LinearLayoutManager,
     var storageViewModel: StorageViewModel,
     var userModel: UserModel,
-    var auth:FirebaseAuth,
-    var myModel:UserModel,
-    var longClicked: (View, Boolean, MessageModel, Int,View) -> Unit
+    var auth: FirebaseAuth,
+    var myModel: UserModel,
+    var dropDownImg: ImageView,
+    var longClicked: (View, Boolean, MessageModel, Int, View) -> Unit
 
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -1719,48 +1722,18 @@ class ChatAdapter(
     }
 
 
-    // scroll to reference message
     fun scrollToMessage(referenceKey: String, currentItemPosition: Int) {
         val position = mylist.indexOfFirst { it.key == referenceKey }
-        Log.i("TAG", "scrollToMessage:$position")
         if (position != -1) {
-            layoutManager.smoothScrollToPosition(recyclerView, RecyclerView.State(), position)
-            highlightMessage(position)
-        }else{
-            Log.i("TAG", "scrollToMessage:$position")
-        }
-    }
-
-    private fun highlightMessage(position: Int) {
-        recyclerView.post {
-            val viewHolder = recyclerView.findViewHolderForAdapterPosition(position)
-            if (viewHolder != null && viewHolder.itemView.isAttachedToWindow) {
-                val backgroundColor = ContextCompat.getColor(context, R.color.very_light_grey)
-                val animator = ObjectAnimator.ofArgb(viewHolder.itemView, "backgroundColor", Color.TRANSPARENT, backgroundColor)
-                animator.duration = 1000
-                animator.interpolator = AccelerateDecelerateInterpolator()
-                animator.addListener(object : Animator.AnimatorListener {
-                    override fun onAnimationStart(animation: Animator) {
-                        // Do something if needed
-                    }
-
-                    override fun onAnimationEnd(animation: Animator) {
-                        val reverseAnimator = ObjectAnimator.ofArgb(viewHolder.itemView, "backgroundColor", backgroundColor, Color.TRANSPARENT)
-                        reverseAnimator.duration = 1000
-                        reverseAnimator.interpolator = AccelerateDecelerateInterpolator()
-                        reverseAnimator.start()
-                    }
-
-                    override fun onAnimationCancel(animation: Animator) {
-                        // Do something if needed
-                    }
-
-                    override fun onAnimationRepeat(animation: Animator) {
-                        // Do something if needed
-                    }
-                })
-                animator.start()
+            layoutManager.scrollToPosition(position)
+            highlightAndZoomMessage(position,recyclerView,context)
+            if (currentItemPosition == mylist.size - 1) {
+                dropDownImg.visibility = View.GONE
+            }else{
+                dropDownImg.visibility = View.VISIBLE
             }
+        } else {
+            Log.i("scrollToMessage", "scrollToMessage:$position")
         }
     }
 

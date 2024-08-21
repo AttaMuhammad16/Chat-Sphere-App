@@ -2,6 +2,7 @@ package com.atta.chatspherapp.utils
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
@@ -42,6 +43,7 @@ import android.view.ViewAnimationUtils
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
 import android.view.WindowManager
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.AccelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
@@ -1247,6 +1249,76 @@ object NewUtils {
         this.text = spannableString
         this.movementMethod = android.text.method.LinkMovementMethod.getInstance()
     }
+
+
+    fun highlightAndZoomMessage(position: Int,recyclerView: RecyclerView,context: Context) {
+        recyclerView.post {
+            val viewHolder = recyclerView.findViewHolderForAdapterPosition(position)
+            if (viewHolder != null && viewHolder.itemView.isAttachedToWindow) {
+                val itemView = viewHolder.itemView
+                val backgroundColor = ContextCompat.getColor(context, R.color.very_light_grey)
+
+                // Zoom in animation
+                val scaleX = ObjectAnimator.ofFloat(itemView, "scaleX", 1f, 1.1f)
+                val scaleY = ObjectAnimator.ofFloat(itemView, "scaleY", 1f, 1.1f)
+                val zoomInSet = AnimatorSet().apply {
+                    playTogether(scaleX, scaleY)
+                    duration = 300
+                    interpolator = AccelerateDecelerateInterpolator()
+                }
+
+                // Highlight animation
+                val highlightAnimator = ObjectAnimator.ofArgb(itemView, "backgroundColor", Color.TRANSPARENT, backgroundColor).apply {
+                    duration = 1000
+                    interpolator = AccelerateDecelerateInterpolator()
+                }
+
+                // Reverse highlight and zoom out
+                highlightAnimator.addListener(object : Animator.AnimatorListener {
+                    override fun onAnimationStart(animation: Animator) {
+                        zoomInSet.start() // Start zoom in when highlight starts
+                    }
+
+                    override fun onAnimationEnd(animation: Animator) {
+                        val reverseAnimator = ObjectAnimator.ofArgb(itemView, "backgroundColor", backgroundColor, Color.TRANSPARENT).apply {
+                            duration = 1000
+                            interpolator = AccelerateDecelerateInterpolator()
+                        }
+
+                        // Zoom out animation
+                        val scaleXReverse = ObjectAnimator.ofFloat(itemView, "scaleX", 1.1f, 1f)
+                        val scaleYReverse = ObjectAnimator.ofFloat(itemView, "scaleY", 1.1f, 1f)
+                        val zoomOutSet = AnimatorSet().apply {
+                            playTogether(scaleXReverse, scaleYReverse)
+                            duration = 300
+                            interpolator = AccelerateDecelerateInterpolator()
+                        }
+
+                        reverseAnimator.addListener(object : Animator.AnimatorListener {
+                            override fun onAnimationStart(animation: Animator) {
+                                zoomOutSet.start() // Start zoom out when reverse highlight starts
+                            }
+
+                            override fun onAnimationEnd(animation: Animator) {
+                                // Cleanup or additional logic after animation ends
+                            }
+
+                            override fun onAnimationCancel(animation: Animator) {}
+                            override fun onAnimationRepeat(animation: Animator) {}
+                        })
+
+                        reverseAnimator.start() // Start reverse highlight after the initial highlight ends
+                    }
+
+                    override fun onAnimationCancel(animation: Animator) {}
+                    override fun onAnimationRepeat(animation: Animator) {}
+                })
+
+                highlightAnimator.start()
+            }
+        }
+    }
+
 
 
 

@@ -338,6 +338,20 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
 
+        <TextView
+            android:id="@+id/blockedTv"
+            android:layout_width="match_parent"
+            android:text="Tab to Unblock"
+            android:textColor="@color/black"
+            android:elevation="@dimen/_1sdp"
+            android:layout_gravity="center"
+            android:background="@drawable/round_corners_for_reaction"
+            android:gravity="center"
+            android:textSize="@dimen/_15sdp"
+            android:layout_margin="@dimen/_5sdp"
+            android:visibility="gone"
+            android:textStyle="bold"
+            android:layout_height="wrap_content"/>
         <LinearLayout
             android:id="@+id/messageBoxLinear"
             android:layout_width="match_parent"
@@ -555,7 +569,6 @@
             android:layout_weight="1"
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
-
             app:lottie_rawRes="@raw/happy_anim" />
 
         <com.airbnb.lottie.LottieAnimationView

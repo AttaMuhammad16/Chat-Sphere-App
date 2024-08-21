@@ -96,6 +96,7 @@ import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
+import com.atta.chatspherapp.utils.NewUtils.showSuccessToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.slideDownAnimation
 import com.atta.chatspherapp.utils.NewUtils.slideUpAnimation
@@ -166,8 +167,9 @@ class ChatActivity : AppCompatActivity() {
 
     var listOfBlockedUsers = arrayListOf<String>()
     val mapOfBlockList = HashMap<String,Any>()
+    var anotherUserKey=""
+    var myKey=""
 
-    @OptIn(DelicateCoroutinesApi::class)
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -189,10 +191,22 @@ class ChatActivity : AppCompatActivity() {
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
         listOfBlockedUsers = myModel.blockList
 
+        anotherUserKey = userModel!!.key
+        myKey = myModel.key
+
         if (listOfBlockedUsers.contains(userModel!!.key)){
             binding.messageBoxLinear.isVisible = false
+            binding.blockedTv.isVisible = true
         }else{
             binding.messageBoxLinear.isVisible = true
+        }
+
+
+        binding.blockedTv.setOnClickListener {
+            lifecycleScope.launch {
+                removeFromBlockList()
+                showSuccessToast("User unblocked successfully")
+            }
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -206,6 +220,7 @@ class ChatActivity : AppCompatActivity() {
                 userModel?.chattingWith=it.chattingWith
             }
         }
+
         if (fromRecentChat){
             lifecycleScope.launch(Dispatchers.IO) {
                 mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
@@ -262,7 +277,7 @@ class ChatActivity : AppCompatActivity() {
         val layoutManager = LinearLayoutManager(this@ChatActivity)
         binding.recyclerView.layoutManager = layoutManager
 
-        adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth,myModel) { it, from, messageModel, position,itemView->
+        adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth,myModel,binding.dropDownImg) { it, from, messageModel, position,itemView->
 
             if (from){
 
@@ -706,6 +721,16 @@ class ChatActivity : AppCompatActivity() {
         val popup = PopupMenu(this, binding.menuImg)
         val inflater: MenuInflater = popup.menuInflater
         inflater.inflate(R.menu.chat_menu, popup.menu)
+        val blockMenuItem = popup.menu.findItem(R.id.action_block_text)
+
+        val isBlocked = listOfBlockedUsers.contains(anotherUserKey)
+
+        if (isBlocked) {
+            blockMenuItem.title = "Unblock User"
+        } else {
+            blockMenuItem.title = "Block User"
+        }
+
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_clear_chat -> {
@@ -713,33 +738,14 @@ class ChatActivity : AppCompatActivity() {
                 }
                 R.id.action_block_text -> {
                     lifecycleScope.launch {
-                        val key = userModel!!.key
-                        val myKey = myModel.key
-                        val isBlocked = listOfBlockedUsers.contains(key)
-
                         if (!isBlocked) {
-                            // Add the key to the list of blocked users
-                            listOfBlockedUsers.add(key)
-                            mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
-
-                            // Update the map in the ViewModel
-                            mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
-
-                            // Hide the message box
-                            binding.messageBoxLinear.isVisible = false
+                            addToBlockList()
+                            showSuccessToast("User blocked successfully")
                         } else {
-                            // Remove the key from the list of blocked users
-                            listOfBlockedUsers.remove(key)
-                            mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
-
-                            // Update the map in the ViewModel
-                            mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
-
-                            // Show the message box
-                            binding.messageBoxLinear.isVisible = true
+                            removeFromBlockList()
+                            showSuccessToast("User unblocked successfully")
                         }
                     }
-
                     true
                 }
                 else -> false
@@ -748,6 +754,22 @@ class ChatActivity : AppCompatActivity() {
         popup.show()
     }
 
+
+    suspend fun addToBlockList(){
+        listOfBlockedUsers.add(anotherUserKey)
+        mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
+        binding.messageBoxLinear.isVisible = false
+        binding.blockedTv.isVisible = true
+        mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
+    }
+
+    suspend fun removeFromBlockList(){
+        listOfBlockedUsers.remove(anotherUserKey)
+        mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
+        binding.messageBoxLinear.isVisible = true
+        binding.blockedTv.isVisible = false
+        mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
+    }
 
     fun startRecording() {
         binding.audioTracker.recreate()

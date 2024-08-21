@@ -5,7 +5,7 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="light_grey">#878788</color>
-    <color name="very_light_grey">#BCBCBD</color>
+    <color name="very_light_grey">#68BCBCBD</color>
     <color name="red">#F40A0A</color>
     <color name="light_red">#EF6262</color>
     <color name="mtrl_textinput_default_box_stroke_color">#299F0B</color>
