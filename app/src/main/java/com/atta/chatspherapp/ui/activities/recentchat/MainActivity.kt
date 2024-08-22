@@ -113,7 +113,6 @@ class MainActivity : AppCompatActivity() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
                 // You can update UI or handle animations here
             }
-
             override fun onDrawerOpened(drawerView: View) {
                 val url=mainViewModel.changesProfileUrl
                 val name=mainViewModel.changedName
@@ -151,7 +150,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         })
-
 
         profileTextView.setOnClickListener {
             openProfileSetting()
@@ -202,7 +200,6 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             mainViewModel.getAnyModelFlow(USERS+"/"+auth.currentUser!!.uid,UserModel())
         }
-
         lifecycleScope.launch {
             mainViewModel.userFlow.collect{
                 myModel=it

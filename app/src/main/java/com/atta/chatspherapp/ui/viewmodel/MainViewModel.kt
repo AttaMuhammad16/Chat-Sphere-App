@@ -70,9 +70,14 @@ class MainViewModel @Inject constructor(private val storageRepository: StorageRe
         model.collect{
             _isUserInActivity.value=it.activityState
             _userFlow.value=it
-            Log.i("_userFlow", "getAnyModelFlow:${userFlow.value} ")
         }
     }
+
+    suspend fun getModelFlow(path: String,userModel: UserModel):Flow<UserModel>{
+        val model=mainRepository.getAnyModelFlow(path, userModel)
+        return model
+    }
+
 
     fun addToSelectedList(recentChatModel: RecentChatModel,isAddedOrRemoved:(Boolean)->Unit){
         val selectedList=_selectedItemFlow.value

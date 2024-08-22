@@ -96,6 +96,7 @@ import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
+import com.atta.chatspherapp.utils.NewUtils.showErrorToast
 import com.atta.chatspherapp.utils.NewUtils.showSuccessToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.slideDownAnimation
@@ -108,6 +109,7 @@ import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -170,6 +172,8 @@ class ChatActivity : AppCompatActivity() {
     var anotherUserKey=""
     var myKey=""
 
+    var blockedFromAnotherUser=false
+
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -194,12 +198,36 @@ class ChatActivity : AppCompatActivity() {
         anotherUserKey = userModel!!.key
         myKey = myModel.key
 
-        if (listOfBlockedUsers.contains(userModel!!.key)){
-            binding.messageBoxLinear.isVisible = false
-            binding.blockedTv.isVisible = true
-        }else{
-            binding.messageBoxLinear.isVisible = true
+
+        // myModel listener for updates.
+        lifecycleScope.launch {
+            mainViewModel.getModelFlow("$USERS/$myKey",UserModel()).collect{
+                listOfBlockedUsers = it.blockList
+                if (it.blockList.contains(anotherUserKey)) {
+                    binding.messageBoxLinear.isVisible = false
+                    binding.blockedTv.isVisible = true
+                }else{
+                    binding.messageBoxLinear.isVisible = true
+                    binding.blockedTv.isVisible = false
+                    mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel()).collect{
+                        if (it.blockList.contains(myKey)){
+                            blockedFromAnotherUser = true
+                        }else{
+                            blockedFromAnotherUser = false
+                        }
+                    }
+                }
+            }
         }
+
+
+        if (userModel!!.blockList.contains(myKey)){
+            blockedFromAnotherUser = true
+        }else{
+            blockedFromAnotherUser = false
+        }
+
+
 
 
         binding.blockedTv.setOnClickListener {
@@ -278,42 +306,46 @@ class ChatActivity : AppCompatActivity() {
         binding.recyclerView.layoutManager = layoutManager
 
         adapter = ChatAdapter(this@ChatActivity, userUid, binding.dateTv,databaseReference,chatUploadPath,mainViewModel,lifecycleScope,binding.recyclerView,userModel?.key!!,layoutManager,storageViewModel,userModel!!,auth,myModel,binding.dropDownImg) { it, from, messageModel, position,itemView->
-
-            if (from){
-
-                val location = IntArray(2)
-                it.getLocationOnScreen(location)
-                val yPosition = location[1]-100
-                val floatingView = binding.reactionView
-                val layoutParams = floatingView.layoutParams as ConstraintLayout.LayoutParams
-                layoutParams.topMargin = yPosition
-                floatingView.layoutParams = layoutParams
-
-                floatingView.visibility = View.VISIBLE
-
-                if (messageModel.message.isNotEmpty()){
-                    binding.copyMessageImg.visibility= View.VISIBLE
-                }else{
-                    binding.copyMessageImg.visibility= View.GONE
-                }
-
-                binding.deleteMessageImg.visibility= View.VISIBLE
-
-                binding.copyMessageImg.setOnClickListener {
-                    val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
-                    val clip = ClipData.newPlainText("message copied", messageModel.message)
-                    clipboard.setPrimaryClip(clip)
-                    hideReactionViews()
-                    showToast("message copied.")
-                }
-
-                showReactionDialog(messageModel) {selectedReaction->
-                    addReactionOnDB(messageModel, selectedReaction)
-                }
-
-                this.messageModel = messageModel
+            if (blockedFromAnotherUser){
+                showErrorToast("User blocked you")
+                return@ChatAdapter
             }else{
-                hideReactionViews()
+                if (from){
+
+                    val location = IntArray(2)
+                    it.getLocationOnScreen(location)
+                    val yPosition = location[1]-100
+                    val floatingView = binding.reactionView
+                    val layoutParams = floatingView.layoutParams as ConstraintLayout.LayoutParams
+                    layoutParams.topMargin = yPosition
+                    floatingView.layoutParams = layoutParams
+
+                    floatingView.visibility = View.VISIBLE
+
+                    if (messageModel.message.isNotEmpty()){
+                        binding.copyMessageImg.visibility= View.VISIBLE
+                    }else{
+                        binding.copyMessageImg.visibility= View.GONE
+                    }
+
+                    binding.deleteMessageImg.visibility= View.VISIBLE
+
+                    binding.copyMessageImg.setOnClickListener {
+                        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                        val clip = ClipData.newPlainText("message copied", messageModel.message)
+                        clipboard.setPrimaryClip(clip)
+                        hideReactionViews()
+                        showToast("message copied.")
+                    }
+
+                    showReactionDialog(messageModel) {selectedReaction->
+                        addReactionOnDB(messageModel, selectedReaction)
+                    }
+
+                    this.messageModel = messageModel
+                }else{
+                    hideReactionViews()
+                }
             }
         }
 
@@ -412,92 +444,94 @@ class ChatActivity : AppCompatActivity() {
 
         // swipe listener
         val swipeHandler = SwipeToRevealCallback(adapter) { messageModel ->
+            if (blockedFromAnotherUser){
+                showErrorToast("User blocked you")
+                return@SwipeToRevealCallback
+            }else{
+                referenceMessageModel=messageModel
+                binding.tvClearImg.setOnClickListener {
+                    binding.tvRefLinear.visibility= View.GONE
+                    binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
+                    referenceMessageModel= MessageModel()
+                }
 
-            referenceMessageModel=messageModel
+                binding.ClearImgForImg.setOnClickListener {
+                    binding.imgRefConstraint.visibility= View.GONE
+                    binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
+                    referenceMessageModel= MessageModel()
+                }
+
+                binding.ClearImgForVoice.setOnClickListener {
+                    binding.voiceRefConstraint.visibility= View.GONE
+                    binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
+                    referenceMessageModel= MessageModel()
+                }
+
+                if (messageModel.message.isNotEmpty()){
+
+                    binding.tvRefLinear.slideUpAnimation(300)
+                    binding.tvRefLinear.visibility= View.VISIBLE
+
+                    binding.imgRefConstraint.visibility= View.GONE
+                    binding.documentImg.visibility= View.GONE
+                    binding.voiceRefConstraint.visibility= View.GONE
+
+                    binding.refMessageTv.text=messageModel.message
+                    binding.nameTv.text=myModel.fullName
 
 
-            binding.tvClearImg.setOnClickListener {
-                binding.tvRefLinear.visibility= View.GONE
-                binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
-                referenceMessageModel= MessageModel()
+                }else if (messageModel.imageUrl.isNotEmpty()){
+
+                    binding.imgRefConstraint.slideUpAnimation(300)
+                    binding.imgRefConstraint.visibility= View.VISIBLE
+
+                    binding.tvRefLinear.visibility= View.GONE
+                    binding.documentImg.visibility= View.GONE
+                    binding.voiceRefConstraint.visibility= View.GONE
+
+                    binding.refNameForImg.text=myModel.fullName
+                    Glide.with(this@ChatActivity).load(messageModel.imageUrl).placeholder(R.drawable.photo).into(binding.refImg)
+                    binding.referenceImageType.setImageResource(R.drawable.photo)
+                    binding.typeTv.text="photo"
+
+                }else if (messageModel.videoUrl.isNotEmpty()){
+
+                    binding.imgRefConstraint.slideUpAnimation(300)
+                    binding.imgRefConstraint.visibility= View.VISIBLE
+
+                    binding.tvRefLinear.visibility= View.GONE
+                    binding.documentImg.visibility= View.GONE
+                    binding.voiceRefConstraint.visibility= View.GONE
+
+                    binding.refNameForImg.text=myModel.fullName
+                    binding.referenceImageType.setImageResource(R.drawable.video)
+                    binding.typeTv.text="video"
+                    binding.refImg.loadThumbnail(messageModel.videoUrl)
+
+                }else if (messageModel.documentUrl.isNotEmpty()){
+
+                    binding.imgRefConstraint.visibility= View.GONE
+                    binding.voiceRefConstraint.visibility= View.GONE
+                    binding.tvRefLinear.slideUpAnimation(300)
+                    binding.tvRefLinear.visibility= View.VISIBLE
+                    binding.documentImg.visibility= View.VISIBLE
+
+                    binding.refMessageTv.text = messageModel.documentFileName.ifEmpty { "null" }
+
+                }else if (messageModel.voiceUrl.isNotEmpty()){
+
+                    binding.voiceRefConstraint.slideUpAnimation(300)
+                    binding.voiceRefConstraint.visibility= View.VISIBLE
+                    binding.refNameForVoice.text=myModel.fullName
+
+                    binding.imgRefConstraint.visibility= View.GONE
+                    binding.tvRefLinear.visibility= View.GONE
+                    binding.documentImg.visibility= View.GONE
+                }
+
+                binding.edtLinear.setBackgroundResource(R.drawable.bottom_coners_round_edt_bac)
+                binding.messageBox.showSoftKeyboard()
             }
-
-            binding.ClearImgForImg.setOnClickListener {
-                binding.imgRefConstraint.visibility= View.GONE
-                binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
-                referenceMessageModel= MessageModel()
-            }
-
-            binding.ClearImgForVoice.setOnClickListener {
-                binding.voiceRefConstraint.visibility= View.GONE
-                binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
-                referenceMessageModel= MessageModel()
-            }
-
-            if (messageModel.message.isNotEmpty()){
-
-                binding.tvRefLinear.slideUpAnimation(300)
-                binding.tvRefLinear.visibility= View.VISIBLE
-
-                binding.imgRefConstraint.visibility= View.GONE
-                binding.documentImg.visibility= View.GONE
-                binding.voiceRefConstraint.visibility= View.GONE
-
-                binding.refMessageTv.text=messageModel.message
-                binding.nameTv.text=myModel.fullName
-
-
-            }else if (messageModel.imageUrl.isNotEmpty()){
-
-                binding.imgRefConstraint.slideUpAnimation(300)
-                binding.imgRefConstraint.visibility= View.VISIBLE
-
-                binding.tvRefLinear.visibility= View.GONE
-                binding.documentImg.visibility= View.GONE
-                binding.voiceRefConstraint.visibility= View.GONE
-
-                binding.refNameForImg.text=myModel.fullName
-                Glide.with(this@ChatActivity).load(messageModel.imageUrl).placeholder(R.drawable.photo).into(binding.refImg)
-                binding.referenceImageType.setImageResource(R.drawable.photo)
-                binding.typeTv.text="photo"
-
-            }else if (messageModel.videoUrl.isNotEmpty()){
-
-                binding.imgRefConstraint.slideUpAnimation(300)
-                binding.imgRefConstraint.visibility= View.VISIBLE
-
-                binding.tvRefLinear.visibility= View.GONE
-                binding.documentImg.visibility= View.GONE
-                binding.voiceRefConstraint.visibility= View.GONE
-
-                binding.refNameForImg.text=myModel.fullName
-                binding.referenceImageType.setImageResource(R.drawable.video)
-                binding.typeTv.text="video"
-                binding.refImg.loadThumbnail(messageModel.videoUrl)
-
-            }else if (messageModel.documentUrl.isNotEmpty()){
-
-                binding.imgRefConstraint.visibility= View.GONE
-                binding.voiceRefConstraint.visibility= View.GONE
-                binding.tvRefLinear.slideUpAnimation(300)
-                binding.tvRefLinear.visibility= View.VISIBLE
-                binding.documentImg.visibility= View.VISIBLE
-
-                binding.refMessageTv.text = messageModel.documentFileName.ifEmpty { "null" }
-
-            }else if (messageModel.voiceUrl.isNotEmpty()){
-
-                binding.voiceRefConstraint.slideUpAnimation(300)
-                binding.voiceRefConstraint.visibility= View.VISIBLE
-                binding.refNameForVoice.text=myModel.fullName
-
-                binding.imgRefConstraint.visibility= View.GONE
-                binding.tvRefLinear.visibility= View.GONE
-                binding.documentImg.visibility= View.GONE
-            }
-
-            binding.edtLinear.setBackgroundResource(R.drawable.bottom_coners_round_edt_bac)
-            binding.messageBox.showSoftKeyboard()
         }
 
         // swipe listener
@@ -505,31 +539,41 @@ class ChatActivity : AppCompatActivity() {
         itemTouchHelper.attachToRecyclerView(binding.recyclerView)
 
         binding.cameraButton.setOnClickListener {
+            if (blockedFromAnotherUser){
+                showErrorToast("User blocked you")
+                return@setOnClickListener
+            }else{
+                val alert = AlertDialog.Builder(this@ChatActivity).setView(R.layout.image_selection_dialog).show()
+                val cameraTv = alert.findViewById<TextView>(R.id.cameraTv)
+                val galleryTv = alert.findViewById<TextView>(R.id.galleryTv)
+                val selectVideo = alert.findViewById<TextView>(R.id.selectVideo)
 
-            val alert = AlertDialog.Builder(this@ChatActivity).setView(R.layout.image_selection_dialog).show()
-            val cameraTv = alert.findViewById<TextView>(R.id.cameraTv)
-            val galleryTv = alert.findViewById<TextView>(R.id.galleryTv)
-            val selectVideo = alert.findViewById<TextView>(R.id.selectVideo)
+                cameraTv?.setOnClickListener {
+                    capturePhoto()
+                    alert.dismiss()
+                }
 
-            cameraTv?.setOnClickListener {
-                capturePhoto()
-                alert.dismiss()
+                galleryTv?.setOnClickListener {
+                    pickImageFromGallery(pickImageRequestCode,this@ChatActivity)
+                    alert.dismiss()
+                }
+
+                selectVideo?.setOnClickListener {
+                    pickVideo(pickVideoRequestCode, this@ChatActivity)
+                    alert.dismiss()
+                }
+                alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
             }
 
-            galleryTv?.setOnClickListener {
-                pickImageFromGallery(pickImageRequestCode,this@ChatActivity)
-                alert.dismiss()
-            }
-
-            selectVideo?.setOnClickListener {
-                pickVideo(pickVideoRequestCode, this@ChatActivity)
-                alert.dismiss()
-            }
-            alert.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         }
 
         binding.attachment.setOnClickListener {
-            pickDocument(pickDocumentRequestCode,this@ChatActivity)
+            if (blockedFromAnotherUser){
+                showErrorToast("User blocked you")
+                return@setOnClickListener
+            }else{
+                pickDocument(pickDocumentRequestCode,this@ChatActivity)
+            }
         }
 
         var setBol=true
@@ -553,74 +597,78 @@ class ChatActivity : AppCompatActivity() {
 
 
         binding.voiceAndSendImage.setOnClickListener {
+            if (blockedFromAnotherUser){
+                showErrorToast("User blocked you")
+                return@setOnClickListener
+            }else{
+                binding.dropDownImg.visibility=View.GONE
+                val message = binding.messageBox.text.toString()
 
-            binding.dropDownImg.visibility=View.GONE
-            val message = binding.messageBox.text.toString()
+                if (message.isNotEmpty()) {
+                    lifecycleScope.launch {
 
-            if (message.isNotEmpty()) {
-                lifecycleScope.launch {
+                        withContext(Dispatchers.IO){
+                            uploadToRecentChat(message,TEXT)
+                        }
 
-                    withContext(Dispatchers.IO){
-                        uploadToRecentChat(message,TEXT)
+                        val key=databaseReference.push().key.toString()
+
+                        val messageModel = MessageModel(
+                            key = key,
+                            senderName = "",
+                            senderImageUrl = "",
+                            senderPhone = "",
+                            message = message,
+                            timeStamp = System.currentTimeMillis(),
+                            senderUid = userUid,
+                            imageUrl = "",
+                            voiceUrl = "",
+                            documentUrl = "",
+                            referenceMessageSenderName = myModel.fullName?:"Name not found",
+                            referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
+                            referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
+                            referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
+                            referenceVideoUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.videoUrl.isNotEmpty()){referenceMessageModel.videoUrl} else{""},
+                            referenceDocumentName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.documentFileName.isNotEmpty()){referenceMessageModel.documentFileName} else{""},
+                            referenceVoiceUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.voiceUrl.isNotEmpty()){referenceMessageModel.voiceUrl} else{""},
+                        )
+
+                        list.add(messageModel)
+                        adapter.setList(list)
+                        adapter.notifyDataSetChanged()
+
+                        binding.messageBox.setText("")
+
+                        referenceMessageModel=MessageModel()
+                        binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
+
+                        binding.tvRefLinear.visibility= View.GONE
+                        binding.imgRefConstraint.visibility= View.GONE
+                        binding.voiceRefConstraint.visibility= View.GONE
+
+                        val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
+
+                        messageUploadResult.whenError {
+                            showToast(it.toString())
+                            Log.i("TAG", "onCreate:${it.message} ")
+                        }
+                        binding.recyclerView.scrollToPosition(list.size - 1)
                     }
+                } else {
 
-                    val key=databaseReference.push().key.toString()
+                    binding.voiceSenderLinearLayout.slideUpAnimation()
+                    binding.voiceSenderLinearLayout.visibility = View.VISIBLE
 
-                    val messageModel = MessageModel(
-                        key = key,
-                        senderName = "",
-                        senderImageUrl = "",
-                        senderPhone = "",
-                        message = message,
-                        timeStamp = System.currentTimeMillis(),
-                        senderUid = userUid,
-                        imageUrl = "",
-                        voiceUrl = "",
-                        documentUrl = "",
-                        referenceMessageSenderName = myModel.fullName?:"Name not found",
-                        referenceMessage = if (::referenceMessageModel.isInitialized&&referenceMessageModel.message.isNotEmpty()){referenceMessageModel.message} else{""},
-                        referenceMessageId = if (::referenceMessageModel.isInitialized&&referenceMessageModel.key.isNotEmpty()){referenceMessageModel.key} else{""},
-                        referenceImgUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.imageUrl.isNotEmpty()){referenceMessageModel.imageUrl} else{""},
-                        referenceVideoUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.videoUrl.isNotEmpty()){referenceMessageModel.videoUrl} else{""},
-                        referenceDocumentName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.documentFileName.isNotEmpty()){referenceMessageModel.documentFileName} else{""},
-                        referenceVoiceUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.voiceUrl.isNotEmpty()){referenceMessageModel.voiceUrl} else{""},
-                    )
+                    binding.deleteImg.setAnimationOnView(R.anim.scale,1200)
+                    binding.sendImg.setAnimationOnView(R.anim.scale,1200)
 
-                    list.add(messageModel)
-                    adapter.setList(list)
-                    adapter.notifyDataSetChanged()
+                    binding.linear02.slideDownAnimation()
+                    binding.linear02.visibility = View.GONE
 
-                    binding.messageBox.setText("")
+                    mediaRecorder = MediaRecorder()
+                    startRecording()
 
-                    referenceMessageModel=MessageModel()
-                    binding.edtLinear.setBackgroundResource(R.drawable.rounded_bac)
-
-                    binding.tvRefLinear.visibility= View.GONE
-                    binding.imgRefConstraint.visibility= View.GONE
-                    binding.voiceRefConstraint.visibility= View.GONE
-
-                    val messageUploadResult = mainViewModel.uploadAnyModel(chatUploadPath, messageModel)
-
-                    messageUploadResult.whenError {
-                        showToast(it.toString())
-                        Log.i("TAG", "onCreate:${it.message} ")
-                    }
-                    binding.recyclerView.scrollToPosition(list.size - 1)
                 }
-            }else {
-
-                binding.voiceSenderLinearLayout.slideUpAnimation()
-                binding.voiceSenderLinearLayout.visibility = View.VISIBLE
-
-                binding.deleteImg.setAnimationOnView(R.anim.scale,1200)
-                binding.sendImg.setAnimationOnView(R.anim.scale,1200)
-
-                binding.linear02.slideDownAnimation()
-                binding.linear02.visibility = View.GONE
-
-                mediaRecorder = MediaRecorder()
-                startRecording()
-
             }
         }
 
@@ -648,65 +696,69 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-
         binding.sendImg.setOnClickListener {
-            stopRecording()
-            binding.voiceSenderLinearLayout.slideDownAnimation()
-            binding.voiceSenderLinearLayout.visibility = View.GONE
+            if (blockedFromAnotherUser){
+                showErrorToast("User blocked you")
+                return@setOnClickListener
+            }else{
+                stopRecording()
+                binding.voiceSenderLinearLayout.slideDownAnimation()
+                binding.voiceSenderLinearLayout.visibility = View.GONE
 
-            binding.linear02.slideUpAnimation()
-            binding.linear02.visibility = View.VISIBLE
+                binding.linear02.slideUpAnimation()
+                binding.linear02.visibility = View.VISIBLE
 
-            lifecycleScope.launch {
+                lifecycleScope.launch {
 
-                withContext(Dispatchers.IO){
-                    uploadToRecentChat("Voice", VOICE)
-                }
-
-                val uri=getUriOfTheFile(filePath!!)
-                val firebaseUrlResult=uploadAudioToFirebase(uri)
-                val key=databaseReference.push().key!!
-
-                val messageModel = MessageModel(
-                    key=key,
-                    senderName = "",
-                    senderImageUrl = "",
-                    senderPhone = "",
-                    timeStamp = System.currentTimeMillis(),
-                    senderUid = userUid,
-                    voiceUrl = uri.toString()
-                )
-
-                preferencesHelper.saveString(key, filePath!!)
-
-                list.add(messageModel)
-                adapter.setList(list)
-                adapter.notifyDataSetChanged()
-                binding.recyclerView.scrollToPosition(list.size-1)
-
-                firebaseUrlResult.whenSuccess {
-                    lifecycleScope.launch {
-                        val messageModelForUpload = MessageModel(
-                            key=key,
-                            senderName = "",
-                            senderImageUrl = "",
-                            senderPhone = "",
-                            timeStamp = System.currentTimeMillis(),
-                            senderUid = userUid,
-                            voiceUrl = it
-                        )
-                        mainViewModel.uploadAnyModel(chatUploadPath, messageModelForUpload)
-                        sendNotification("Voice")
-
+                    withContext(Dispatchers.IO){
+                        uploadToRecentChat("Voice", VOICE)
                     }
-                }
 
+                    val uri=getUriOfTheFile(filePath!!)
+                    val firebaseUrlResult=uploadAudioToFirebase(uri)
+                    val key=databaseReference.push().key!!
 
-                firebaseUrlResult.whenError {
-                    val job=lifecycleScope.launch {
-                        Toast.makeText(this@ChatActivity,it.message.toString(), Toast.LENGTH_SHORT).show()
+                    val messageModel = MessageModel(
+                        key=key,
+                        senderName = "",
+                        senderImageUrl = "",
+                        senderPhone = "",
+                        timeStamp = System.currentTimeMillis(),
+                        senderUid = userUid,
+                        voiceUrl = uri.toString()
+                    )
+
+                    preferencesHelper.saveString(key, filePath!!)
+
+                    list.add(messageModel)
+                    adapter.setList(list)
+                    adapter.notifyDataSetChanged()
+                    binding.recyclerView.scrollToPosition(list.size-1)
+
+                    firebaseUrlResult.whenSuccess {
+                        lifecycleScope.launch {
+                            val messageModelForUpload = MessageModel(
+                                key=key,
+                                senderName = "",
+                                senderImageUrl = "",
+                                senderPhone = "",
+                                timeStamp = System.currentTimeMillis(),
+                                senderUid = userUid,
+                                voiceUrl = it
+                            )
+                            mainViewModel.uploadAnyModel(chatUploadPath, messageModelForUpload)
+                            sendNotification("Voice")
+
+                        }
                     }
-                    job.cancel()
+
+
+                    firebaseUrlResult.whenError {
+                        val job=lifecycleScope.launch {
+                            Toast.makeText(this@ChatActivity,it.message.toString(), Toast.LENGTH_SHORT).show()
+                        }
+                        job.cancel()
+                    }
                 }
             }
         }
@@ -715,6 +767,7 @@ class ChatActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(permission, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.CAMERA), 11)
         }
+
     }
 
     private fun showMenu() {
@@ -758,16 +811,12 @@ class ChatActivity : AppCompatActivity() {
     suspend fun addToBlockList(){
         listOfBlockedUsers.add(anotherUserKey)
         mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
-        binding.messageBoxLinear.isVisible = false
-        binding.blockedTv.isVisible = true
         mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
     }
 
     suspend fun removeFromBlockList(){
         listOfBlockedUsers.remove(anotherUserKey)
         mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
-        binding.messageBoxLinear.isVisible = true
-        binding.blockedTv.isVisible = false
         mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
     }
 

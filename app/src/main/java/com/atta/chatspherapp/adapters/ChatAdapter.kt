@@ -1080,6 +1080,9 @@ class ChatAdapter(
                     }
                 }
 
+                holder.feelingLinear.setOnClickListener { showReactedBottomSheet(data) }
+
+
                 // Handle visibility and feeling card
                 holder.apply {
                     feelingLinear.visibility = View.GONE
@@ -1128,6 +1131,9 @@ class ChatAdapter(
                         true
                     }
                 }
+
+                holder.feelingLinear.setOnClickListener { showReactedBottomSheet(data) }
+
 
                 // Load image
                 glide.load(data.imageUrl).into(holder.receiverImageView)
@@ -1637,6 +1643,7 @@ class ChatAdapter(
         bottomSheetDialog.show()
 
         scope.launch {
+
             mainViewModel.collectAnyModel(reactionDetailsPath , ReactionModel::class.java).collect{
                 for (i in it){
                     val model=mainViewModel.getAnyData("$USERS/${i.senderKey}",UserModel::class.java)!!
@@ -1694,7 +1701,6 @@ class ChatAdapter(
                                 databaseReference.child(previousReactionPath).updateChildren(map).await()
                             }
                         }
-
                     }
 
                     when(item.reactionId){

@@ -13,10 +13,11 @@
         android:layout_marginBottom="@dimen/_10sdp"
         android:orientation="horizontal">
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="@dimen/_50sdp"
-            android:layout_height="@dimen/_50sdp"
-            android:backgroundTint="#8E8E8E"
+        <View
+            android:layout_width="@dimen/_45sdp"
+            android:layout_height="@dimen/_45sdp"
+            android:background="@drawable/circle"
+            android:backgroundTint="#C1C1C1"
             app:cardCornerRadius="@dimen/_100sdp" />
 
         <LinearLayout
@@ -25,19 +26,21 @@
             android:layout_gravity="center_vertical"
             android:orientation="vertical">
 
-            <androidx.cardview.widget.CardView
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_20sdp"
+                android:layout_height="@dimen/_18sdp"
                 android:layout_margin="@dimen/_3sdp"
-                android:backgroundTint="#8E8E8E"
+                android:background="@drawable/round_corners_for_reaction"
+                android:backgroundTint="#C1C1C1"
                 app:cardCornerRadius="@dimen/_20sdp" />
 
-            <androidx.cardview.widget.CardView
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/_20sdp"
+                android:layout_height="@dimen/_18sdp"
                 android:layout_marginStart="@dimen/_3sdp"
                 android:layout_marginEnd="@dimen/_50sdp"
-                android:backgroundTint="#8E8E8E"
+                android:background="@drawable/round_corners_for_reaction"
+                android:backgroundTint="#C1C1C1"
                 app:cardCornerRadius="@dimen/_20sdp" />
         </LinearLayout>
     </LinearLayout>
