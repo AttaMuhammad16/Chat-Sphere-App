@@ -220,14 +220,11 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-
         if (userModel!!.blockList.contains(myKey)){
             blockedFromAnotherUser = true
         }else{
             blockedFromAnotherUser = false
         }
-
-
 
 
         binding.blockedTv.setOnClickListener {
@@ -447,7 +444,8 @@ class ChatActivity : AppCompatActivity() {
             if (blockedFromAnotherUser){
                 showErrorToast("User blocked you")
                 return@SwipeToRevealCallback
-            }else{
+            }
+            else{
                 referenceMessageModel=messageModel
                 binding.tvClearImg.setOnClickListener {
                     binding.tvRefLinear.visibility= View.GONE
@@ -812,12 +810,26 @@ class ChatActivity : AppCompatActivity() {
         listOfBlockedUsers.add(anotherUserKey)
         mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
         mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
+        if (listOfBlockedUsers.contains(anotherUserKey)) {
+            binding.messageBoxLinear.isVisible = false
+            binding.blockedTv.isVisible = true
+        }else{
+            binding.messageBoxLinear.isVisible = true
+            binding.blockedTv.isVisible = false
+        }
     }
 
     suspend fun removeFromBlockList(){
         listOfBlockedUsers.remove(anotherUserKey)
         mapOfBlockList[BLOCKLIST] = listOfBlockedUsers
         mainViewModel.uploadMap("$USERS/$myKey", mapOfBlockList)
+        if (listOfBlockedUsers.contains(anotherUserKey)) {
+            binding.messageBoxLinear.isVisible = false
+            binding.blockedTv.isVisible = true
+        }else{
+            binding.messageBoxLinear.isVisible = true
+            binding.blockedTv.isVisible = false
+        }
     }
 
     fun startRecording() {

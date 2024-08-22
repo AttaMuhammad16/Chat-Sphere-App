@@ -9,8 +9,8 @@
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/_5sdp"
         android:backgroundTint="#F1F1F1"
-        app:cardCornerRadius="@dimen/_6sdp"
-        app:cardElevation="@dimen/_5sdp"
+        app:cardCornerRadius="@dimen/_10sdp"
+        app:cardElevation="@dimen/_3sdp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -44,7 +44,6 @@
                 android:fontFamily="@font/alatsi"
                 android:gravity="end"
                 android:text="Delete for everyone"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:textColor="#3ADD11"
                 android:textSize="@dimen/_15sdp" />
 
@@ -57,7 +56,6 @@
                 android:fontFamily="@font/alatsi"
                 android:text="Delete for me"
                 android:textColor="#3ADD11"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:textSize="@dimen/_15sdp" />
 
             <TextView
@@ -67,7 +65,6 @@
                 android:layout_margin="@dimen/_3sdp"
                 android:gravity="end"
                 android:text="cancel"
-                android:background="?attr/selectableItemBackgroundBorderless"
                 android:fontFamily="@font/alatsi"
                 android:textColor="#3ADD11"
                 android:textSize="@dimen/_15sdp" />
