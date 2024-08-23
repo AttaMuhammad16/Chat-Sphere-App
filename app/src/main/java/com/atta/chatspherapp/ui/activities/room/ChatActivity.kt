@@ -640,8 +640,8 @@ class ChatActivity : AppCompatActivity() {
         val map=HashMap<String,Any>()
         binding.messageBox.onTextChange { text ->
 
-            job?.cancel()
 
+            job?.cancel()
             if (text.isNotEmpty()) {
 
                 if (setBol) {
@@ -651,10 +651,10 @@ class ChatActivity : AppCompatActivity() {
                 }
 
                 // typing
-                job = lifecycleScope.launch {
+                job = lifecycleScope.launch(Dispatchers.IO) {
                     map[TYPING] = true
                     mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
-                    delay(1500)
+                    delay(1300)
                     map[TYPING] = false
                     mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
                 }
@@ -670,15 +670,16 @@ class ChatActivity : AppCompatActivity() {
                 }
 
                 // typing
-                job = lifecycleScope.launch {
+                job = lifecycleScope.launch(Dispatchers.IO) {
                     map[TYPING] = true
                     mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
-                    delay(1500)
+                    delay(1300)
                     map[TYPING] = false
                     mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
                 }
-
             }
+
+
         }
 
 
