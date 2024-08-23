@@ -18,12 +18,16 @@ import com.atta.chatspherapp.data.storage.StorageRepository
 import com.atta.chatspherapp.models.MessageModel
 import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.ui.activities.recentchat.MainActivity
+import com.atta.chatspherapp.utils.Constants.DELETEMESSAGEFROMME
+import com.atta.chatspherapp.utils.Constants.DELETEMESSAGELIST
 import com.atta.chatspherapp.utils.Constants.REACTIONDETAILS
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.ROOM
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
+import com.atta.chatspherapp.utils.NewUtils.showErrorToast
 import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,6 +38,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -52,9 +57,12 @@ class DeleteMessagesService : Service() {
     @Inject
     lateinit var auth: FirebaseAuth
 
+    @Inject
+    lateinit var databaseReference: DatabaseReference
+
+
     private val serviceJob = Job()
     private val serviceScope = CoroutineScope(Dispatchers.IO + serviceJob)
-
 
 
     private val binder = LocalBinder()
@@ -134,39 +142,88 @@ class DeleteMessagesService : Service() {
                 deleteResults.awaitAll()
             }
 
+
             val listOfLinks = mutableListOf<String>()
-            val linkResults = recentMessagesList?.map { model ->
-                async {
-                    val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)
+            val messagesListAwait = recentMessagesList?.map { model ->
+
+                val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)
+
+                // check if exist in recent chat
+                val isExists = try {
+                    mainRepository.checkChildExists("$RECENTCHAT/${model.userModel.key}")
+                } catch (e: Exception) {
+                    Log.e("TAG", "Error checking if child exists: ${e.message}")
+                    false
+                }
+
+                return@map if (!isExists) {
+                    async {
+
+                        val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+
+                        roomMessagesList.whenSuccess { messages ->
+                            messages.forEach { messageModel ->
+                                messageModel.imageUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                                messageModel.voiceUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                                messageModel.documentUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                                messageModel.videoUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                            }
+                        }
+
+                        roomMessagesList.whenError {
+                            Log.e("TAG", "Fetching messages error: ${it.message}")
+                            showToast(it.message.toString())
+                        }
+
+                        mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
+                        mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
+
+                    }
+                }else {
                     val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
-                    roomMessagesList.whenSuccess { messages ->
-                        messages.forEach { messageModel ->
-                            messageModel.imageUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
-                            messageModel.voiceUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
-                            messageModel.documentUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
-                            messageModel.videoUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                    roomMessagesList.whenSuccess { messageModels ->
+                        val updatesMap = mutableMapOf<String, Any>()
+
+                        // Prepare a batch of updates
+                        messageModels.forEach { model ->
+                            val pathBol = "$ROOM/$roomSortedKey/${model.key}/$DELETEMESSAGEFROMME"
+                            val pathList = "$ROOM/$roomSortedKey/${model.key}/$DELETEMESSAGELIST"
+                            updatesMap[pathBol] = true
+                            updatesMap[pathList] = listOf(mykey!!)
+                        }
+
+                        if (updatesMap.isNotEmpty()) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                try {
+                                    databaseReference.updateChildren(updatesMap).await()
+                                    Log.d("TAG", "Batch update successful")
+                                } catch (e: Exception) {
+                                    Log.e("TAG", "Batch update failed: ${e.message}")
+                                }
+                            }
                         }
                     }
-                    roomMessagesList.whenError {
-                        Log.i("TAG", "Fetching messages error: ${it.message}")
-                        showToast(it.message.toString())
-                    }
-                    mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
-                    mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
+                    null
+                }
+
+            }
+
+            messagesListAwait?.filterNotNull()?.awaitAll()
+
+            if (listOfLinks.isNotEmpty()){
+                listOfLinks.chunked(10).forEach { chunk ->
+                    chunk.map { link ->
+                        async { storageRepository.deleteDocumentToFirebaseStorage(link) }
+                    }.awaitAll()
                 }
             }
 
-            linkResults?.awaitAll()
-
-            listOfLinks.chunked(10).forEach { chunk ->
-                chunk.map { link ->
-                    async { storageRepository.deleteDocumentToFirebaseStorage(link) }
-                }.awaitAll()
-            }
 
             deleteNotification(notificationManager)
             stopSelf()
             serviceScope.cancel()
+
+
         }
     }
 }

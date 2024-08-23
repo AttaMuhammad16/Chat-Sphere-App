@@ -82,15 +82,18 @@ import com.atta.chatspherapp.ui.activities.profile.SeeUserProfileActivity
 import com.atta.chatspherapp.utils.Constants.ACTIVITYSTATEOFTHEUSER
 import com.atta.chatspherapp.utils.Constants.BLOCKLIST
 import com.atta.chatspherapp.utils.Constants.CHATTINGWITH
+import com.atta.chatspherapp.utils.Constants.DELETEMESSAGEFROMME
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
 import com.atta.chatspherapp.utils.Constants.IMAGE
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
+import com.atta.chatspherapp.utils.Constants.ROOM
 import com.atta.chatspherapp.utils.Constants.TEXT
 import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.MyExtensions.shrink
 import com.atta.chatspherapp.utils.NewUtils.addColorRevealAnimation
+import com.atta.chatspherapp.utils.NewUtils.convertMillisToLastSeenString
 import com.atta.chatspherapp.utils.NewUtils.getAccessToken
 import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
@@ -202,7 +205,9 @@ class ChatActivity : AppCompatActivity() {
         // myModel listener for updates.
         lifecycleScope.launch {
             mainViewModel.getModelFlow("$USERS/$myKey",UserModel()).collect{
+
                 listOfBlockedUsers = it.blockList
+
                 if (it.blockList.contains(anotherUserKey)) {
                     binding.messageBoxLinear.isVisible = false
                     binding.blockedTv.isVisible = true
@@ -217,15 +222,37 @@ class ChatActivity : AppCompatActivity() {
                         }
                     }
                 }
+
             }
         }
+
+        //observer for online offline status
+        lifecycleScope.launch {
+            mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel()).collect{
+
+                // status updates
+                if (it.onlineOfflineStatus){
+                    binding.userStatusTv.text="Online"
+                    binding.userStatusTv.visibility=View.VISIBLE
+                }else{
+                    if (it.lastSeenTime==0L){
+                        binding.userStatusTv.text="Offline"
+                        binding.userStatusTv.visibility=View.VISIBLE
+                    }else{
+                        val time=convertMillisToLastSeenString(it.lastSeenTime)
+                        binding.userStatusTv.text="last seen at $time"
+                        binding.userStatusTv.visibility=View.VISIBLE
+                    }
+                }
+            }
+        }
+
 
         if (userModel!!.blockList.contains(myKey)){
             blockedFromAnotherUser = true
         }else{
             blockedFromAnotherUser = false
         }
-
 
         binding.blockedTv.setOnClickListener {
             lifecycleScope.launch {
@@ -254,7 +281,7 @@ class ChatActivity : AppCompatActivity() {
         }
 
         binding.toolBarTitle.text = userModel?.fullName
-        chatUploadPath = "room/"+getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)
+        chatUploadPath = "$ROOM/"+getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)
 
         binding.profileImg.loadImageViaLink(userModel!!.profileUrl)
         userUid=myModel.key
@@ -298,6 +325,7 @@ class ChatActivity : AppCompatActivity() {
         }else{
             registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         }
+
 
         val layoutManager = LinearLayoutManager(this@ChatActivity)
         binding.recyclerView.layoutManager = layoutManager
@@ -366,21 +394,27 @@ class ChatActivity : AppCompatActivity() {
 
         lifecycleScope.launch {
             var previousList= listOf<MessageModel>()
-            mainViewModel.collectAnyModel(chatUploadPath, MessageModel::class.java).collect {
-                if (it.isNotEmpty()){
-                    list=it as ArrayList
-                }
-                adapter.setList(it)
-                adapter.notifyDataSetChanged()
-                setAdapter(adapter)
 
-                if (previousList.size!=it.size){
-                    binding.recyclerView.scrollToPosition(it.size-1)
-                    binding.dropDownImg.isVisible=false
-                    previousList=it
+            mainViewModel.collectAnyModel(chatUploadPath, MessageModel::class.java).collect {
+
+                val filteredList=it.filter {!it.deletedMessagesList.contains(myKey)}
+
+                if (filteredList.isNotEmpty()){
+                    list=filteredList as ArrayList
+                    adapter.setList(filteredList)
+                    adapter.notifyDataSetChanged()
+                    setAdapter(adapter)
+                    if (previousList.size!=filteredList.size){
+                        binding.recyclerView.scrollToPosition(filteredList.size-1)
+                        binding.dropDownImg.isVisible=false
+                        previousList=filteredList
+                    }
                 }
+
+
             }
         }
+
 
         var toggle=true
         binding.recyclerView.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -765,10 +799,10 @@ class ChatActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(permission, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.CAMERA), 11)
         }
-
     }
 
     private fun showMenu() {
+
         val popup = PopupMenu(this, binding.menuImg)
         val inflater: MenuInflater = popup.menuInflater
         inflater.inflate(R.menu.chat_menu, popup.menu)
@@ -785,6 +819,7 @@ class ChatActivity : AppCompatActivity() {
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
                 R.id.action_clear_chat -> {
+
                     true
                 }
                 R.id.action_block_text -> {
@@ -804,7 +839,6 @@ class ChatActivity : AppCompatActivity() {
         }
         popup.show()
     }
-
 
     suspend fun addToBlockList(){
         listOfBlockedUsers.add(anotherUserKey)
@@ -833,13 +867,17 @@ class ChatActivity : AppCompatActivity() {
     }
 
     fun startRecording() {
+
         binding.audioTracker.recreate()
         binding.chronometer.base = SystemClock.elapsedRealtime()
         binding.chronometer.start()
         filePath = "${filesDir?.absolutePath}/${System.currentTimeMillis()}.3gp"
+
         try {
+
             Toast.makeText(this@ChatActivity, "Recording Started", Toast.LENGTH_SHORT).show()
             mediaRecorder!!.apply {
+
                 reset()
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.DEFAULT)

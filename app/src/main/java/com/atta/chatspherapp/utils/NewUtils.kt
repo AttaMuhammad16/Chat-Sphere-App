@@ -1322,6 +1322,28 @@ object NewUtils {
 
 
 
+    fun convertMillisToLastSeenString(lastSeenTimeMillis: Long): String {
+        val currentTimeMillis = System.currentTimeMillis()
+        val differenceInMillis = currentTimeMillis - lastSeenTimeMillis
+
+        val lastSeenDate = Date(lastSeenTimeMillis)
+
+        return if (differenceInMillis > 24 * 60 * 60 * 1000) {
+            // If more than 1 day, show the date and time
+            val dateFormat = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.getDefault())
+            dateFormat.timeZone = TimeZone.getDefault() // Use the user's local time zone
+            dateFormat.format(lastSeenDate)
+        } else {
+            // If within 1 day, show only the time
+            val timeFormat = SimpleDateFormat("hh:mm a", Locale.getDefault())
+            timeFormat.timeZone = TimeZone.getDefault() // Use the user's local time zone
+            timeFormat.format(lastSeenDate)
+        }
+    }
+
+
+
+
 
 
 

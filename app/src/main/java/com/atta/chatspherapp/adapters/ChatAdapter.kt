@@ -529,26 +529,23 @@ class ChatAdapter(
                 }
 
                 // Handle reaction icons and feelings
-                if (data.deleteMessageFromMe) {
-                    holder.linearSender.visibility = View.GONE
-                } else {
-                    holder.linearSender.visibility = View.VISIBLE
-                    val count = data.like + data.heart + data.surprise + data.happy + data.angry
-                    if (count > 0) {
-                        holder.feelingLinear.visibility = View.VISIBLE
-                        holder.countTv.apply {
-                            visibility = View.VISIBLE
-                            text = count.toString()
-                        }
+                holder.linearSender.visibility = View.VISIBLE
+                val count = data.like + data.heart + data.surprise + data.happy + data.angry
+                if (count > 0) {
+                    holder.feelingLinear.visibility = View.VISIBLE
+                    holder.countTv.apply {
+                        visibility = View.VISIBLE
+                        text = count.toString()
                     }
-
-                    // Update visibility for each reaction
-                    holder.likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
-                    holder.heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
-                    holder.surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
-                    holder.happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
-                    holder.angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                 }
+
+                // Update visibility for each reaction
+                holder.likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                holder.heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                holder.surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                holder.happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                holder.angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
+
             }
             is ReceiverViewHolder -> {
                 // Set common data
@@ -824,41 +821,37 @@ class ChatAdapter(
                     holder.angryImg.visibility = View.GONE
 
 
-                    if (data.deleteMessageFromMe){
-                        holder.linearSender.visibility=View.GONE
-                    }else{
-                        holder.linearSender.visibility=View.VISIBLE
-                        val count=data.like+data.heart+data.surprise+data.happy+data.angry
-                        if (count>0){
-                            holder.feelingLinear.visibility = View.VISIBLE
-                            holder.countTv.visibility = View.VISIBLE
-                            holder.countTv.text = count.toString()
-                        }
+                    holder.linearSender.visibility=View.VISIBLE
+                    val count=data.like+data.heart+data.surprise+data.happy+data.angry
+                    if (count>0){
+                        holder.feelingLinear.visibility = View.VISIBLE
+                        holder.countTv.visibility = View.VISIBLE
+                        holder.countTv.text = count.toString()
+                    }
 
-                        if (data.like>0){
-                            holder.feelingLinear.visibility = View.VISIBLE
-                            holder.likeImg.visibility = View.VISIBLE
-                        }
+                    if (data.like>0){
+                        holder.feelingLinear.visibility = View.VISIBLE
+                        holder.likeImg.visibility = View.VISIBLE
+                    }
 
-                        if (data.heart>0){
-                            holder.feelingLinear.visibility = View.VISIBLE
-                            holder.heartImg.visibility = View.VISIBLE
-                        }
+                    if (data.heart>0){
+                        holder.feelingLinear.visibility = View.VISIBLE
+                        holder.heartImg.visibility = View.VISIBLE
+                    }
 
-                        if (data.surprise>0){
-                            holder.feelingLinear.visibility = View.VISIBLE
-                            holder.surpriseImg.visibility = View.VISIBLE
-                        }
+                    if (data.surprise>0){
+                        holder.feelingLinear.visibility = View.VISIBLE
+                        holder.surpriseImg.visibility = View.VISIBLE
+                    }
 
-                        if (data.happy>0){
-                            holder.feelingLinear.visibility = View.VISIBLE
-                            holder.happyImg.visibility = View.VISIBLE
-                        }
+                    if (data.happy>0){
+                        holder.feelingLinear.visibility = View.VISIBLE
+                        holder.happyImg.visibility = View.VISIBLE
+                    }
 
-                        if (data.angry>0){
-                            holder.feelingLinear.visibility = View.VISIBLE
-                            holder.angryImg.visibility = View.VISIBLE
-                        }
+                    if (data.angry>0){
+                        holder.feelingLinear.visibility = View.VISIBLE
+                        holder.angryImg.visibility = View.VISIBLE
                     }
                 }
             }
@@ -1093,27 +1086,24 @@ class ChatAdapter(
                     happyImg.visibility = View.GONE
                     angryImg.visibility = View.GONE
 
-                    if (data.deleteMessageFromMe) {
-                        linearSender.visibility = View.GONE
-                    } else {
-                        linearSender.visibility = View.VISIBLE
-                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
+                    linearSender.visibility = View.VISIBLE
+                    val count = data.like + data.heart + data.surprise + data.happy + data.angry
 
-                        if (count > 0) {
-                            feelingLinear.visibility = View.VISIBLE
-                            countTv.apply {
-                                visibility = View.VISIBLE
-                                text = count.toString()
-                            }
+                    if (count > 0) {
+                        feelingLinear.visibility = View.VISIBLE
+                        countTv.apply {
+                            visibility = View.VISIBLE
+                            text = count.toString()
                         }
-
-                        // Set visibility for reaction icons
-                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
-                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
-                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
-                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
-                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                     }
+
+                    // Set visibility for reaction icons
+                    likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                    heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                    surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                    happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                    angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
+
                 }
             }
             is ImageReceiverViewHolder -> {
@@ -1256,27 +1246,23 @@ class ChatAdapter(
                     happyImg.visibility = View.GONE
                     angryImg.visibility = View.GONE
 
-                    if (data.deleteMessageFromMe) {
-                        linearSender.visibility = View.GONE
-                    } else {
-                        linearSender.visibility = View.VISIBLE
-                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
+                    linearSender.visibility = View.VISIBLE
+                    val count = data.like + data.heart + data.surprise + data.happy + data.angry
 
-                        if (count > 0) {
-                            feelingLinear.visibility = View.VISIBLE
-                            countTv.apply {
-                                visibility = View.VISIBLE
-                                text = count.toString()
-                            }
+                    if (count > 0) {
+                        feelingLinear.visibility = View.VISIBLE
+                        countTv.apply {
+                            visibility = View.VISIBLE
+                            text = count.toString()
                         }
-
-                        // Set visibility for reaction icons
-                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
-                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
-                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
-                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
-                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                     }
+
+                    // Set visibility for reaction icons
+                    likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                    heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                    surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                    happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                    angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                 }
             }
             is VideoReceiverViewHolder -> {
@@ -1439,26 +1425,22 @@ class ChatAdapter(
                     angryImg.visibility = View.GONE
 
                     // Handle message visibility and feeling card
-                    if (data.deleteMessageFromMe) {
-                        linearSender.visibility = View.GONE
-                    } else {
-                        linearSender.visibility = View.VISIBLE
-                        val count = data.like + data.heart + data.surprise + data.happy + data.angry
+                    linearSender.visibility = View.VISIBLE
+                    val count = data.like + data.heart + data.surprise + data.happy + data.angry
 
-                        if (count > 0) {
-                            feelingLinear.visibility = View.VISIBLE
-                            countTv.apply {
-                                visibility = View.VISIBLE
-                                text = count.toString()
-                            }
+                    if (count > 0) {
+                        feelingLinear.visibility = View.VISIBLE
+                        countTv.apply {
+                            visibility = View.VISIBLE
+                            text = count.toString()
                         }
-
-                        likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
-                        heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
-                        surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
-                        happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
-                        angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                     }
+
+                    likeImg.visibility = if (data.like > 0) View.VISIBLE else View.GONE
+                    heartImg.visibility = if (data.heart > 0) View.VISIBLE else View.GONE
+                    surpriseImg.visibility = if (data.surprise > 0) View.VISIBLE else View.GONE
+                    happyImg.visibility = if (data.happy > 0) View.VISIBLE else View.GONE
+                    angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                 }
             }
             is DocumentReceiverViewHolder -> {

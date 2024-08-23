@@ -21,6 +21,10 @@ object Constants {
     const val REACTIONDETAILS="reactionsDetails"
     const val GOOGLEREQUESTCODE=12
     const val BLOCKLIST="blockList"
+    const val USERSTATUS="onlineOfflineStatus"
+    const val LASTSEENTIME="lastSeenTime"
+    const val DELETEMESSAGEFROMME="deleteMessageFromMe"
+    const val DELETEMESSAGELIST="deletedMessagesList"
 
 
     //sender

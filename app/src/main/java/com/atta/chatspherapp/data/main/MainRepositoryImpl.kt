@@ -202,7 +202,6 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
         awaitClose { childRef.removeEventListener(valueEventListener) }
     }
 
-
     override suspend fun <T> getModelsList(path: String, clazz: Class<T>): MyResult<List<T>> {
         return try {
             val list= mutableListOf<T>()
@@ -218,4 +217,17 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
             MyResult.Error(e.message.toString())
         }
     }
+
+
+    override suspend fun checkChildExists(path: String): Boolean {
+        return try {
+            val dataSnapshot = databaseReference.child(path).get().await()
+            dataSnapshot.exists() // Returns true if the user exists, false otherwise
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+
 }

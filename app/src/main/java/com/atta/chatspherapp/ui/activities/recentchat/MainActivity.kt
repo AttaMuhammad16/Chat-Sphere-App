@@ -9,6 +9,7 @@ import android.graphics.drawable.ColorDrawable
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.View
 import android.widget.Button
@@ -35,8 +36,12 @@ import com.atta.chatspherapp.ui.activities.searchanyuser.SearchUserForChatActivi
 import com.atta.chatspherapp.ui.auth.SignInActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.utils.Constants
+import com.atta.chatspherapp.utils.Constants.DELETEMESSAGEFROMME
+import com.atta.chatspherapp.utils.Constants.LASTSEENTIME
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
+import com.atta.chatspherapp.utils.Constants.ROOM
 import com.atta.chatspherapp.utils.Constants.USERS
+import com.atta.chatspherapp.utils.Constants.USERSTATUS
 import com.atta.chatspherapp.utils.NewUtils.addColorRevealAnimation
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.rateUS
@@ -49,16 +54,22 @@ import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.startNewActivity
 import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.messaging.FirebaseMessaging
 import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 
 
+@OptIn(DelicateCoroutinesApi::class)
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     @Inject
@@ -76,6 +87,10 @@ class MainActivity : AppCompatActivity() {
     private lateinit var toolbar: Toolbar
     var previousName=""
     var previousUrl=""
+    var myKey:String=""
+
+    @Inject
+    lateinit var databaseReference: DatabaseReference
 
 
     @SuppressLint("SetTextI18n")
@@ -85,9 +100,11 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         setStatusBarColor(R.color.green)
         window.statusBarColor = Color.parseColor("#299F0B")
+        myKey=auth.currentUser!!.uid
+
+
 
         // navigation items
-
         val drawerImgProfile = findViewById<ImageView>(R.id.img_profile)
         val drawerName = findViewById<TextView>(R.id.tx_name)
         val drawerEmail = findViewById<TextView>(R.id.tx_email)
@@ -188,23 +205,23 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this@MainActivity, SearchUserForChatActivity::class.java))
         }
 
-        lifecycleScope.launch {
-            myModel=mainViewModel.getAnyData("$USERS/${auth.currentUser!!.uid}",UserModel::class.java)
-
-            drawerImgProfile.loadImageViaLink(myModel?.profileUrl?:"empty")
-            drawerName.text=myModel?.fullName?:"Name not found"
-            drawerEmail.text=myModel?.email?:"Email not found"
-        }
-
         // myModel listener for updates.
         lifecycleScope.launch {
             mainViewModel.getAnyModelFlow(USERS+"/"+auth.currentUser!!.uid,UserModel())
         }
+
         lifecycleScope.launch {
             mainViewModel.userFlow.collect{
                 myModel=it
+
+                drawerImgProfile.loadImageViaLink(myModel?.profileUrl?:"empty")
+                drawerName.text=myModel?.fullName?:"Name not found"
+                drawerEmail.text=myModel?.email?:"Email not found"
+
             }
         }
+
+
 
         binding.profileSettingImg.setOnClickListener {
             openProfileSetting()
@@ -218,6 +235,7 @@ class MainActivity : AppCompatActivity() {
             setUpRecyclerView(sortedList, true)
 
             mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}", RecentChatModel::class.java).collect { recentChatList ->
+
                 if (recentChatList.isEmpty()) {
                     binding.noRecentChatMessage.visibility = View.VISIBLE
                     setUpRecyclerView(sortedList, false)
@@ -358,9 +376,9 @@ class MainActivity : AppCompatActivity() {
             val dialogTitle=alert.findViewById<TextView>(com.atta.chatspherapp.R.id.dialogTitle)
 
             if (list.size>1) {
-                dialogTitle.text="Delete ${list.size} chats?"
+                dialogTitle.text="Delete ${list.size} chats from recent?"
             }else{
-                dialogTitle.text="Delete ${list.size} chat?"
+                dialogTitle.text="Delete ${list.size} chat from recent?"
             }
 
             cancelBtn.setOnClickListener{
@@ -370,10 +388,10 @@ class MainActivity : AppCompatActivity() {
             deleteBtn.setOnClickListener {
 
                 alert.dismiss()
-                val arraylist=ArrayList(list)
+                val recentChatModelList=ArrayList(list)
 
                 val intent = Intent(this@MainActivity,DeleteMessagesService::class.java)
-                intent.putExtra("selectedMessages",arraylist)
+                intent.putExtra("selectedMessages",recentChatModelList)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(intent)
                 }else{
@@ -457,7 +475,6 @@ class MainActivity : AppCompatActivity() {
         val myKey = auth.currentUser!!.uid
 
         if ((url.isNotEmpty() && url != previousUrl) || (name.isNotEmpty() && name != previousName)) {
-
             val updatedList = sortedList.map { item ->
                 if (item.key == myKey) {
                     item.copy(userModel = item.userModel.copy(
@@ -468,7 +485,6 @@ class MainActivity : AppCompatActivity() {
                     item
                 }
             }
-
             setUpRecyclerView(updatedList)
 
             // Update the previous values only if there were changes
@@ -482,6 +498,26 @@ class MainActivity : AppCompatActivity() {
                 previousName = name
             }
         }
+
+        // update status
+        userStatus(true)
+
     }
+
+    override fun onPause() {
+        val systemTime=System.currentTimeMillis()
+        userStatus(false,systemTime)
+        super.onPause()
+    }
+
+    var statusMap=HashMap<String,Any>()
+    fun userStatus(status:Boolean,time:Long=0){
+        GlobalScope.launch {
+            statusMap[USERSTATUS] = status
+            statusMap[LASTSEENTIME] = time
+            mainViewModel.uploadMap("$USERS/$myKey",statusMap)
+        }
+    }
+
 
 }
