@@ -26,6 +26,7 @@ object Constants {
     const val DELETEMESSAGEFROMME="deleteMessageFromMe"
     const val DELETEMESSAGELIST="deletedMessagesList"
     const val SELECTEDMESSAGES="selectedMessages"
+    const val TYPING="typing"
 
 
 

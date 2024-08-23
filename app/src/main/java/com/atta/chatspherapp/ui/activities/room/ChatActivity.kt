@@ -91,6 +91,7 @@ import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.ROOM
 import com.atta.chatspherapp.utils.Constants.SELECTEDMESSAGES
 import com.atta.chatspherapp.utils.Constants.TEXT
+import com.atta.chatspherapp.utils.Constants.TYPING
 import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.Constants.USERSTATUS
 import com.atta.chatspherapp.utils.Constants.VIDEO
@@ -182,6 +183,7 @@ class ChatActivity : AppCompatActivity() {
 
     var blockedFromAnotherUser=false
     var recentChatModel: RecentChatModel?=null
+    var job:Job?=null
 
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -206,6 +208,8 @@ class ChatActivity : AppCompatActivity() {
 
         anotherUserKey = userModel!!.key
         myKey = myModel.key
+
+
 
 
         // myModel listener for updates.
@@ -238,20 +242,29 @@ class ChatActivity : AppCompatActivity() {
 
                 // status updates
                 if (it.onlineOfflineStatus){
-                    binding.userStatusTv.text="Online"
                     binding.userStatusTv.visibility=View.VISIBLE
+                    if (it.typing){
+                        binding.userStatusTv.text="typing..."
+                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
+                    }else{
+                        binding.userStatusTv.text="online"
+                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
+                    }
                 }else{
+                    binding.userStatusTv.visibility=View.VISIBLE
                     if (it.lastSeenTime==0L){
-                        binding.userStatusTv.text="Offline"
-                        binding.userStatusTv.visibility=View.VISIBLE
+                        binding.userStatusTv.text="offline"
+                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
                     }else{
                         val time=convertMillisToLastSeenString(it.lastSeenTime)
                         binding.userStatusTv.text="last seen at $time"
-                        binding.userStatusTv.visibility=View.VISIBLE
+                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
                     }
                 }
+
             }
         }
+
 
 
         // my recent chat observer
@@ -622,22 +635,49 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
+
         var setBol=true
-        binding.messageBox.onTextChange {
-            if (it.isNotEmpty()) {
-                if (setBol){
+        val map=HashMap<String,Any>()
+        binding.messageBox.onTextChange { text ->
+
+            job?.cancel()
+
+            if (text.isNotEmpty()) {
+
+                if (setBol) {
                     binding.voiceAndSendImage.setImageResource(R.drawable.baseline_send_24)
-                    binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,400)
-                    setBol=false
+                    binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim, 400)
+                    setBol = false
                 }
+
+                // typing
+                job = lifecycleScope.launch {
+                    map[TYPING] = true
+                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
+                    delay(1500)
+                    map[TYPING] = false
+                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
+                }
+
             } else {
-                if (!setBol){
-                    with(binding.voiceAndSendImage) {
+
+                if (!setBol) {
+                    binding.voiceAndSendImage.apply {
                         setImageResource(R.drawable.baseline_keyboard_voice_24)
-                        binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim,400)
+                        setAnimationOnView(R.anim.bounce_anim, 400)
                     }
-                    setBol=true
+                    setBol = true
                 }
+
+                // typing
+                job = lifecycleScope.launch {
+                    map[TYPING] = true
+                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
+                    delay(1500)
+                    map[TYPING] = false
+                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
+                }
+
             }
         }
 

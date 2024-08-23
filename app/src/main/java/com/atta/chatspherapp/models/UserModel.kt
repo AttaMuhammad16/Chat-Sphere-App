@@ -19,4 +19,5 @@ data class UserModel(
     var blockList:ArrayList<String> = arrayListOf(),
     var onlineOfflineStatus:Boolean=false,
     var lastSeenTime:Long=0,
+    var typing:Boolean=false
 ) : Parcelable
