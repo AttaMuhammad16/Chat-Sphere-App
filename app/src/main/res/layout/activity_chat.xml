@@ -21,6 +21,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <ImageView
@@ -36,7 +38,7 @@
                 android:id="@+id/profileImg"
                 android:layout_width="@dimen/_35sdp"
                 android:layout_height="@dimen/_35sdp"
-                android:layout_marginStart="@dimen/_5sdp"
+                android:layout_margin="@dimen/_5sdp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:elevation="@dimen/_3sdp"
                 android:src="@drawable/person" />
@@ -101,10 +103,11 @@
 
             <ImageView
                 android:id="@+id/menuImg"
-                android:layout_width="@dimen/_21sdp"
-                android:layout_height="@dimen/_21sdp"
+                android:layout_width="@dimen/_28sdp"
+                android:layout_height="@dimen/_28sdp"
                 android:layout_gravity="center_vertical"
-                android:layout_marginEnd="@dimen/_5sdp"
+                android:padding="@dimen/_5sdp"
+                android:layout_marginEnd="@dimen/_3sdp"
                 android:src="@drawable/baseline_more_vert_24"
                 app:tint="@color/white" />
 

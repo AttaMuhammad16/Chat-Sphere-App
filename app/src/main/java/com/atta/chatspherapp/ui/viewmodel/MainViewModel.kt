@@ -22,6 +22,7 @@ class MainViewModel @Inject constructor(private val storageRepository: StorageRe
     var isRecentChatUploaded:MutableStateFlow<Boolean> = MutableStateFlow(false)
     var recentChatModel:MutableStateFlow<RecentChatModel> = MutableStateFlow(RecentChatModel())
 
+
     private var _isUserInActivity:MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
 

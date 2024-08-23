@@ -72,10 +72,10 @@ object SendNotification {
                 try {
                     val responseJson = JSONObject(responseBody ?: "{}")
                     val success = responseJson.optInt("success", 0)
-                    Log.i("TAG", "success $success. Response: $responseBody")
+                    Log.i("notification", "success $success. Response: $responseBody")
                 } catch (e: Exception) {
                     println("Failed to send notification: ${e.message}")
-                    Log.i("TAG", "Failed to send notification: ${e.message}")
+                    Log.i("notification", "Failed to send notification: ${e.message}")
                 }
             }
         })

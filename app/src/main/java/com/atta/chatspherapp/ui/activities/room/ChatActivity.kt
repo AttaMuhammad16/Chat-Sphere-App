@@ -110,6 +110,7 @@ import com.atta.chatspherapp.utils.NewUtils.showSuccessToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.slideDownAnimation
 import com.atta.chatspherapp.utils.NewUtils.slideUpAnimation
+import com.atta.chatspherapp.utils.NewUtils.startNewActivity
 import com.atta.chatspherapp.utils.SendNotification
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
@@ -404,6 +405,7 @@ class ChatActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             mainViewModel.isRecentChatUploaded.collect{
                 if (it){
+                    clearNotifications(this@ChatActivity)
                     mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
                     val isChatting=mainViewModel.isUserInActivity.value
                     if (myModel.key==userModel!!.chattingWith){
@@ -637,9 +639,8 @@ class ChatActivity : AppCompatActivity() {
 
 
         var setBol=true
-        val map=HashMap<String,Any>()
+        val typingMap=HashMap<String,Any>()
         binding.messageBox.onTextChange { text ->
-
 
             job?.cancel()
             if (text.isNotEmpty()) {
@@ -652,11 +653,11 @@ class ChatActivity : AppCompatActivity() {
 
                 // typing
                 job = lifecycleScope.launch(Dispatchers.IO) {
-                    map[TYPING] = true
-                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
-                    delay(1300)
-                    map[TYPING] = false
-                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
+                    typingMap[TYPING] = true
+                    mainViewModel.uploadMap("$USERS/$myKey",typingMap)
+                    delay(800)
+                    typingMap[TYPING] = false
+                    mainViewModel.uploadMap("$USERS/$myKey",typingMap)
                 }
 
             } else {
@@ -671,14 +672,13 @@ class ChatActivity : AppCompatActivity() {
 
                 // typing
                 job = lifecycleScope.launch(Dispatchers.IO) {
-                    map[TYPING] = true
-                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
-                    delay(1300)
-                    map[TYPING] = false
-                    mainViewModel.uploadMap("$USERS/$anotherUserKey",map)
+                    typingMap[TYPING] = true
+                    mainViewModel.uploadMap("$USERS/$myKey",typingMap)
+                    delay(800)
+                    typingMap[TYPING] = false
+                    mainViewModel.uploadMap("$USERS/$myKey",typingMap)
                 }
             }
-
 
         }
 
@@ -905,6 +905,11 @@ class ChatActivity : AppCompatActivity() {
                             showSuccessToast("User unblocked successfully")
                         }
                     }
+                    true
+                }
+
+                R.id.action_setting->{
+                    startNewActivity(SeeUserProfileActivity::class.java)
                     true
                 }
 

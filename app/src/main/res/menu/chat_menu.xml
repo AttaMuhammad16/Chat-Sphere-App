@@ -6,4 +6,7 @@
     <item
         android:id="@+id/action_block_text"
         android:title="Block" />
+    <item
+        android:id="@+id/action_setting"
+        android:title="Setting" />
 </menu>
