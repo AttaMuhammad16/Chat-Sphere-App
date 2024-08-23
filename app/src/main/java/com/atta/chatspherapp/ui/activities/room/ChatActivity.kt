@@ -104,6 +104,7 @@ import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.showErrorToast
+import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
 import com.atta.chatspherapp.utils.NewUtils.showSuccessToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.slideDownAnimation
@@ -840,10 +841,12 @@ class ChatActivity : AppCompatActivity() {
                         intent.putExtra(SELECTEDMESSAGES,recentChatModel)
                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                             startForegroundService(intent)
+                            finish()
                         }else{
                             startService(intent)
+                            finish()
                         }
-                        finish()
+
                     }else{
                         showErrorToast("Something wrong.")
                     }
@@ -863,6 +866,7 @@ class ChatActivity : AppCompatActivity() {
                     }
                     true
                 }
+
                 else -> false
             }
         }
