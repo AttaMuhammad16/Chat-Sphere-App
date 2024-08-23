@@ -185,11 +185,11 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
         }
     }
 
-    override suspend fun getAnyModelFlow(path: String,userModel: UserModel): Flow<UserModel>  = callbackFlow{
+    override suspend fun <T> getAnyModelFlow(path: String, clazz: Class<T>): Flow<T>  = callbackFlow{
         val childRef = databaseReference.child(path)
         val valueEventListener = object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
-                val model = snapshot.getValue(userModel::class.java)
+                val model = snapshot.getValue(clazz)
                 if (model!=null){
                     trySend(model).isSuccess
                 }
@@ -201,6 +201,8 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
         childRef.addValueEventListener(valueEventListener)
         awaitClose { childRef.removeEventListener(valueEventListener) }
     }
+
+
 
     override suspend fun <T> getModelsList(path: String, clazz: Class<T>): MyResult<List<T>> {
         return try {

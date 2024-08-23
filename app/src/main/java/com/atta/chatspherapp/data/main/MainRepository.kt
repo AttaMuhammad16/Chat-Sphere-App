@@ -15,7 +15,7 @@ interface MainRepository {
     suspend fun checkPhoneNumberExists(path: String, phoneNumber: String): MyResult<Boolean>
     suspend fun updateNumberOfMessages(path: String): MyResult<String>
     suspend fun uploadMap(path: String, dataMap: HashMap<String,Any>): MyResult<Boolean>
-    suspend fun getAnyModelFlow(path: String,userModel: UserModel): Flow<UserModel>
+    suspend fun <T> getAnyModelFlow(path: String,clazz: Class<T>): Flow<T>
     suspend fun <T> getModelsList(path: String,clazz: Class<T>): MyResult<List<T>>
     suspend fun checkChildExists(path: String): Boolean
 

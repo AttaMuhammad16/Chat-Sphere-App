@@ -25,6 +25,8 @@ object Constants {
     const val LASTSEENTIME="lastSeenTime"
     const val DELETEMESSAGEFROMME="deleteMessageFromMe"
     const val DELETEMESSAGELIST="deletedMessagesList"
+    const val SELECTEDMESSAGES="selectedMessages"
+
 
 
     //sender

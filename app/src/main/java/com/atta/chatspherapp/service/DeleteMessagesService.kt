@@ -128,7 +128,6 @@ class DeleteMessagesService : Service() {
     private suspend fun startDeleting(recentMessagesList: ArrayList<RecentChatModel>?) {
 
         withContext(Dispatchers.IO) {
-
             recentMessagesList?.let { messagesList ->
                 val deleteResults = messagesList.map { model ->
                     async {
@@ -142,23 +141,22 @@ class DeleteMessagesService : Service() {
                 deleteResults.awaitAll()
             }
 
-
             val listOfLinks = mutableListOf<String>()
             val messagesListAwait = recentMessagesList?.map { model ->
 
                 val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)
 
-                // check if exist in recent chat
-                val isExists = try {
-                    mainRepository.checkChildExists("$RECENTCHAT/${model.userModel.key}")
-                } catch (e: Exception) {
-                    Log.e("TAG", "Error checking if child exists: ${e.message}")
-                    false
-                }
+                val isExists = async {
+                    try {
+                        mainRepository.checkChildExists("$RECENTCHAT/${model.userModel.key}")
+                    } catch (e: Exception) {
+                        Log.e("TAG", "Error checking if child exists: ${e.message}")
+                        false
+                    }
+                }.await()
 
                 return@map if (!isExists) {
                     async {
-
                         val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
 
                         roomMessagesList.whenSuccess { messages ->
@@ -177,14 +175,15 @@ class DeleteMessagesService : Service() {
 
                         mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
                         mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
-
                     }
-                }else {
+
+                } else {
+
                     val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+
                     roomMessagesList.whenSuccess { messageModels ->
                         val updatesMap = mutableMapOf<String, Any>()
 
-                        // Prepare a batch of updates
                         messageModels.forEach { model ->
                             val pathBol = "$ROOM/$roomSortedKey/${model.key}/$DELETEMESSAGEFROMME"
                             val pathList = "$ROOM/$roomSortedKey/${model.key}/$DELETEMESSAGELIST"
@@ -205,25 +204,30 @@ class DeleteMessagesService : Service() {
                     }
                     null
                 }
-
             }
 
             messagesListAwait?.filterNotNull()?.awaitAll()
 
-            if (listOfLinks.isNotEmpty()){
+            if (listOfLinks.isNotEmpty()) {
                 listOfLinks.chunked(10).forEach { chunk ->
                     chunk.map { link ->
-                        async { storageRepository.deleteDocumentToFirebaseStorage(link) }
+                        async {
+                            try {
+                                storageRepository.deleteDocumentToFirebaseStorage(link)
+                            } catch (e: Exception) {
+                                Log.e("TAG", "Error deleting link: ${e.message}")
+                            }
+                        }
                     }.awaitAll()
                 }
             }
 
-
             deleteNotification(notificationManager)
             stopSelf()
             serviceScope.cancel()
-
-
         }
     }
+
+
+
 }

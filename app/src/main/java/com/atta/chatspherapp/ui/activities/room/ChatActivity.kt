@@ -78,6 +78,7 @@ import com.atta.chatspherapp.adapters.ChatAdapter
 import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
 import com.atta.chatspherapp.managers.NotificationManager.Companion.clearNotifications
 import com.atta.chatspherapp.models.RecentChatModel
+import com.atta.chatspherapp.service.DeleteMessagesService
 import com.atta.chatspherapp.ui.activities.profile.SeeUserProfileActivity
 import com.atta.chatspherapp.utils.Constants.ACTIVITYSTATEOFTHEUSER
 import com.atta.chatspherapp.utils.Constants.BLOCKLIST
@@ -85,10 +86,13 @@ import com.atta.chatspherapp.utils.Constants.CHATTINGWITH
 import com.atta.chatspherapp.utils.Constants.DELETEMESSAGEFROMME
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
 import com.atta.chatspherapp.utils.Constants.IMAGE
+import com.atta.chatspherapp.utils.Constants.LASTSEENTIME
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.ROOM
+import com.atta.chatspherapp.utils.Constants.SELECTEDMESSAGES
 import com.atta.chatspherapp.utils.Constants.TEXT
 import com.atta.chatspherapp.utils.Constants.USERS
+import com.atta.chatspherapp.utils.Constants.USERSTATUS
 import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
 import com.atta.chatspherapp.utils.MyExtensions.shrink
@@ -176,6 +180,7 @@ class ChatActivity : AppCompatActivity() {
     var myKey=""
 
     var blockedFromAnotherUser=false
+    var recentChatModel: RecentChatModel?=null
 
     @SuppressLint("SuspiciousIndentation", "UnspecifiedRegisterReceiverFlag", "NotifyDataSetChanged")
     @RequiresApi(Build.VERSION_CODES.O)
@@ -204,7 +209,7 @@ class ChatActivity : AppCompatActivity() {
 
         // myModel listener for updates.
         lifecycleScope.launch {
-            mainViewModel.getModelFlow("$USERS/$myKey",UserModel()).collect{
+            mainViewModel.getModelFlow("$USERS/$myKey",UserModel::class.java).collect{
 
                 listOfBlockedUsers = it.blockList
 
@@ -214,7 +219,7 @@ class ChatActivity : AppCompatActivity() {
                 }else{
                     binding.messageBoxLinear.isVisible = true
                     binding.blockedTv.isVisible = false
-                    mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel()).collect{
+                    mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel::class.java).collect{
                         if (it.blockList.contains(myKey)){
                             blockedFromAnotherUser = true
                         }else{
@@ -228,7 +233,7 @@ class ChatActivity : AppCompatActivity() {
 
         //observer for online offline status
         lifecycleScope.launch {
-            mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel()).collect{
+            mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel::class.java).collect{it->
 
                 // status updates
                 if (it.onlineOfflineStatus){
@@ -244,6 +249,14 @@ class ChatActivity : AppCompatActivity() {
                         binding.userStatusTv.visibility=View.VISIBLE
                     }
                 }
+            }
+        }
+
+
+        // my recent chat observer
+        lifecycleScope.launch {
+            mainViewModel.recentChatModel.collect{it->
+                recentChatModel = it
             }
         }
 
@@ -264,7 +277,7 @@ class ChatActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             myModel.chattingWith=userModel!!.key
             updateActivityStateAndChatKey(true,userModel!!.key)
-            mainViewModel.getAnyModelFlow(USERS+"/"+userModel?.key,UserModel())
+            mainViewModel.getAnyModelFlow(USERS+"/"+userModel?.key,UserModel::class.java)
         }
 
         lifecycleScope.launch {
@@ -818,10 +831,26 @@ class ChatActivity : AppCompatActivity() {
 
         popup.setOnMenuItemClickListener { item: MenuItem ->
             when (item.itemId) {
+
                 R.id.action_clear_chat -> {
+
+                    if (recentChatModel!=null){
+                        val recentChatModel= arrayListOf(recentChatModel)
+                        val intent = Intent(this@ChatActivity, DeleteMessagesService::class.java)
+                        intent.putExtra(SELECTEDMESSAGES,recentChatModel)
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                            startForegroundService(intent)
+                        }else{
+                            startService(intent)
+                        }
+                        finish()
+                    }else{
+                        showErrorToast("Something wrong.")
+                    }
 
                     true
                 }
+
                 R.id.action_block_text -> {
                     lifecycleScope.launch {
                         if (!isBlocked) {
@@ -1404,6 +1433,8 @@ class ChatActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         updateActivityStateAndChatKey(false)
+        val systemTime=System.currentTimeMillis()
+        userStatus(false,systemTime)
     }
 
     override fun onDestroy() {
@@ -1413,6 +1444,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        userStatus(true)
         updateActivityStateAndChatKey(true,userModel!!.key)
     }
 
@@ -1423,6 +1455,22 @@ class ChatActivity : AppCompatActivity() {
             super.onBackPressed()
         }
     }
+
+
+    var statusMap=HashMap<String,Any>()
+    @OptIn(DelicateCoroutinesApi::class)
+    fun userStatus(status:Boolean, time:Long=0){
+        GlobalScope.launch {
+            statusMap[USERSTATUS] = status
+            statusMap[LASTSEENTIME] = time
+            mainViewModel.uploadMap("$USERS/$myKey",statusMap)
+        }
+    }
+
+
+
+
+
 
 
 }

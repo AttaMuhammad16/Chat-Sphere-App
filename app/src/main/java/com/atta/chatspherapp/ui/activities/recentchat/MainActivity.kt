@@ -40,6 +40,7 @@ import com.atta.chatspherapp.utils.Constants.DELETEMESSAGEFROMME
 import com.atta.chatspherapp.utils.Constants.LASTSEENTIME
 import com.atta.chatspherapp.utils.Constants.RECENTCHAT
 import com.atta.chatspherapp.utils.Constants.ROOM
+import com.atta.chatspherapp.utils.Constants.SELECTEDMESSAGES
 import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.Constants.USERSTATUS
 import com.atta.chatspherapp.utils.NewUtils.addColorRevealAnimation
@@ -187,8 +188,6 @@ class MainActivity : AppCompatActivity() {
             showLogoutDialog()
         }
 
-
-
 //       generate FCM token
         FirebaseMessaging.getInstance().token.addOnCompleteListener {
             if (it.isSuccessful) {
@@ -207,13 +206,13 @@ class MainActivity : AppCompatActivity() {
 
         // myModel listener for updates.
         lifecycleScope.launch {
-            mainViewModel.getAnyModelFlow(USERS+"/"+auth.currentUser!!.uid,UserModel())
+            mainViewModel.getAnyModelFlow(USERS+"/"+auth.currentUser!!.uid,UserModel::class.java)
         }
 
         lifecycleScope.launch {
             mainViewModel.userFlow.collect{
-                myModel=it
 
+                myModel=it
                 drawerImgProfile.loadImageViaLink(myModel?.profileUrl?:"empty")
                 drawerName.text=myModel?.fullName?:"Name not found"
                 drawerEmail.text=myModel?.email?:"Email not found"
@@ -290,6 +289,7 @@ class MainActivity : AppCompatActivity() {
                         if (selectedItemsList.isNotEmpty()) {
                             addToSelectedList(recentModel, binding.mainConstraint)
                         } else {
+                            mainViewModel.recentChatModel.value=recentModel
                             val intent = Intent(this@MainActivity, ChatActivity::class.java)
                             intent.putExtra("userModel", recentModel.userModel)
                             intent.putExtra("myModel",myModel)
@@ -391,7 +391,7 @@ class MainActivity : AppCompatActivity() {
                 val recentChatModelList=ArrayList(list)
 
                 val intent = Intent(this@MainActivity,DeleteMessagesService::class.java)
-                intent.putExtra("selectedMessages",recentChatModelList)
+                intent.putExtra(SELECTEDMESSAGES,recentChatModelList)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     startForegroundService(intent)
                 }else{
@@ -497,25 +497,6 @@ class MainActivity : AppCompatActivity() {
                 myModel = myModel?.copy(fullName = name)
                 previousName = name
             }
-        }
-
-        // update status
-        userStatus(true)
-
-    }
-
-    override fun onPause() {
-        val systemTime=System.currentTimeMillis()
-        userStatus(false,systemTime)
-        super.onPause()
-    }
-
-    var statusMap=HashMap<String,Any>()
-    fun userStatus(status:Boolean,time:Long=0){
-        GlobalScope.launch {
-            statusMap[USERSTATUS] = status
-            statusMap[LASTSEENTIME] = time
-            mainViewModel.uploadMap("$USERS/$myKey",statusMap)
         }
     }
 

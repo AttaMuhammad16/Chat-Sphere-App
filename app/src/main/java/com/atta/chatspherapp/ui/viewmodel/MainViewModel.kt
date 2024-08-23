@@ -13,12 +13,14 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
+import javax.annotation.meta.When
 import javax.inject.Inject
 
 
 @HiltViewModel
 class MainViewModel @Inject constructor(private val storageRepository: StorageRepository, private val mainRepository: MainRepository):ViewModel() {
     var isRecentChatUploaded:MutableStateFlow<Boolean> = MutableStateFlow(false)
+    var recentChatModel:MutableStateFlow<RecentChatModel> = MutableStateFlow(RecentChatModel())
 
     private var _isUserInActivity:MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
@@ -65,16 +67,28 @@ class MainViewModel @Inject constructor(private val storageRepository: StorageRe
         return withContext(Dispatchers.IO){mainRepository.uploadMap(path, dataMap)}
     }
 
-    suspend fun getAnyModelFlow(path: String,userModel: UserModel){
-        val model=mainRepository.getAnyModelFlow(path, userModel)
-        model.collect{
-            _isUserInActivity.value=it.activityState
-            _userFlow.value=it
+    suspend fun <T> getAnyModelFlow(path: String, clazz: Class<T>) {
+        val modelFlow = mainRepository.getAnyModelFlow(path, clazz)
+
+        modelFlow.collect { model ->
+            when (model) {
+                is RecentChatModel -> {
+                    recentChatModel.value=model
+                }
+                is UserModel -> {
+                    _isUserInActivity.value = model.activityState
+                    _userFlow.value = model
+                }
+                else -> {
+                    throw IllegalArgumentException("Unknown model type")
+                }
+            }
         }
     }
 
-    suspend fun getModelFlow(path: String,userModel: UserModel):Flow<UserModel>{
-        val model=mainRepository.getAnyModelFlow(path, userModel)
+
+    suspend fun <T> getModelFlow(path: String,clazz:Class<T>):Flow<T>{
+        val model=mainRepository.getAnyModelFlow(path, clazz)
         return model
     }
 
