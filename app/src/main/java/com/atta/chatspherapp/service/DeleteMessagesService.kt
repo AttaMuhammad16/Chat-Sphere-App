@@ -144,15 +144,15 @@ class DeleteMessagesService : Service() {
             }
 
             val messagesListAwait = recentMessagesList?.map { model ->
-
+                Log.i("TAG", "recent chat model in service:$model")
                 val roomSortedKey = getSortedKeys(model.key, mykey!!)
+                Log.i("TAG", "startDeleting roomSortedKey :$roomSortedKey")
 
                 return@map if (model.userModel.key==mykey){
+                    Log.i("TAG", "startDeleting:if (model.userModel.key==mykey){")
 
                     async {
-
                         val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
-
                         roomMessagesList.whenSuccess { messages ->
                             messages.forEach { messageModel ->
                                 messageModel.imageUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
@@ -164,10 +164,10 @@ class DeleteMessagesService : Service() {
 
                         mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
                         mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
-
                     }
 
                 }else{
+                    Log.i("TAG", "startDeleting:}else{")
 
                     val isExists = async {
                         try {
@@ -180,6 +180,7 @@ class DeleteMessagesService : Service() {
 
 
                     if (!isExists) {
+                        Log.i("TAG", "startDeleting:if (!isExists) {")
                         async {
 
                             val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
@@ -204,6 +205,7 @@ class DeleteMessagesService : Service() {
                         }
 
                     } else {
+                        Log.i("TAG", "startDeleting:} else { of if (!isExists) {")
                         val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
 
                         roomMessagesList.whenSuccess { messageModels ->

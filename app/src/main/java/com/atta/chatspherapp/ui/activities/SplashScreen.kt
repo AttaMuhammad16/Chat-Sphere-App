@@ -15,6 +15,7 @@ import androidx.lifecycle.lifecycleScope
 import com.atta.chatspherapp.R
 import com.atta.chatspherapp.ui.activities.recentchat.MainActivity
 import com.atta.chatspherapp.ui.auth.SignInActivity
+import com.atta.chatspherapp.utils.InternetChecker
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.startNewActivity
@@ -53,9 +54,13 @@ class SplashScreen : AppCompatActivity() {
         // Initialize AppUpdateManager
         appUpdateManager = AppUpdateManagerFactory.create(this)
         appUpdateInfoTask = appUpdateManager.appUpdateInfo
-
-        // Check for updates
-        checkForUpdate()
+        lifecycleScope.launch {
+            if (!InternetChecker().isInternetConnectedWithPackage(this@SplashScreen)) {
+                proceedToNextActivity()
+            }else{
+                checkForUpdate()
+            }
+        }
     }
 
 

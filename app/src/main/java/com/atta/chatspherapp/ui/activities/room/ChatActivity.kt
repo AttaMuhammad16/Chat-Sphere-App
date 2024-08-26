@@ -206,6 +206,7 @@ class ChatActivity : AppCompatActivity() {
         userModel = intent.getParcelableExtra("userModel")
         myModel = intent.getParcelableExtra("myModel")!!
         fromRecentChat = intent.getBooleanExtra("fromRecentChat",false)
+        recentChatModel = intent.getParcelableExtra("recentChatModel")
         listOfBlockedUsers = myModel.blockList
 
         anotherUserKey = userModel!!.key
@@ -268,12 +269,12 @@ class ChatActivity : AppCompatActivity() {
         }
 
         // my recent chat observer
-        lifecycleScope.launch {
-            mainViewModel.recentChatModel.collect{it->
-                recentChatModel = it
-                Log.i("recentChatModel", "recentChatModel oncreate :$recentChatModel ")
-            }
-        }
+//        lifecycleScope.launch {
+//            mainViewModel.recentChatModel.collect{it->
+//                recentChatModel = it
+//                Log.i("recentChatModel", "recentChatModel oncreate :$recentChatModel ")
+//            }
+//        }
 
 
         if (userModel!!.blockList.contains(myKey)){

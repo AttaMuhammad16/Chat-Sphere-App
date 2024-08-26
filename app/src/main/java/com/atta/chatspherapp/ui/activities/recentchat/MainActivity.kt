@@ -236,7 +236,6 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}", RecentChatModel::class.java).collect { recentChatList ->
 
                 if (recentChatList.isEmpty()) {
-                    Log.i("onCreate", "onCreate:if (recentChatList.isEmpty()) { ")
                     binding.noRecentChatMessage.visibility = View.VISIBLE
                     sortedList.clear()
                     setUpRecyclerView(sortedList, false)
@@ -297,6 +296,7 @@ class MainActivity : AppCompatActivity() {
                             intent.putExtra("userModel", recentModel.userModel)
                             intent.putExtra("myModel",myModel)
                             intent.putExtra("fromRecentChat", true)
+                            intent.putExtra("recentChatModel",recentModel)
                             startActivity(intent)
                         }
                     }
