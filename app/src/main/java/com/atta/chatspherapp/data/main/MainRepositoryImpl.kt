@@ -147,7 +147,7 @@ class MainRepositoryImpl @Inject constructor(private val databaseReference: Data
                 null
             }
         } catch (e: Exception) {
-            Log.e("TAG", "Failed to retrieve data: ${e.message}")
+            Log.e("Exception", "Failed to retrieve data: ${e.message}")
             null
         }
     }

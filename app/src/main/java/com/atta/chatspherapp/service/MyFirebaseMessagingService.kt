@@ -45,13 +45,13 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
                         val map = HashMap<String, Any>()
                         map[FCMTOENNODE] = token
                         database.child(Constants.USERS + "/" + user.uid).updateChildren(map).await()
-                        Log.i("TAG", "Token successfully uploaded")
+                        Log.i("successfully", "Token successfully uploaded")
                     }
                 } else {
-                    Log.w("TAG", "User is not authenticated, cannot upload token")
+                    Log.w("authenticated", "User is not authenticated, cannot upload token")
                 }
             } catch (e: Exception) {
-                Log.e("TAG", "Failed to upload token", e)
+                Log.e("Failed", "Failed to upload token", e)
             }
         }
     }

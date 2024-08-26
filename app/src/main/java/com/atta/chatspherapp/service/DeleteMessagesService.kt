@@ -128,12 +128,14 @@ class DeleteMessagesService : Service() {
     private suspend fun startDeleting(recentMessagesList: ArrayList<RecentChatModel>?) {
 
         withContext(Dispatchers.IO) {
+            val listOfLinks = mutableListOf<String>()
+
             recentMessagesList?.let { messagesList ->
                 val deleteResults = messagesList.map { model ->
                     async {
                         val result = mainRepository.deleteAnyModel("$RECENTCHAT/$mykey/${model.userModel.key}")
                         result.whenError {
-                            Log.i("TAG", "Deletion error: ${it.message}")
+                            Log.i("Deletion", "Deletion error: ${it.message}")
                             showToast(it.message.toString())
                         }
                     }
@@ -141,22 +143,14 @@ class DeleteMessagesService : Service() {
                 deleteResults.awaitAll()
             }
 
-            val listOfLinks = mutableListOf<String>()
             val messagesListAwait = recentMessagesList?.map { model ->
 
-                val roomSortedKey = getSortedKeys(model.userModel.key, mykey!!)
+                val roomSortedKey = getSortedKeys(model.key, mykey!!)
 
-                val isExists = async {
-                    try {
-                        mainRepository.checkChildExists("$RECENTCHAT/${model.userModel.key}")
-                    } catch (e: Exception) {
-                        Log.e("TAG", "Error checking if child exists: ${e.message}")
-                        false
-                    }
-                }.await()
+                return@map if (model.userModel.key==mykey){
 
-                return@map if (!isExists) {
                     async {
+
                         val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
 
                         roomMessagesList.whenSuccess { messages ->
@@ -168,42 +162,78 @@ class DeleteMessagesService : Service() {
                             }
                         }
 
-                        roomMessagesList.whenError {
-                            Log.e("TAG", "Fetching messages error: ${it.message}")
-                            showToast(it.message.toString())
-                        }
-
                         mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
                         mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
+
                     }
 
-                } else {
+                }else{
 
-                    val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+                    val isExists = async {
+                        try {
+                            mainRepository.checkChildExists("$RECENTCHAT/${model.userModel.key}/$mykey")
+                        } catch (e: Exception) {
+                            Log.e("exists", "Error checking if child exists: ${e.message}")
+                            false
+                        }
+                    }.await()
 
-                    roomMessagesList.whenSuccess { messageModels ->
-                        val updatesMap = mutableMapOf<String, Any>()
 
-                        messageModels.forEach { model ->
-                            val pathBol = "$ROOM/$roomSortedKey/${model.key}/$DELETEMESSAGEFROMME"
-                            val pathList = "$ROOM/$roomSortedKey/${model.key}/$DELETEMESSAGELIST"
-                            updatesMap[pathBol] = true
-                            updatesMap[pathList] = listOf(mykey!!)
+                    if (!isExists) {
+                        async {
+
+                            val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+
+                            roomMessagesList.whenSuccess { messages ->
+                                messages.forEach { messageModel ->
+                                    messageModel.imageUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                                    messageModel.voiceUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                                    messageModel.documentUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                                    messageModel.videoUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
+                                }
+                            }
+
+                            roomMessagesList.whenError {
+                                Log.e("Fetching", "Fetching messages error: ${it.message}")
+                                showToast(it.message.toString())
+                            }
+
+                            mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
+                            mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
+
                         }
 
-                        if (updatesMap.isNotEmpty()) {
-                            CoroutineScope(Dispatchers.IO).launch {
-                                try {
-                                    databaseReference.updateChildren(updatesMap).await()
-                                    Log.d("TAG", "Batch update successful")
-                                } catch (e: Exception) {
-                                    Log.e("TAG", "Batch update failed: ${e.message}")
+                    } else {
+                        val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+
+                        roomMessagesList.whenSuccess { messageModels ->
+                            val updatesMap = mutableMapOf<String, Any>()
+
+                            messageModels.forEach { messagemodel ->
+                                messagemodel.deletedMessagesList.add(mykey!!)
+                                val pathBol = "$ROOM/$roomSortedKey/${messagemodel.key}/$DELETEMESSAGEFROMME"
+                                val pathList = "$ROOM/$roomSortedKey/${messagemodel.key}/$DELETEMESSAGELIST"
+                                updatesMap[pathBol] = true
+                                updatesMap[pathList] = messagemodel.deletedMessagesList
+                            }
+                            Log.i("TAG", "startDeleting: $updatesMap")
+
+                            if (updatesMap.isNotEmpty()) {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    try {
+                                        databaseReference.updateChildren(updatesMap).await()
+                                        Log.d("Batch", "Batch update successful")
+                                    } catch (e: Exception) {
+                                        Log.e("Batch", "Batch update failed: ${e.message}")
+                                    }
                                 }
                             }
                         }
+                        null
                     }
-                    null
+
                 }
+
             }
 
             messagesListAwait?.filterNotNull()?.awaitAll()
@@ -215,7 +245,7 @@ class DeleteMessagesService : Service() {
                             try {
                                 storageRepository.deleteDocumentToFirebaseStorage(link)
                             } catch (e: Exception) {
-                                Log.e("TAG", "Error deleting link: ${e.message}")
+                                Log.e("deleting", "Error deleting link: ${e.message}")
                             }
                         }
                     }.awaitAll()
@@ -225,6 +255,7 @@ class DeleteMessagesService : Service() {
             deleteNotification(notificationManager)
             stopSelf()
             serviceScope.cancel()
+
         }
     }
 

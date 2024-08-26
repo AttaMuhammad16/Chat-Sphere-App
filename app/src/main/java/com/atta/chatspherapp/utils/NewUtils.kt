@@ -974,7 +974,7 @@ object NewUtils {
                 val token=googleCredentials.refreshAccessToken()
                 token.tokenValue
             } catch (e: Exception) {
-                Log.i("TAG", "getAccessToken: ${e.localizedMessage}")
+                Log.i("getAccessToken", "getAccessToken: ${e.localizedMessage}")
                 null
             }
         }

@@ -126,7 +126,7 @@ class UploadVideoService : Service() {
                         preferencesHelper.saveString(key,uri.toString())
                         ChatAdapter.refreshAdapter()
                         uploadResult.whenError {
-                            Log.i("TAG", "onStartCommand:$it")
+                            Log.i("onStartCommand", "onStartCommand:$it")
                         }
                         uploadResult.whenSuccess {
                             stopSelf()

@@ -26,7 +26,7 @@ class VideosActivity : AppCompatActivity() {
 
         window.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN)
         videoUrl = intent.getStringExtra("videoUrl")!!
-        Log.i("TAG", "onCreate:$videoUrl")
+        Log.i("onCreate", "onCreate:$videoUrl")
 
         if (::videoUrl.isInitialized) {
             initializePlayer(videoUrl)

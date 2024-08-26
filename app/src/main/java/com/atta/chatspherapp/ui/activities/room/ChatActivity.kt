@@ -84,6 +84,7 @@ import com.atta.chatspherapp.utils.Constants.ACTIVITYSTATEOFTHEUSER
 import com.atta.chatspherapp.utils.Constants.BLOCKLIST
 import com.atta.chatspherapp.utils.Constants.CHATTINGWITH
 import com.atta.chatspherapp.utils.Constants.DELETEMESSAGEFROMME
+import com.atta.chatspherapp.utils.Constants.DELETEMESSAGELIST
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
 import com.atta.chatspherapp.utils.Constants.IMAGE
 import com.atta.chatspherapp.utils.Constants.LASTSEENTIME
@@ -266,12 +267,11 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-
-
         // my recent chat observer
         lifecycleScope.launch {
             mainViewModel.recentChatModel.collect{it->
                 recentChatModel = it
+                Log.i("recentChatModel", "recentChatModel oncreate :$recentChatModel ")
             }
         }
 
@@ -430,9 +430,6 @@ class ChatActivity : AppCompatActivity() {
 
                 if (filteredList.isNotEmpty()){
                     list=filteredList as ArrayList
-                    adapter.setList(filteredList)
-                    adapter.notifyDataSetChanged()
-                    setAdapter(adapter)
                     if (previousList.size!=filteredList.size){
                         binding.recyclerView.scrollToPosition(filteredList.size-1)
                         binding.dropDownImg.isVisible=false
@@ -440,6 +437,9 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
 
+                setAdapter(adapter)
+                adapter.setList(filteredList)
+                adapter.notifyDataSetChanged()
 
             }
         }
@@ -491,8 +491,9 @@ class ChatActivity : AppCompatActivity() {
 
         binding.deleteMessageImg.setOnClickListener {
             hideReactionViews()
+
             lifecycleScope.launch {
-                if (userUid!=messageModel.senderUid){
+                if (myKey!=messageModel.senderUid){
                     deleteMessage(messageModel,false)
                     adapter.notifyDataSetChanged()
                 }else{
@@ -500,6 +501,7 @@ class ChatActivity : AppCompatActivity() {
                     adapter.notifyDataSetChanged()
                 }
             }
+
         }
 
         // swipe listener
@@ -737,7 +739,7 @@ class ChatActivity : AppCompatActivity() {
 
                         messageUploadResult.whenError {
                             showToast(it.toString())
-                            Log.i("TAG", "onCreate:${it.message} ")
+                            Log.i("onCreate", "onCreate:${it.message} ")
                         }
                         binding.recyclerView.scrollToPosition(list.size - 1)
                     }
@@ -1381,54 +1383,59 @@ class ChatActivity : AppCompatActivity() {
 
 
     @SuppressLint("NotifyDataSetChanged")
-    suspend fun deleteMessage(data: MessageModel, isSenderAndReceiver:Boolean) {
-        val scope=lifecycleScope
-        NewUtils.showMessageDeleteDialog(this@ChatActivity, isSenderAndReceiver) {
+    suspend fun deleteMessage(data: MessageModel, isSender: Boolean) {
+        val scope = lifecycleScope
 
-            if (isSenderAndReceiver) { // will run only for sender
-                if (it == 1) {
-
+        NewUtils.showMessageDeleteDialog(this@ChatActivity, isSender) { action ->
+            when {
+                isSender && action == 1 -> {
+                    // Delete message from the database and storage (if applicable)
                     scope.launch {
-                        databaseReference.child(chatUploadPath + "/" + data.key).removeValue().await()
-                        showToast("message deleted from everyone.")
-                    }
-
-                    scope.launch {
-
-                        if (data.imageUrl.isNotEmpty()) {
-                            storageViewModel.deleteDocumentToFirebaseStorage(data.imageUrl)
-                        } else if (data.videoUrl.isNotEmpty()) {
-                            storageViewModel.deleteDocumentToFirebaseStorage(data.videoUrl)
-
-                        } else if (data.documentUrl.isNotEmpty()) {
-                            storageViewModel.deleteDocumentToFirebaseStorage(data.documentUrl)
-
-                        } else if (data.voiceUrl.isNotEmpty()) {
-                            storageViewModel.deleteDocumentToFirebaseStorage(data.voiceUrl)
+                        val deleteMessageJob = launch {
+                            databaseReference.child("$chatUploadPath/${data.key}").removeValue().await()
+                            showToast("Message deleted from everyone.")
                         }
-                    }
 
-                } else if (it == 2) {
-                    scope.launch {
-                        val map = HashMap<String, Any>()
-                        map["deleteMessageFromMe"] = true
-                        databaseReference.child(chatUploadPath + "/" + data.key).updateChildren(map).await()
-                        showToast( "message deleted.")
+                        val deleteMediaJob = launch {
+                            when {
+                                data.imageUrl.isNotEmpty() -> storageViewModel.deleteDocumentToFirebaseStorage(data.imageUrl)
+                                data.videoUrl.isNotEmpty() -> storageViewModel.deleteDocumentToFirebaseStorage(data.videoUrl)
+                                data.documentUrl.isNotEmpty() -> storageViewModel.deleteDocumentToFirebaseStorage(data.documentUrl)
+                                data.voiceUrl.isNotEmpty() -> storageViewModel.deleteDocumentToFirebaseStorage(data.voiceUrl)
+                            }
+                        }
+
+                        deleteMessageJob.join()  // Ensure the message is deleted before continuing
+                        deleteMediaJob.join()  // Ensure media deletion completes before exiting scope
                     }
                 }
-            } else { // will run for receiver
 
-                scope.launch {
-                    data.deletedMessagesList.add(userUid)
-                    val map = mapOf("deletedMessagesList" to data.deletedMessagesList)
-                    databaseReference.child("$chatUploadPath/${data.key}").updateChildren(map).await()
-                    showToast( "Message deleted")
-                    adapter.notifyDataSetChanged()
+                isSender && action == 2 -> {
+                    // Mark the message as deleted for the sender
+                    scope.launch {
+                        data.deletedMessagesList.add(myKey)
+                        val map = mapOf(DELETEMESSAGELIST to data.deletedMessagesList)
+                        databaseReference.child("$chatUploadPath/${data.key}").updateChildren(map).await()
+                        showToast("Message deleted.")
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
+                !isSender -> {
+                    // Mark the message as deleted for the receiver
+                    scope.launch {
+                        data.deletedMessagesList.add(data.senderUid)
+                        val map = mapOf(DELETEMESSAGELIST to data.deletedMessagesList)
+                        databaseReference.child("$chatUploadPath/${data.key}").updateChildren(map).await()
+                        showToast("Message deleted.")
+                        adapter.notifyDataSetChanged()
+                    }
                 }
 
             }
         }
     }
+
 
 
     fun uploadToRecentChat(recentMessage:String,messageType:String){
@@ -1454,8 +1461,6 @@ class ChatActivity : AppCompatActivity() {
 
     fun sendNotification(message:String){
         lifecycleScope.launch {
-            Log.i("TAG", "my model chatting id :${myModel.chattingWith}")
-            Log.i("TAG", "user model chatting id :${userModel!!.chattingWith}")
             if (myModel.key!=userModel!!.chattingWith){
                 myModel.apply {
                     val accessToken= getAccessToken(this@ChatActivity)
@@ -1466,7 +1471,7 @@ class ChatActivity : AppCompatActivity() {
                     }
                 }
             }else{
-                Log.i("TAG", "you ids are same")
+                Log.i("ids", "you ids are same")
             }
         }
     }
@@ -1516,9 +1521,6 @@ class ChatActivity : AppCompatActivity() {
             mainViewModel.uploadMap("$USERS/$myKey",statusMap)
         }
     }
-
-
-
 
 
 

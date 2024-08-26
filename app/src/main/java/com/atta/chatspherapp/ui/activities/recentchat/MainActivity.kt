@@ -236,7 +236,7 @@ class MainActivity : AppCompatActivity() {
             mainViewModel.collectAnyModel("$RECENTCHAT/${auth.currentUser!!.uid}", RecentChatModel::class.java).collect { recentChatList ->
 
                 if (recentChatList.isEmpty()) {
-                    Log.i("TAG", "onCreate:if (recentChatList.isEmpty()) { ")
+                    Log.i("onCreate", "onCreate:if (recentChatList.isEmpty()) { ")
                     binding.noRecentChatMessage.visibility = View.VISIBLE
                     sortedList.clear()
                     setUpRecyclerView(sortedList, false)
@@ -259,7 +259,7 @@ class MainActivity : AppCompatActivity() {
                 val updatedList = deferredModels.awaitAll()
                 sortedList = updatedList.sortedByDescending { it.timeStamp }.toMutableList()
                 setUpRecyclerView(sortedList, false)
-                Log.i("TAG", "onCreate:sortedList = updatedList.sortedByDescending { it.timeStamp }.toMutableList() ")
+                Log.i("onCreate", "onCreate:sortedList = updatedList.sortedByDescending { it.timeStamp }.toMutableList() ")
 
             }
         }

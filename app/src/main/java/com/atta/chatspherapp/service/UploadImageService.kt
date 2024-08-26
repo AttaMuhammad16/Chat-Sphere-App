@@ -104,7 +104,7 @@ class UploadImageService : Service() {
                 }
 
                 result.whenError {
-                    Log.i("TAG", "onStartCommand:$it")
+                    Log.i("onStartCommand", "onStartCommand:$it")
                     stopSelf()
                     deleteNotification(notificationManager)
                 }
@@ -124,7 +124,7 @@ class UploadImageService : Service() {
                     CoroutineScope(Dispatchers.IO).launch {
                         val uploadResult = mainRepository.uploadAnyModel(imageUploadPath!!, messageModel)
                         uploadResult.whenError {
-                            Log.i("TAG", "onStartCommand:$it")
+                            Log.i("onStartCommand", "onStartCommand:$it")
                         }
                         uploadResult.whenSuccess {
 //                            CoroutineScope(Dispatchers.IO).launch {

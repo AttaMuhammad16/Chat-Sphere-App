@@ -78,7 +78,7 @@ class SplashScreen : AppCompatActivity() {
                 }
             }
         }.addOnFailureListener { exception ->
-            Log.e("TAG", "Update check failed", exception)
+            Log.e("Failed", "Update check failed", exception)
             proceedToNextActivity() // Proceed even if update check fails
         }
     }
@@ -99,7 +99,7 @@ class SplashScreen : AppCompatActivity() {
                 )
             }
         }.addOnFailureListener { exception ->
-            Log.e("TAG", "Resuming update failed", exception)
+            Log.e("Failed", "Resuming update failed", exception)
             proceedToNextActivity() // Proceed if resuming update fails
         }
     }
@@ -111,7 +111,7 @@ class SplashScreen : AppCompatActivity() {
                 // Update completed, proceed to the MainActivity
                 startNewActivity(MainActivity::class.java, true)
             } else {
-                Log.e("TAG", "Update flow failed or canceled")
+                Log.e("Failed", "Update flow failed or canceled")
                 proceedToNextActivity()
             }
         }
