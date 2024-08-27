@@ -125,13 +125,14 @@ class DeleteMessagesService : Service() {
         mNotificationManager.cancel(NOTIFICATION_ID)
     }
 
-    private suspend fun startDeleting(recentMessagesList: ArrayList<RecentChatModel>?) {
+    private suspend fun startDeleting(recentModelList: ArrayList<RecentChatModel>?) {
 
         withContext(Dispatchers.IO) {
             val listOfLinks = mutableListOf<String>()
 
-            recentMessagesList?.let { messagesList ->
-                val deleteResults = messagesList.map { model ->
+            // delete users from my recent
+            recentModelList?.let { recentModel ->
+                val deleteResults = recentModel.map { model ->
                     async {
                         val result = mainRepository.deleteAnyModel("$RECENTCHAT/$mykey/${model.userModel.key}")
                         result.whenError {
@@ -143,16 +144,16 @@ class DeleteMessagesService : Service() {
                 deleteResults.awaitAll()
             }
 
-            val messagesListAwait = recentMessagesList?.map { model ->
-                Log.i("TAG", "recent chat model in service:$model")
+
+
+            val messagesListAwait = recentModelList?.map { model ->
                 val roomSortedKey = getSortedKeys(model.key, mykey!!)
-                Log.i("TAG", "startDeleting roomSortedKey :$roomSortedKey")
 
                 return@map if (model.userModel.key==mykey){
-                    Log.i("TAG", "startDeleting:if (model.userModel.key==mykey){")
 
                     async {
                         val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
+
                         roomMessagesList.whenSuccess { messages ->
                             messages.forEach { messageModel ->
                                 messageModel.imageUrl.takeIf { it.isNotEmpty() }?.let { listOfLinks.add(it) }
@@ -164,14 +165,15 @@ class DeleteMessagesService : Service() {
 
                         mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
                         mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
+
                     }
 
                 }else{
-                    Log.i("TAG", "startDeleting:}else{")
 
+                    // check i am exits on his recent child.
                     val isExists = async {
                         try {
-                            mainRepository.checkChildExists("$RECENTCHAT/${model.userModel.key}/$mykey")
+                            mainRepository.checkChildExists("$RECENTCHAT/${model.key}/$mykey")
                         } catch (e: Exception) {
                             Log.e("exists", "Error checking if child exists: ${e.message}")
                             false
@@ -180,7 +182,6 @@ class DeleteMessagesService : Service() {
 
 
                     if (!isExists) {
-                        Log.i("TAG", "startDeleting:if (!isExists) {")
                         async {
 
                             val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
@@ -201,11 +202,9 @@ class DeleteMessagesService : Service() {
 
                             mainRepository.deleteAnyModel("$ROOM/$roomSortedKey")
                             mainRepository.deleteAnyModel("$REACTIONDETAILS/$roomSortedKey")
-
                         }
 
                     } else {
-                        Log.i("TAG", "startDeleting:} else { of if (!isExists) {")
                         val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)
 
                         roomMessagesList.whenSuccess { messageModels ->
@@ -213,12 +212,9 @@ class DeleteMessagesService : Service() {
 
                             messageModels.forEach { messagemodel ->
                                 messagemodel.deletedMessagesList.add(mykey!!)
-                                val pathBol = "$ROOM/$roomSortedKey/${messagemodel.key}/$DELETEMESSAGEFROMME"
                                 val pathList = "$ROOM/$roomSortedKey/${messagemodel.key}/$DELETEMESSAGELIST"
-                                updatesMap[pathBol] = true
                                 updatesMap[pathList] = messagemodel.deletedMessagesList
                             }
-                            Log.i("TAG", "startDeleting: $updatesMap")
 
                             if (updatesMap.isNotEmpty()) {
                                 CoroutineScope(Dispatchers.IO).launch {

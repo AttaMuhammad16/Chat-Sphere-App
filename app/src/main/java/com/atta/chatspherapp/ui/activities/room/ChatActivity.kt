@@ -268,13 +268,22 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        // my recent chat observer
-//        lifecycleScope.launch {
-//            mainViewModel.recentChatModel.collect{it->
-//                recentChatModel = it
-//                Log.i("recentChatModel", "recentChatModel oncreate :$recentChatModel ")
-//            }
-//        }
+
+
+        // get my recent chat for any user when recent chat will null.
+        if (recentChatModel==null&&recentChatModel?.key.isNullOrEmpty()){
+            lifecycleScope.launch {
+                mainViewModel.getAnyModelFlow("$RECENTCHAT/$myKey/${userModel?.key}",RecentChatModel::class.java)
+            }
+
+            lifecycleScope.launch {
+                mainViewModel.recentChatModel.collect{it->
+                    recentChatModel = it
+                }
+            }
+
+        }
+
 
 
         if (userModel!!.blockList.contains(myKey)){
@@ -879,7 +888,7 @@ class ChatActivity : AppCompatActivity() {
 
                 R.id.action_clear_chat -> {
 
-                    if (recentChatModel!=null){
+                    if (recentChatModel!=null&&!recentChatModel?.key.isNullOrEmpty()){
                         val recentChatModel= arrayListOf(recentChatModel)
                         val intent = Intent(this@ChatActivity, DeleteMessagesService::class.java)
                         intent.putExtra(SELECTEDMESSAGES,recentChatModel)
