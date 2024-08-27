@@ -25,7 +25,6 @@ import android.util.Log
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.AnimationUtils
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -42,48 +41,27 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.atta.chatspherapp.R
+import com.atta.chatspherapp.adapters.ChatAdapter
+import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
 import com.atta.chatspherapp.databinding.ActivityChatBinding
 import com.atta.chatspherapp.managers.MyNotificationManager
+import com.atta.chatspherapp.managers.NotificationManager.Companion.clearNotifications
 import com.atta.chatspherapp.models.MessageModel
 import com.atta.chatspherapp.models.ReactionModel
+import com.atta.chatspherapp.models.RecentChatModel
 import com.atta.chatspherapp.models.UserModel
 import com.atta.chatspherapp.receiver.DownloadReceiver
+import com.atta.chatspherapp.service.DeleteMessagesService
 import com.atta.chatspherapp.service.UploadDocumentService
 import com.atta.chatspherapp.service.UploadImageService
 import com.atta.chatspherapp.service.UploadVideoService
+import com.atta.chatspherapp.ui.activities.profile.ProfileSettingActivity
+import com.atta.chatspherapp.ui.activities.profile.SeeUserProfileActivity
 import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.ui.viewmodel.StorageViewModel
-import com.atta.chatspherapp.utils.MyExtensions.logT
-import com.atta.chatspherapp.utils.NewUtils
-import com.atta.chatspherapp.utils.NewUtils.animateViewFromBottom
-import com.atta.chatspherapp.utils.NewUtils.animateViewHideToBottom
-import com.atta.chatspherapp.utils.NewUtils.getFileName
-import com.atta.chatspherapp.utils.NewUtils.getUriOfTheFile
-import com.atta.chatspherapp.utils.NewUtils.gotoEditActivity
-import com.atta.chatspherapp.utils.NewUtils.loadThumbnail
-import com.atta.chatspherapp.utils.NewUtils.onTextChange
-import com.atta.chatspherapp.utils.NewUtils.pickDocument
-import com.atta.chatspherapp.utils.NewUtils.pickImageFromGallery
-import com.atta.chatspherapp.utils.NewUtils.pickVideo
-import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
-import com.atta.chatspherapp.utils.NewUtils.showSoftKeyboard
-import com.atta.chatspherapp.utils.NewUtils.showToast
-import com.atta.chatspherapp.utils.NewUtils.uploadAudioToFirebase
-import com.atta.chatspherapp.utils.NewUtils.zoomIn
-import com.atta.chatspherapp.utils.SharedPreferencesHelper
-import com.bumptech.glide.Glide
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.storage.StorageReference
-import com.atta.chatspherapp.adapters.ChatAdapter
-import com.atta.chatspherapp.adapters.ChatAdapter.Companion.setAdapter
-import com.atta.chatspherapp.managers.NotificationManager.Companion.clearNotifications
-import com.atta.chatspherapp.models.RecentChatModel
-import com.atta.chatspherapp.service.DeleteMessagesService
-import com.atta.chatspherapp.ui.activities.profile.SeeUserProfileActivity
 import com.atta.chatspherapp.utils.Constants.ACTIVITYSTATEOFTHEUSER
 import com.atta.chatspherapp.utils.Constants.BLOCKLIST
 import com.atta.chatspherapp.utils.Constants.CHATTINGWITH
-import com.atta.chatspherapp.utils.Constants.DELETEMESSAGEFROMME
 import com.atta.chatspherapp.utils.Constants.DELETEMESSAGELIST
 import com.atta.chatspherapp.utils.Constants.DOCUMENT
 import com.atta.chatspherapp.utils.Constants.IMAGE
@@ -97,30 +75,45 @@ import com.atta.chatspherapp.utils.Constants.USERS
 import com.atta.chatspherapp.utils.Constants.USERSTATUS
 import com.atta.chatspherapp.utils.Constants.VIDEO
 import com.atta.chatspherapp.utils.Constants.VOICE
+import com.atta.chatspherapp.utils.MyExtensions.logT
 import com.atta.chatspherapp.utils.MyExtensions.shrink
-import com.atta.chatspherapp.utils.NewUtils.addColorRevealAnimation
+import com.atta.chatspherapp.utils.NewUtils
 import com.atta.chatspherapp.utils.NewUtils.convertMillisToLastSeenString
 import com.atta.chatspherapp.utils.NewUtils.getAccessToken
-import com.atta.chatspherapp.utils.NewUtils.getFormattedDateAndTime
+import com.atta.chatspherapp.utils.NewUtils.getFileName
 import com.atta.chatspherapp.utils.NewUtils.getSortedKeys
+import com.atta.chatspherapp.utils.NewUtils.getUriOfTheFile
+import com.atta.chatspherapp.utils.NewUtils.gotoEditActivity
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
+import com.atta.chatspherapp.utils.NewUtils.loadThumbnail
+import com.atta.chatspherapp.utils.NewUtils.onTextChange
+import com.atta.chatspherapp.utils.NewUtils.pickDocument
+import com.atta.chatspherapp.utils.NewUtils.pickImageFromGallery
+import com.atta.chatspherapp.utils.NewUtils.pickVideo
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
+import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showErrorToast
-import com.atta.chatspherapp.utils.NewUtils.showProgressDialog
+import com.atta.chatspherapp.utils.NewUtils.showSoftKeyboard
 import com.atta.chatspherapp.utils.NewUtils.showSuccessToast
+import com.atta.chatspherapp.utils.NewUtils.showToast
 import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.slideDownAnimation
 import com.atta.chatspherapp.utils.NewUtils.slideUpAnimation
-import com.atta.chatspherapp.utils.NewUtils.startNewActivity
+import com.atta.chatspherapp.utils.NewUtils.uploadAudioToFirebase
+import com.atta.chatspherapp.utils.NewUtils.zoomIn
 import com.atta.chatspherapp.utils.SendNotification
+import com.atta.chatspherapp.utils.SharedPreferencesHelper
+import com.bumptech.glide.Glide
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.storage.StorageReference
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
@@ -281,7 +274,6 @@ class ChatActivity : AppCompatActivity() {
                     recentChatModel = it
                 }
             }
-
         }
 
 
@@ -690,6 +682,7 @@ class ChatActivity : AppCompatActivity() {
                     typingMap[TYPING] = false
                     mainViewModel.uploadMap("$USERS/$myKey",typingMap)
                 }
+
             }
 
         }
@@ -731,7 +724,7 @@ class ChatActivity : AppCompatActivity() {
                             referenceDocumentName = if (::referenceMessageModel.isInitialized&&referenceMessageModel.documentFileName.isNotEmpty()){referenceMessageModel.documentFileName} else{""},
                             referenceVoiceUrl = if (::referenceMessageModel.isInitialized&&referenceMessageModel.voiceUrl.isNotEmpty()){referenceMessageModel.voiceUrl} else{""},
                         )
-
+                        // update list and refresh adapter
                         list.add(messageModel)
                         adapter.setList(list)
                         adapter.notifyDataSetChanged()
@@ -828,7 +821,7 @@ class ChatActivity : AppCompatActivity() {
                     )
 
                     preferencesHelper.saveString(key, filePath!!)
-
+                    // update list and refresh adapter
                     list.add(messageModel)
                     adapter.setList(list)
                     adapter.notifyDataSetChanged()
@@ -866,6 +859,7 @@ class ChatActivity : AppCompatActivity() {
         if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, arrayOf(permission, android.Manifest.permission.READ_EXTERNAL_STORAGE, android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.CAMERA), 11)
         }
+
     }
 
     private fun showMenu() {
@@ -920,8 +914,17 @@ class ChatActivity : AppCompatActivity() {
                     true
                 }
 
+                R.id.action_see_profile->{
+                    val intent=Intent(this@ChatActivity,SeeUserProfileActivity::class.java)
+                    intent.putExtra("userModel",userModel)
+                    startActivity(intent)
+                    true
+                }
+
                 R.id.action_setting->{
-                    startNewActivity(SeeUserProfileActivity::class.java)
+                    val intent=Intent(this@ChatActivity,ProfileSettingActivity::class.java)
+                    intent.putExtra("myModel",myModel)
+                    startActivity(intent)
                     true
                 }
 
@@ -1002,8 +1005,6 @@ class ChatActivity : AppCompatActivity() {
         mediaRecorder = null
     }
 
-
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode == Activity.RESULT_OK) {
@@ -1018,7 +1019,7 @@ class ChatActivity : AppCompatActivity() {
 
                 cameraImageRequestCode -> {
                     val bitmap = data!!.extras?.get("data") as Bitmap
-                    CoroutineScope(Dispatchers.Main).launch {
+                    lifecycleScope.launch {
                         val uri=bitmapToUri(this@ChatActivity,bitmap)
                         if (uri!=null){
                             gotoEditActivity(this@ChatActivity,uri,"DATA",cropImageRequestCode)
@@ -1109,6 +1110,7 @@ class ChatActivity : AppCompatActivity() {
 
             preferencesHelper.saveString(key,uri)
 
+            // update list and refresh adapter
             list.add(messageModel)
             adapter.setList(list)
             adapter.notifyDataSetChanged()
@@ -1153,7 +1155,7 @@ class ChatActivity : AppCompatActivity() {
 
             preferencesHelper.saveString(key,uri)
 
-
+            // update list and refresh adapter
             list.add(messageModel)
             adapter.setList(list)
             adapter.notifyDataSetChanged()
@@ -1198,6 +1200,7 @@ class ChatActivity : AppCompatActivity() {
                 documentFileName = fileName
             )
 
+            // update list and refresh adapter
             preferencesHelper.saveString(key,uri)
             list.add(messageModel)
             adapter.setList(list)
@@ -1210,6 +1213,7 @@ class ChatActivity : AppCompatActivity() {
             } else {
                 startService(intent)
             }
+
         }else {
             Toast.makeText(this@ChatActivity, "document not selected", Toast.LENGTH_SHORT).show()
         }
@@ -1250,7 +1254,7 @@ class ChatActivity : AppCompatActivity() {
             hideReactionViews()
         }
 
-        val animationDuration:Long=800
+        val animationDuration:Long=400
         like_anim.zoomIn(animationDuration)
         heart_anim.zoomIn(animationDuration)
         surprise_anim.zoomIn(animationDuration)
@@ -1448,36 +1452,57 @@ class ChatActivity : AppCompatActivity() {
 
 
 
-    fun uploadToRecentChat(recentMessage:String,messageType:String){
-
+    fun uploadToRecentChat(recentMessage: String, messageType: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-
             sendNotification(recentMessage)
 
-            val numberOfMessagesForReceiver=mainViewModel.getAnyData(RECENTCHAT+"/"+userModel!!.key+"/"+myModel.key, RecentChatModel::class.java)?.numberOfMessages?:0
+            val timeStamp = System.currentTimeMillis()
 
-            val timeStamp=System.currentTimeMillis()
-            // who will receive
-            val recentChatModelOfReceiver=RecentChatModel(userModel!!.key,recentMessage, messageType,0,timeStamp)
-            // who will send
-            val recentChatModelOfSender=RecentChatModel(myModel.key,recentMessage, messageType,numberOfMessagesForReceiver+1,timeStamp)
+            // Retrieve the number of messages for the receiver in parallel
+            val numberOfMessagesForReceiverDeferred = async {
+                mainViewModel.getAnyData("$RECENTCHAT/${userModel!!.key}/${myModel.key}", RecentChatModel::class.java)?.numberOfMessages ?: 0
+            }
 
-            mainViewModel.uploadAnyModel(RECENTCHAT+"/"+myModel.key,recentChatModelOfReceiver)
-            mainViewModel.uploadAnyModel(RECENTCHAT+"/"+userModel!!.key,recentChatModelOfSender)
-            mainViewModel.isRecentChatUploaded.value=true
+            // Create the models in parallel
+            val recentChatModelOfReceiverDeferred = async {
+                RecentChatModel(userModel!!.key, recentMessage, messageType, 0, timeStamp)
+            }
+
+            val recentChatModelOfSenderDeferred = async {
+                RecentChatModel(myModel.key, recentMessage, messageType, numberOfMessagesForReceiverDeferred.await() + 1, timeStamp)
+            }
+
+            // Wait for the models to be created and then upload them in parallel
+            val uploadTasks = listOf(
+                async {
+                    mainViewModel.uploadAnyModel("$RECENTCHAT/${myModel.key}", recentChatModelOfReceiverDeferred.await())
+                },
+                async {
+                    mainViewModel.uploadAnyModel("$RECENTCHAT/${userModel!!.key}", recentChatModelOfSenderDeferred.await())
+                }
+            )
+
+            // Wait for all uploads to complete
+            uploadTasks.awaitAll()
+
+            // Signal that the recent chat has been updated
+            withContext(Dispatchers.Main) {
+                mainViewModel.isRecentChatUploaded.value = true
+            }
 
         }
     }
 
+
     fun sendNotification(message:String){
         lifecycleScope.launch {
             if (myModel.key!=userModel!!.chattingWith){
-                myModel.apply {
+                myModel?.apply {
                     val accessToken= getAccessToken(this@ChatActivity)
-                    if (!accessToken.isNullOrEmpty()){
+                    if (!accessToken.isNullOrEmpty()&&!userModel?.token.isNullOrEmpty()){
                         SendNotification.sendMessageNotification(fullName?:"Name not found",message,userModel!!.token,accessToken)
                     }else{
-                        showToast("your access token is not found")
+                        showErrorToast("access token not found try again later.")
                     }
                 }
             }else{
@@ -1531,8 +1556,5 @@ class ChatActivity : AppCompatActivity() {
             mainViewModel.uploadMap("$USERS/$myKey",statusMap)
         }
     }
-
-
-
 
 }
