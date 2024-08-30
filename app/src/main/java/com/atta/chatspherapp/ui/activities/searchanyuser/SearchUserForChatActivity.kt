@@ -127,9 +127,10 @@ class SearchUserForChatActivity : AppCompatActivity() {
             }
 
             if (!animatedItemKey.contains(item.key)) {
-                holder.itemView.setAnimationOnView(R.anim.slide_up, 500)
+                holder.itemView.setAnimationOnView(R.anim.slide_up, 400)
                 animatedItemKey.add(item.key)
             }
+
         })
     }
 

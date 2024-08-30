@@ -653,7 +653,7 @@ class ChatActivity : AppCompatActivity() {
                 job = lifecycleScope.launch(Dispatchers.IO) {
                     typingMap[TYPING] = true
                     mainViewModel.uploadMap("$USERS/$myKey",typingMap)
-                    delay(800)
+                    delay(600)
                     typingMap[TYPING] = false
                     mainViewModel.uploadMap("$USERS/$myKey",typingMap)
                 }

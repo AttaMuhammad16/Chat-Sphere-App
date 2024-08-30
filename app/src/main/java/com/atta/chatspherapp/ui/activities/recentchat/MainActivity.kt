@@ -304,7 +304,6 @@ class MainActivity : AppCompatActivity() {
                     binding.mainConstraint.setAnimationOnView(R.anim.slide_up, 500)
                     animatedItemKey.add(recentModel.key)
                 }
-
             }
         }else{
             binding.recyclerView.setData(sortedList,RecentChatItemPlaceHolderBinding::inflate,isLoading){binding, recentModel, position, holder -> }

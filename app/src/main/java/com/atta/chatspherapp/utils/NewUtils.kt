@@ -11,6 +11,7 @@ import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.app.Dialog
 import android.app.DownloadManager
+import android.content.ActivityNotFoundException
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
@@ -1239,13 +1240,17 @@ object NewUtils {
             val clickableSpan = object : ClickableSpan() {
                 override fun onClick(widget: View) {
                     val intent = Intent(Intent.ACTION_VIEW, android.net.Uri.parse(url))
-                    widget.context.startActivity(intent)
+                    try {
+                        widget.context.startActivity(intent)
+                    }catch (e:ActivityNotFoundException){
+                        Toast.makeText(widget.context,"No application found to open this link." , Toast.LENGTH_SHORT).show()
+
+                    }
                 }
             }
             spannableString.setSpan(clickableSpan, start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
             spannableString.setSpan(ForegroundColorSpan(ContextCompat.getColor(this.context,R.color.link_color)), start, end, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
         }
-
         this.text = spannableString
         this.movementMethod = android.text.method.LinkMovementMethod.getInstance()
     }
