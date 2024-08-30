@@ -184,6 +184,7 @@ class ChatActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
         overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
@@ -235,26 +236,29 @@ class ChatActivity : AppCompatActivity() {
         //observer for online offline status
         lifecycleScope.launch {
             mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel::class.java).collect{it->
+                userModel = it
 
                 // status updates
                 if (it.onlineOfflineStatus){
                     binding.userStatusTv.visibility=View.VISIBLE
-                    if (it.typing){
+                    if (it.typing&&myModel.key==it.chattingWith){
                         binding.userStatusTv.text="typing..."
-                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
+                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,200)
                     }else{
                         binding.userStatusTv.text="online"
-                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
+                        if (myModel.key==it.chattingWith){
+                            binding.userStatusTv.setAnimationOnView(R.anim.fade_in,200)
+                        }
                     }
                 }else{
                     binding.userStatusTv.visibility=View.VISIBLE
                     if (it.lastSeenTime==0L){
                         binding.userStatusTv.text="offline"
-                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
+                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,200)
                     }else{
                         val time=convertMillisToLastSeenString(it.lastSeenTime)
                         binding.userStatusTv.text="last seen at $time"
-                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,300)
+                        binding.userStatusTv.setAnimationOnView(R.anim.fade_in,200)
                     }
                 }
 
@@ -266,11 +270,7 @@ class ChatActivity : AppCompatActivity() {
         // get my recent chat for any user when recent chat will null.
         if (recentChatModel==null&&recentChatModel?.key.isNullOrEmpty()){
             lifecycleScope.launch {
-                mainViewModel.getAnyModelFlow("$RECENTCHAT/$myKey/${userModel?.key}",RecentChatModel::class.java)
-            }
-
-            lifecycleScope.launch {
-                mainViewModel.recentChatModel.collect{it->
+                mainViewModel.getModelFlow("$RECENTCHAT/$myKey/${userModel?.key}",RecentChatModel::class.java).collect{
                     recentChatModel = it
                 }
             }
@@ -291,24 +291,32 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
+
+        //
         lifecycleScope.launch(Dispatchers.IO) {
             myModel.chattingWith=userModel!!.key
             updateActivityStateAndChatKey(true,userModel!!.key)
-            mainViewModel.getAnyModelFlow(USERS+"/"+userModel?.key,UserModel::class.java)
         }
 
+
+        // add listener to another user model
         lifecycleScope.launch {
-            mainViewModel.userFlow.collect{
-                userModel?.chattingWith=it.chattingWith
+            mainViewModel.getModelFlow(USERS+"/"+userModel!!.key,UserModel::class.java).collect{it->
+                userModel!!.chattingWith=it.chattingWith
+                userModel = it
             }
         }
 
+
+
+        // if user come from recent then update number of messages
         if (fromRecentChat){
             lifecycleScope.launch(Dispatchers.IO) {
                 mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
                 clearNotifications(this@ChatActivity)
             }
         }
+
 
         binding.toolBarTitle.text = userModel?.fullName
         chatUploadPath = "$ROOM/"+getSortedKeys(userModel?.key!!,auth.currentUser!!.uid)
@@ -404,21 +412,7 @@ class ChatActivity : AppCompatActivity() {
             }
         }
 
-        lifecycleScope.launch(Dispatchers.IO) {
-            mainViewModel.isRecentChatUploaded.collect{
-                if (it){
-                    clearNotifications(this@ChatActivity)
-                    mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+myModel.key+"/"+userModel!!.key)
-                    val isChatting=mainViewModel.isUserInActivity.value
-                    if (myModel.key==userModel!!.chattingWith){
-                        if (isChatting){
-                            mainViewModel.updateNumberOfMessages(RECENTCHAT+"/"+userModel!!.key+"/"+myModel.key)
-                        }
-                    }
-                    mainViewModel.isRecentChatUploaded.value=false
-                }
-            }
-        }
+
 
         binding.recyclerView.adapter = adapter
         layoutManager.stackFromEnd=true
@@ -479,7 +473,7 @@ class ChatActivity : AppCompatActivity() {
                 if (dy < 0) {
                     binding.dropDownImg.visibility = View.VISIBLE
                     if(toggle){
-                        binding.dropDownImg.setAnimationOnView(R.anim.slide_in_bottom,1000)
+                        binding.dropDownImg.setAnimationOnView(R.anim.slide_in_bottom,600)
                         toggle=false
                     }
                 }
@@ -751,8 +745,8 @@ class ChatActivity : AppCompatActivity() {
                     binding.voiceSenderLinearLayout.slideUpAnimation()
                     binding.voiceSenderLinearLayout.visibility = View.VISIBLE
 
-                    binding.deleteImg.setAnimationOnView(R.anim.scale,1200)
-                    binding.sendImg.setAnimationOnView(R.anim.scale,1200)
+                    binding.deleteImg.setAnimationOnView(R.anim.scale,1000)
+                    binding.sendImg.setAnimationOnView(R.anim.scale,1000)
 
                     binding.linear02.slideDownAnimation()
                     binding.linear02.visibility = View.GONE
@@ -768,7 +762,7 @@ class ChatActivity : AppCompatActivity() {
         binding.deleteImg.setOnClickListener {
 
             binding.chronometer.base = SystemClock.elapsedRealtime()
-            binding.chronometer.setAnimationOnView(R.anim.bounce_anim,2000)
+            binding.chronometer.setAnimationOnView(R.anim.fade_in,800)
             binding.voiceSenderLinearLayout.slideDownAnimation()
             binding.voiceSenderLinearLayout.visibility = View.GONE
 
@@ -802,12 +796,12 @@ class ChatActivity : AppCompatActivity() {
 
                 lifecycleScope.launch {
 
-                    withContext(Dispatchers.IO){
+                    async{
                         uploadToRecentChat("Voice", VOICE)
-                    }
+                    }.await()
 
                     val uri=getUriOfTheFile(filePath!!)
-                    val firebaseUrlResult=uploadAudioToFirebase(uri)
+                    val firebaseUrlResult=async { uploadAudioToFirebase(uri) }.await()
                     val key=databaseReference.push().key!!
 
                     val messageModel = MessageModel(
@@ -840,7 +834,6 @@ class ChatActivity : AppCompatActivity() {
                             )
                             mainViewModel.uploadAnyModel(chatUploadPath, messageModelForUpload)
                             sendNotification("Voice")
-
                         }
                     }
 
@@ -1122,9 +1115,11 @@ class ChatActivity : AppCompatActivity() {
             } else {
                 startService(intent)
             }
+
         } else {
             Toast.makeText(this@ChatActivity, "Video Not selected", Toast.LENGTH_SHORT).show()
         }
+
     }
 
     @OptIn(DelicateCoroutinesApi::class)
@@ -1454,41 +1449,37 @@ class ChatActivity : AppCompatActivity() {
 
     fun uploadToRecentChat(recentMessage: String, messageType: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            sendNotification(recentMessage)
 
             val timeStamp = System.currentTimeMillis()
-
-            // Retrieve the number of messages for the receiver in parallel
-            val numberOfMessagesForReceiverDeferred = async {
-                mainViewModel.getAnyData("$RECENTCHAT/${userModel!!.key}/${myModel.key}", RecentChatModel::class.java)?.numberOfMessages ?: 0
-            }
+            var numberOfMessagesForReceiver=0
 
             // Create the models in parallel
-            val recentChatModelOfReceiverDeferred = async {
-                RecentChatModel(userModel!!.key, recentMessage, messageType, 0, timeStamp)
+            val recentChatModelOfReceiver = RecentChatModel(userModel!!.key, recentMessage, messageType, 0, timeStamp)
+            if (myModel.key!=userModel?.chattingWith){ // user not chatting with me
+                val numberOfMessagesForReceiverDeferred = async(Dispatchers.IO) {
+                    mainViewModel.getAnyData("$RECENTCHAT/${userModel!!.key}/${myModel.key}", RecentChatModel::class.java)?.numberOfMessages ?: 0
+                }
+                numberOfMessagesForReceiver=numberOfMessagesForReceiverDeferred.await() + 1
+                // send message if user away
+                sendNotification(recentMessage)
+            }else{
+                numberOfMessagesForReceiver=0
             }
 
-            val recentChatModelOfSenderDeferred = async {
-                RecentChatModel(myModel.key, recentMessage, messageType, numberOfMessagesForReceiverDeferred.await() + 1, timeStamp)
-            }
+
+            val recentChatModelOfSender = RecentChatModel(myModel.key, recentMessage, messageType,numberOfMessagesForReceiver, timeStamp)
 
             // Wait for the models to be created and then upload them in parallel
             val uploadTasks = listOf(
                 async {
-                    mainViewModel.uploadAnyModel("$RECENTCHAT/${myModel.key}", recentChatModelOfReceiverDeferred.await())
+                    mainViewModel.uploadAnyModel("$RECENTCHAT/${myModel.key}", recentChatModelOfReceiver)
                 },
                 async {
-                    mainViewModel.uploadAnyModel("$RECENTCHAT/${userModel!!.key}", recentChatModelOfSenderDeferred.await())
+                    mainViewModel.uploadAnyModel("$RECENTCHAT/${userModel!!.key}", recentChatModelOfSender)
                 }
             )
 
-            // Wait for all uploads to complete
             uploadTasks.awaitAll()
-
-            // Signal that the recent chat has been updated
-            withContext(Dispatchers.Main) {
-                mainViewModel.isRecentChatUploaded.value = true
-            }
 
         }
     }
@@ -1496,17 +1487,13 @@ class ChatActivity : AppCompatActivity() {
 
     fun sendNotification(message:String){
         lifecycleScope.launch {
-            if (myModel.key!=userModel!!.chattingWith){
-                myModel?.apply {
-                    val accessToken= getAccessToken(this@ChatActivity)
-                    if (!accessToken.isNullOrEmpty()&&!userModel?.token.isNullOrEmpty()){
-                        SendNotification.sendMessageNotification(fullName?:"Name not found",message,userModel!!.token,accessToken)
-                    }else{
-                        showErrorToast("access token not found try again later.")
-                    }
+            myModel.apply {
+                val accessToken= getAccessToken(this@ChatActivity)
+                if (!accessToken.isNullOrEmpty()&&!userModel?.token.isNullOrEmpty()){
+                    SendNotification.sendMessageNotification(fullName?:"Name not found",message,userModel!!.token,accessToken)
+                }else{
+                    showErrorToast("access token not found try again later.")
                 }
-            }else{
-                Log.i("ids", "you ids are same")
             }
         }
     }
@@ -1524,7 +1511,7 @@ class ChatActivity : AppCompatActivity() {
         super.onPause()
         updateActivityStateAndChatKey(false)
         val systemTime=System.currentTimeMillis()
-        userStatus(false,systemTime)
+        userStatus(false,systemTime,false)
     }
 
     override fun onDestroy() {
@@ -1534,7 +1521,7 @@ class ChatActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        userStatus(true)
+        userStatus(true, isTyping = false)
         updateActivityStateAndChatKey(true,userModel!!.key)
     }
 
@@ -1549,10 +1536,11 @@ class ChatActivity : AppCompatActivity() {
 
     var statusMap=HashMap<String,Any>()
     @OptIn(DelicateCoroutinesApi::class)
-    fun userStatus(status:Boolean, time:Long=0){
+    fun userStatus(status:Boolean, time:Long=0,isTyping:Boolean){
         GlobalScope.launch {
             statusMap[USERSTATUS] = status
             statusMap[LASTSEENTIME] = time
+            statusMap[TYPING] = isTyping
             mainViewModel.uploadMap("$USERS/$myKey",statusMap)
         }
     }

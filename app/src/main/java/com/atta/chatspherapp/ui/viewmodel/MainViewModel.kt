@@ -23,11 +23,6 @@ class MainViewModel @Inject constructor(private val storageRepository: StorageRe
     var recentChatModel:MutableStateFlow<RecentChatModel> = MutableStateFlow(RecentChatModel())
 
 
-    private var _isUserInActivity:MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isUserInActivity:StateFlow<Boolean> = _isUserInActivity
-
-    private var _userFlow:MutableStateFlow<UserModel> = MutableStateFlow(UserModel())
-    val userFlow:StateFlow<UserModel> = _userFlow
 
     private var _selectedItemFlow : MutableStateFlow<MutableList<RecentChatModel>> = MutableStateFlow(mutableListOf())
     val selectedItemFlow : StateFlow<List<RecentChatModel>> = _selectedItemFlow
@@ -66,25 +61,6 @@ class MainViewModel @Inject constructor(private val storageRepository: StorageRe
 
     suspend fun uploadMap(path: String, dataMap: HashMap<String,Any>): MyResult<Boolean>{
         return withContext(Dispatchers.IO){mainRepository.uploadMap(path, dataMap)}
-    }
-
-    suspend fun <T> getAnyModelFlow(path: String, clazz: Class<T>) {
-        val modelFlow = mainRepository.getAnyModelFlow(path, clazz)
-
-        modelFlow.collect { model ->
-            when (model) {
-                is RecentChatModel -> {
-                    recentChatModel.value=model
-                }
-                is UserModel -> {
-                    _isUserInActivity.value = model.activityState
-                    _userFlow.value = model
-                }
-                else -> {
-                    throw IllegalArgumentException("Unknown model type")
-                }
-            }
-        }
     }
 
 

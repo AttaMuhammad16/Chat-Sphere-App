@@ -206,19 +206,14 @@ class MainActivity : AppCompatActivity() {
 
         // myModel listener for updates.
         lifecycleScope.launch {
-            mainViewModel.getAnyModelFlow(USERS+"/"+auth.currentUser!!.uid,UserModel::class.java)
-        }
-
-        lifecycleScope.launch {
-            mainViewModel.userFlow.collect{
-
+            mainViewModel.getModelFlow(USERS+"/"+auth.currentUser!!.uid,UserModel::class.java).collect{
                 myModel=it
                 drawerImgProfile.loadImageViaLink(myModel?.profileUrl?:"empty")
                 drawerName.text=myModel?.fullName?:"Name not found"
                 drawerEmail.text=myModel?.email?:"Email not found"
-
             }
         }
+
 
 
 
@@ -267,6 +262,7 @@ class MainActivity : AppCompatActivity() {
 
     fun setUpRecyclerView(sortedList: List<RecentChatModel>,isLoading:Boolean = false) {
         if (!isLoading){
+
             binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position, holder ->
                 binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
 
@@ -286,12 +282,10 @@ class MainActivity : AppCompatActivity() {
 
                 binding.mainConstraint.setOnClickListener {
                     val selectedItemsList = mainViewModel.selectedItemFlow.value
-
                     if (myModel != null) {
                         if (selectedItemsList.isNotEmpty()) {
                             addToSelectedList(recentModel, binding.mainConstraint)
                         } else {
-                            mainViewModel.recentChatModel.value=recentModel
                             val intent = Intent(this@MainActivity, ChatActivity::class.java)
                             intent.putExtra("userModel", recentModel.userModel)
                             intent.putExtra("myModel",myModel)
@@ -426,6 +420,7 @@ class MainActivity : AppCompatActivity() {
         }else if (binding.drawer.isDrawerOpen(GravityCompat.START)) {
             binding.drawer.closeDrawer(GravityCompat.START)
         } else{
+            finishAffinity()
             super.onBackPressed()
         }
     }

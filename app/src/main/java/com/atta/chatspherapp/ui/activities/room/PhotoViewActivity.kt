@@ -21,7 +21,7 @@ class PhotoViewActivity : AppCompatActivity() {
         val photoView = findViewById<PhotoView>(R.id.photoView)
         val url = intent.getStringExtra("image")
         if (url!=null){
-            photoView.loadImageViaLink(url, com.google.firebase.inappmessaging.display.R.drawable.image_placeholder)
+            photoView.loadImageViaLink(url, R.drawable.placeholder_photo)
             photoView.setAnimationOnView(R.anim.scale,400)
         }
     }

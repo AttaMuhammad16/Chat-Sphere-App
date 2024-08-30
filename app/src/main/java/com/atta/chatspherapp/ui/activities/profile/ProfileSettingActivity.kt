@@ -52,10 +52,10 @@ class ProfileSettingActivity : AppCompatActivity() {
         myModel=intent.getParcelableExtra("myModel")
         overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
 
-        binding.imgConstraint.setAnimationOnView(R.anim.scale,1000)
-        binding.nameLinear.setAnimationOnView(R.anim.bounce_anim,1200)
-        binding.aboutLinear.setAnimationOnView(R.anim.bounce_anim,1200)
-        binding.joiningDateLinear.setAnimationOnView(R.anim.bounce_anim,1200)
+        binding.imgConstraint.setAnimationOnView(R.anim.scale,800)
+        binding.nameLinear.setAnimationOnView(R.anim.bounce_anim,900)
+        binding.aboutLinear.setAnimationOnView(R.anim.bounce_anim,900)
+        binding.joiningDateLinear.setAnimationOnView(R.anim.bounce_anim,900)
 
 
 

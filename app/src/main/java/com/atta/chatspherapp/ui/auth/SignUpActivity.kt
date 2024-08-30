@@ -67,8 +67,10 @@ class SignUpActivity : AppCompatActivity() {
     lateinit var binding: ActivitySignUpBinding
     @Inject
     lateinit var mainViewModel: MainViewModel
+
     @Inject
     lateinit var authViewModel: AuthViewModel
+
     @Inject
     lateinit var storageViewModel: StorageViewModel
     @Inject
@@ -341,13 +343,13 @@ class SignUpActivity : AppCompatActivity() {
 
 
     fun animations(){
-        binding.card.setAnimationOnView(R.anim.slide_up,2000)
-        binding.imgConstraint.setAnimationOnView(R.anim.slide_up,2200)
-        binding.nameInputLayout.setAnimationOnView(R.anim.slide_up,2400)
-        binding.emailInputLayout.setAnimationOnView(R.anim.slide_up,2600)
-        binding.passwordInputLayout.setAnimationOnView(R.anim.slide_up,2800)
-        binding.registerBtn.setAnimationOnView(R.anim.slide_up,3000)
-        binding.aleardyAccountLinear.setAnimationOnView(R.anim.slide_up,3200)
+        binding.card.setAnimationOnView(R.anim.slide_up,800)
+        binding.imgConstraint.setAnimationOnView(R.anim.slide_up,900)
+        binding.nameInputLayout.setAnimationOnView(R.anim.slide_up,1000)
+        binding.emailInputLayout.setAnimationOnView(R.anim.slide_up,1100)
+        binding.passwordInputLayout.setAnimationOnView(R.anim.slide_up,1200)
+        binding.registerBtn.setAnimationOnView(R.anim.slide_up,1300)
+        binding.aleardyAccountLinear.setAnimationOnView(R.anim.slide_up,1400)
     }
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {

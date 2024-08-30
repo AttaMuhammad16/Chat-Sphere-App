@@ -164,14 +164,14 @@ class SignInActivity : AppCompatActivity() {
     }
 
     fun viewAnimation(){
-        binding.card.setAnimationOnView(R.anim.slide_up,2000)
-        binding.loginTitle.setAnimationOnView(R.anim.slide_up,2200)
-        binding.emailTextInput.setAnimationOnView(R.anim.slide_up,2400)
-        binding.passwordTextInput.setAnimationOnView(R.anim.slide_up,2600)
-        binding.loginBtn.setAnimationOnView(R.anim.slide_up,2800)
-        binding.dontAccountLinear.setAnimationOnView(R.anim.slide_up,3000)
-        binding.orTv.setAnimationOnView(R.anim.slide_up,3200)
-        binding.googleSignBtn.setAnimationOnView(R.anim.slide_up,3400)
+        binding.card.setAnimationOnView(R.anim.slide_up,700)
+        binding.loginTitle.setAnimationOnView(R.anim.slide_up,800)
+        binding.emailTextInput.setAnimationOnView(R.anim.slide_up,900)
+        binding.passwordTextInput.setAnimationOnView(R.anim.slide_up,1000)
+        binding.loginBtn.setAnimationOnView(R.anim.slide_up,1100)
+        binding.dontAccountLinear.setAnimationOnView(R.anim.slide_up,1200)
+        binding.orTv.setAnimationOnView(R.anim.slide_up,1300)
+        binding.googleSignBtn.setAnimationOnView(R.anim.slide_up,1400)
     }
 
 }
