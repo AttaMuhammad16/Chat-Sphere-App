@@ -6,7 +6,7 @@ import kotlin.reflect.full.memberProperties
 
 object MyExtensions {
 
-    fun Any.logT(append:String = "" , tag:String = "TAG"){
+    fun Any.logT(append:String = "" , tag:String = "chat"){
         Log.i(tag, "$append:$this")
     }
 

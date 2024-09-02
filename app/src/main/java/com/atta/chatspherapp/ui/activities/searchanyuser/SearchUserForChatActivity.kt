@@ -2,6 +2,7 @@ package com.atta.chatspherapp.ui.activities.searchanyuser
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import android.view.animation.AnimationUtils
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
@@ -24,6 +25,7 @@ import com.atta.chatspherapp.utils.NewUtils.showUserImage
 import com.atta.chatspherapp.utils.NewUtils.showWithRevealAnimation
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,16 +76,33 @@ class SearchUserForChatActivity : AppCompatActivity() {
             hideKeyboard(this, binding.searchEdt)
         }
 
+
+        binding.totalUsers.visibility=View.GONE
+        binding.progressBar.visibility=View.VISIBLE
         lifecycleScope.launch {
+
             mainViewModel.collectAnyModel(USERS,UserModel::class.java).collect{
-                val filteredUsers = it.filter { it.fullName?.isNotEmpty() == true }
-                binding.totalUsers.text = if (filteredUsers.size == 1) {
-                    "${filteredUsers.size} User"
-                } else {
-                    "${filteredUsers.size} Users"
+                binding.totalUsers.text = when {
+                    it.size == 1 -> {
+                        binding.progressBar.visibility=View.GONE
+                        binding.totalUsers.visibility=View.VISIBLE
+                        "${it.size} User"
+                    }
+                    it.isNotEmpty() -> {
+                        binding.progressBar.visibility=View.GONE
+                        binding.totalUsers.visibility=View.VISIBLE
+                        "${it.size} Users"
+                    }
+                    else->{
+                        ""
+                    }
                 }
+
+
+                val filteredUsers = it.filter { it.fullName?.isNotEmpty() == true }
                 list=filteredUsers
                 setUpRecyclerView(filteredUsers)
+
             }
         }
 

@@ -254,10 +254,8 @@ class MainActivity : AppCompatActivity() {
                 sortedList = updatedList.sortedByDescending { it.timeStamp }.toMutableList()
                 setUpRecyclerView(sortedList, false)
                 Log.i("onCreate", "onCreate:sortedList = updatedList.sortedByDescending { it.timeStamp }.toMutableList() ")
-
             }
         }
-
     }
 
     fun setUpRecyclerView(sortedList: List<RecentChatModel>,isLoading:Boolean = false) {

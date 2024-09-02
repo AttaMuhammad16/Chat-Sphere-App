@@ -54,6 +54,11 @@
                     android:textColor="@color/white"
                     android:textStyle="bold"
                     android:textSize="@dimen/_9sdp" />
+                <ProgressBar
+                    android:id="@+id/progress_bar"
+                    android:layout_width="@dimen/_15sdp"
+                    android:indeterminateTint="@color/white"
+                    android:layout_height="@dimen/_15sdp"/>
             </LinearLayout>
 
             <View

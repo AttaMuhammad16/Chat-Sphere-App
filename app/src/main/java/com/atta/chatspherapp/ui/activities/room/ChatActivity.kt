@@ -207,6 +207,21 @@ class ChatActivity : AppCompatActivity() {
         myKey = myModel.key
 
 
+        // Get my recent chat for any user when recent chat is null or key is empty.
+        if (recentChatModel == null || recentChatModel!!.key.isEmpty()) {
+            lifecycleScope.async{
+                mainViewModel.getModelFlow("$RECENTCHAT/$myKey/${userModel?.key}", RecentChatModel::class.java).collect {
+                    recentChatModel = it
+                    if (!recentChatModel?.key.isNullOrEmpty()){
+                        val userModel=mainViewModel.getAnyData("$USERS/${recentChatModel!!.key}",UserModel::class.java)
+                        recentChatModel?.userModel= userModel!!
+                    }
+                }
+            }
+        }
+
+
+
 
 
         // myModel listener for updates.
@@ -267,17 +282,6 @@ class ChatActivity : AppCompatActivity() {
 
 
 
-        // get my recent chat for any user when recent chat will null.
-        if (recentChatModel==null&&recentChatModel?.key.isNullOrEmpty()){
-            lifecycleScope.launch {
-                mainViewModel.getModelFlow("$RECENTCHAT/$myKey/${userModel?.key}",RecentChatModel::class.java).collect{
-                    recentChatModel = it
-                }
-            }
-        }
-
-
-
         if (userModel!!.blockList.contains(myKey)){
             blockedFromAnotherUser = true
         }else{
@@ -292,11 +296,9 @@ class ChatActivity : AppCompatActivity() {
         }
 
 
-        //
-        lifecycleScope.launch(Dispatchers.IO) {
-            myModel.chattingWith=userModel!!.key
-            updateActivityStateAndChatKey(true,userModel!!.key)
-        }
+        // i am chatting with this user
+        myModel.chattingWith=userModel!!.key
+        updateActivityStateAndChatKey(true,userModel!!.key)
 
 
         // add listener to another user model
@@ -888,9 +890,8 @@ class ChatActivity : AppCompatActivity() {
                         }
 
                     }else{
-                        showErrorToast("Something wrong.")
+                        showErrorToast("No recent chats available. Start a new conversation!")
                     }
-
                     true
                 }
 
@@ -1058,17 +1059,20 @@ class ChatActivity : AppCompatActivity() {
 
     suspend fun bitmapToUri(context: Context, bitmap: Bitmap): Uri? {
         val file = File(context.externalCacheDir, "temp_img.jpg")
-        try {
-            val outputStream: OutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
-            outputStream.flush()
-            outputStream.close()
-        } catch (e: IOException) {
-            e.printStackTrace()
-            return null
+        return withContext(Dispatchers.IO) {
+            try {
+                FileOutputStream(file).use { outputStream ->
+                    bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
+                    outputStream.flush()
+                }
+                Uri.fromFile(file)
+            } catch (e: IOException) {
+                e.printStackTrace()
+                null
+            }
         }
-        return Uri.fromFile(file)
     }
+
 
 
     @OptIn(DelicateCoroutinesApi::class)

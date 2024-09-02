@@ -134,7 +134,7 @@ class DeleteMessagesService : Service() {
             recentModelList?.let { recentModel ->
                 val deleteResults = recentModel.map { model ->
                     async {
-                        val result = mainRepository.deleteAnyModel("$RECENTCHAT/$mykey/${model.userModel.key}")
+                        val result = mainRepository.deleteAnyModel("$RECENTCHAT/$mykey/${model.key}")
                         result.whenError {
                             Log.i("Deletion", "Deletion error: ${it.message}")
                             showToast(it.message.toString())
@@ -149,7 +149,10 @@ class DeleteMessagesService : Service() {
             val messagesListAwait = recentModelList?.map { model ->
                 val roomSortedKey = getSortedKeys(model.key, mykey!!)
 
-                return@map if (model.userModel.key==mykey){
+                Log.i("TAG", "startDeleting another user key:${model.key} ")
+                Log.i("TAG", "startDeleting myKey:$mykey")
+
+                return@map if (model.key==mykey){
 
                     async {
                         val roomMessagesList = mainRepository.getModelsList("$ROOM/$roomSortedKey", MessageModel::class.java)

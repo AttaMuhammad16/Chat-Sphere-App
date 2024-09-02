@@ -1126,12 +1126,12 @@ object NewUtils {
 
 
 
-    fun Context.showErrorToast(message: String){
-        FancyToast.makeText(this,message,FancyToast.LENGTH_LONG,FancyToast.ERROR,false).show();
+    fun Context.showErrorToast(message: String,length:Int=FancyToast.LENGTH_SHORT){
+        FancyToast.makeText(this,message,length,FancyToast.ERROR,false).show();
     }
 
-    fun Context.showSuccessToast(message: String){
-        FancyToast.makeText(this,message,FancyToast.LENGTH_LONG,FancyToast.SUCCESS,false).show();
+    fun Context.showSuccessToast(message: String,length:Int=FancyToast.LENGTH_SHORT){
+        FancyToast.makeText(this,message,length,FancyToast.SUCCESS,false).show();
     }
 
     fun Activity.openCamera(requestCode:Int) {
