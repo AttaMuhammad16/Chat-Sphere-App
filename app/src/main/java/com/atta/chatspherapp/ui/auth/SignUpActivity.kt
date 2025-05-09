@@ -67,10 +67,8 @@ class SignUpActivity : AppCompatActivity() {
     lateinit var binding: ActivitySignUpBinding
     @Inject
     lateinit var mainViewModel: MainViewModel
-
     @Inject
     lateinit var authViewModel: AuthViewModel
-
     @Inject
     lateinit var storageViewModel: StorageViewModel
     @Inject
@@ -80,11 +78,6 @@ class SignUpActivity : AppCompatActivity() {
     @Inject
     lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
-    val requestCodeForCamera=12
-    lateinit var profileUri:Uri
-
-    private lateinit var imageCapture: ImageCapture
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivitySignUpBinding.inflate(layoutInflater)
@@ -93,26 +86,8 @@ class SignUpActivity : AppCompatActivity() {
         overridePendingTransition(R.anim.slide_in_bottom,R.anim.slide_out_bottom)
         animations()
 
-        requestPermissions()
-
         binding.loginTv.setOnClickListener {
             finish()
-        }
-
-        binding.selectedImg.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-                checkAndOpenCamera()
-            }else{
-                showErrorToast("Camera permission is not granted")
-            }
-        }
-
-        binding.selectUserImage.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED){
-                checkAndOpenCamera()
-            }else{
-                showErrorToast("Camera permission is not granted")
-            }
         }
 
         binding.backArrow.setOnClickListener {
@@ -122,7 +97,6 @@ class SignUpActivity : AppCompatActivity() {
         binding.cameraBtn.setOnClickListener {
             lifecycleScope.launch {
                 binding.pd.visibility=View.VISIBLE
-                captureImage()
                 binding.lottieAnimationView.visibility=View.VISIBLE
                 binding.card.visibility=View.VISIBLE
                 binding.previewViewCard.visibility=View.GONE
@@ -145,6 +119,7 @@ class SignUpActivity : AppCompatActivity() {
 
 
         binding.registerBtn.setOnClickListener {
+
             val name=binding.fullNameEdt.text.toString().trim()
             val email=binding.emailEdt.text.toString().trim()
             val password=binding.passwordEdt.text.toString().trim()
@@ -182,37 +157,15 @@ class SignUpActivity : AppCompatActivity() {
                         model.key=authKey
 
                         lifecycleScope.launch {
-                            if (::profileUri.isInitialized){
-                                val imgUrlResult=storageViewModel.uploadImageToFirebaseStorage(profileUri.toString())
-                                imgUrlResult.whenSuccess {profileUrl->
-                                    model.profileUrl=profileUrl
-                                    lifecycleScope.launch {
-                                        val uploadResult=mainViewModel.uploadAnyModel(USERS,model)
-                                        uploadResult.whenSuccess {
-                                            startNewActivityFinishPreviousAll(SignInActivity::class.java)
-                                            showSuccessToast(authResult)
-                                        }
-                                        uploadResult.whenError {
-                                            showErrorToast(it.message.toString())
-                                            progress.dismiss()
-                                        }
-                                    }
-                                }
-                                imgUrlResult.whenError {
-                                    showErrorToast(it.message.toString())
-                                    progress.dismiss()
-                                }
-                            }else{
-                                val uploadResult=mainViewModel.uploadAnyModel(USERS,model)
-                                uploadResult.whenSuccess {
-                                    progress.dismiss()
-                                    startNewActivityFinishPreviousAll(SignInActivity::class.java)
-                                    showSuccessToast(authResult)
-                                }
-                                uploadResult.whenError {
-                                    showErrorToast(it.message.toString())
-                                    progress.dismiss()
-                                }
+                            val uploadResult=mainViewModel.uploadAnyModel(USERS,model)
+                            uploadResult.whenSuccess {
+                                progress.dismiss()
+                                startNewActivityFinishPreviousAll(SignInActivity::class.java)
+                                showSuccessToast(authResult)
+                            }
+                            uploadResult.whenError {
+                                showErrorToast(it.message.toString())
+                                progress.dismiss()
                             }
                         }
                     }
@@ -228,90 +181,6 @@ class SignUpActivity : AppCompatActivity() {
 
     }
 
-    fun checkAndOpenCamera(){
-        if (packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_FRONT)) {
-            binding.lottieAnimationView.visibility=View.GONE
-            binding.card.visibility=View.GONE
-            binding.previewViewCard.visibility=View.VISIBLE
-            binding.previewView.visibility=View.VISIBLE
-            binding.cameraBtn.visibility=View.VISIBLE
-            binding.toolBar.visibility=View.VISIBLE
-            binding.previewViewCard.setAnimationOnView(R.anim.scale,1000)
-            binding.cameraBtn.setAnimationOnView(R.anim.scale,1200)
-            startCamera()
-        }else{
-            showErrorToast("Front camera not found")
-        }
-    }
-
-    private fun requestPermissions() {
-        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA,Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.WRITE_EXTERNAL_STORAGE), 1221)
-    }
-
-    private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-
-            val preview = Preview.Builder()
-                .build()
-                .also {
-                    it.setSurfaceProvider(binding.previewView.surfaceProvider)
-                }
-
-            val cameraSelector = CameraSelector.Builder()
-                .requireLensFacing(CameraSelector.LENS_FACING_FRONT) // Use CameraSelector.LENS_FACING_BACK for back camera
-                .build()
-
-            imageCapture = ImageCapture.Builder().build()
-
-            try {
-                cameraProvider.unbindAll()
-                cameraProvider.bindToLifecycle(this, cameraSelector, preview, imageCapture)
-            } catch (e: Exception) {
-                Log.e("CameraActivity", "Use case binding failed", e)
-            }
-        }, ContextCompat.getMainExecutor(this))
-    }
-
-    private suspend fun captureImage() {
-        if (::imageCapture.isInitialized){
-            val photoFile = createFile()
-            val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-            imageCapture.takePicture(outputOptions, ContextCompat.getMainExecutor(this), object : ImageCapture.OnImageSavedCallback {
-                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                    lifecycleScope.launch {
-                        val savedUri = Uri.fromFile(photoFile)
-                        val compressUri=compressImageUri(savedUri,50)
-                        if (compressUri!=null){
-                            binding.selectedImg.setImageURI(savedUri)
-                            binding.pd.visibility=View.GONE
-                            profileUri=compressUri
-                        }
-                        releaseCamera()
-                    }
-                }
-                override fun onError(exception: ImageCaptureException) {
-                    showErrorToast(exception.message.toString())
-                }
-            })
-        }else{
-            showErrorToast("Camera is not ready.Try again")
-        }
-    }
-
-    private suspend fun createFile(): File {
-        val photoFile = File(getOutputDirectory(), "${System.currentTimeMillis()}.jpg")
-        return photoFile
-    }
-
-    private suspend fun getOutputDirectory(): File {
-        val mediaDir = externalMediaDirs.firstOrNull()?.let {
-            File(it, resources.getString(R.string.app_name)).apply { mkdirs() }
-        }
-        return mediaDir ?: filesDir
-    }
 
     override fun onBackPressed() {
         if (binding.lottieAnimationView.visibility==View.GONE){
@@ -327,19 +196,7 @@ class SignUpActivity : AppCompatActivity() {
         binding.previewViewCard.visibility=View.GONE
         binding.cameraBtn.visibility=View.GONE
         binding.toolBar.visibility=View.GONE
-        releaseCamera()
     }
-
-
-    fun releaseCamera(){
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-        cameraProviderFuture.addListener({
-            val cameraProvider = cameraProviderFuture.get()
-            cameraProvider.unbindAll()
-        }, ContextCompat.getMainExecutor(this))
-    }
-
-
 
 
     fun animations(){
@@ -350,15 +207,6 @@ class SignUpActivity : AppCompatActivity() {
         binding.passwordInputLayout.setAnimationOnView(R.anim.slide_up,1200)
         binding.registerBtn.setAnimationOnView(R.anim.slide_up,1300)
         binding.aleardyAccountLinear.setAnimationOnView(R.anim.slide_up,1400)
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == requestCodeForCamera) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                checkAndOpenCamera()
-            }
-        }
     }
 
 }

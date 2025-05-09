@@ -236,15 +236,7 @@ class ChatActivity : AppCompatActivity() {
                 }else{
                     binding.messageBoxLinear.isVisible = true
                     binding.blockedTv.isVisible = false
-                    mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel::class.java).collect{
-                        if (it.blockList.contains(myKey)){
-                            blockedFromAnotherUser = true
-                        }else{
-                            blockedFromAnotherUser = false
-                        }
-                    }
                 }
-
             }
         }
 
@@ -252,7 +244,11 @@ class ChatActivity : AppCompatActivity() {
         lifecycleScope.launch {
             mainViewModel.getModelFlow("$USERS/$anotherUserKey",UserModel::class.java).collect{it->
                 userModel = it
-
+                if (it.blockList.contains(myKey)){
+                    blockedFromAnotherUser = true
+                }else{
+                    blockedFromAnotherUser = false
+                }
                 // status updates
                 if (it.onlineOfflineStatus){
                     binding.userStatusTv.visibility=View.VISIBLE
@@ -489,7 +485,6 @@ class ChatActivity : AppCompatActivity() {
 
         binding.deleteMessageImg.setOnClickListener {
             hideReactionViews()
-
             lifecycleScope.launch {
                 if (myKey!=messageModel.senderUid){
                     deleteMessage(messageModel,false)
@@ -499,7 +494,6 @@ class ChatActivity : AppCompatActivity() {
                     adapter.notifyDataSetChanged()
                 }
             }
-
         }
 
         // swipe listener
@@ -645,11 +639,11 @@ class ChatActivity : AppCompatActivity() {
             job?.cancel()
             if (text.isNotEmpty()) {
 
-                if (setBol) {
-                    binding.voiceAndSendImage.setImageResource(R.drawable.baseline_send_24)
-                    binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim, 400)
-                    setBol = false
-                }
+//                if (setBol) {
+//                    binding.voiceAndSendImage.setImageResource(R.drawable.baseline_send_24)
+//                    binding.voiceAndSendImage.setAnimationOnView(R.anim.bounce_anim, 400)
+//                    setBol = false
+//                }
 
                 // typing
                 job = lifecycleScope.launch(Dispatchers.IO) {
@@ -662,13 +656,13 @@ class ChatActivity : AppCompatActivity() {
 
             } else {
 
-                if (!setBol) {
-                    binding.voiceAndSendImage.apply {
-                        setImageResource(R.drawable.baseline_keyboard_voice_24)
-                        setAnimationOnView(R.anim.bounce_anim, 400)
-                    }
-                    setBol = true
-                }
+//                if (!setBol) {
+//                    binding.voiceAndSendImage.apply {
+//                        setImageResource(R.drawable.baseline_keyboard_voice_24)
+//                        setAnimationOnView(R.anim.bounce_anim, 400)
+//                    }
+//                    setBol = true
+//                }
 
                 // typing
                 job = lifecycleScope.launch(Dispatchers.IO) {
@@ -693,6 +687,7 @@ class ChatActivity : AppCompatActivity() {
                 val message = binding.messageBox.text.toString()
 
                 if (message.isNotEmpty()) {
+
                     lifecycleScope.launch {
 
                         withContext(Dispatchers.IO){
@@ -738,23 +733,24 @@ class ChatActivity : AppCompatActivity() {
 
                         messageUploadResult.whenError {
                             showToast(it.toString())
-                            Log.i("onCreate", "onCreate:${it.message} ")
                         }
                         binding.recyclerView.scrollToPosition(list.size - 1)
                     }
                 } else {
 
-                    binding.voiceSenderLinearLayout.slideUpAnimation()
-                    binding.voiceSenderLinearLayout.visibility = View.VISIBLE
+                    showToast("Please enter message")
 
-                    binding.deleteImg.setAnimationOnView(R.anim.scale,1000)
-                    binding.sendImg.setAnimationOnView(R.anim.scale,1000)
-
-                    binding.linear02.slideDownAnimation()
-                    binding.linear02.visibility = View.GONE
-
-                    mediaRecorder = MediaRecorder()
-                    startRecording()
+//                    binding.voiceSenderLinearLayout.slideUpAnimation()
+//                    binding.voiceSenderLinearLayout.visibility = View.VISIBLE
+//
+//                    binding.deleteImg.setAnimationOnView(R.anim.scale,1000)
+//                    binding.sendImg.setAnimationOnView(R.anim.scale,1000)
+//
+//                    binding.linear02.slideDownAnimation()
+//                    binding.linear02.visibility = View.GONE
+//
+//                    mediaRecorder = MediaRecorder()
+//                    startRecording()
 
                 }
             }

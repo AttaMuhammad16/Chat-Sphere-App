@@ -18,7 +18,6 @@ import com.atta.chatspherapp.ui.viewmodel.MainViewModel
 import com.atta.chatspherapp.ui.viewmodel.StorageViewModel
 import com.atta.chatspherapp.utils.NewUtils.formatDateFromMillis
 import com.atta.chatspherapp.utils.NewUtils.loadImageViaLink
-import com.atta.chatspherapp.utils.NewUtils.pickImageFromGallery
 import com.atta.chatspherapp.utils.NewUtils.setAnimationOnView
 import com.atta.chatspherapp.utils.NewUtils.setStatusBarColor
 import com.atta.chatspherapp.utils.NewUtils.showErrorToast
@@ -58,7 +57,6 @@ class ProfileSettingActivity : AppCompatActivity() {
         binding.joiningDateLinear.setAnimationOnView(R.anim.bounce_anim,900)
 
 
-
         myModel?.apply {
             val s=if (status.isNotEmpty()){status}else{"Available"}
             binding.profileImg.loadImageViaLink(profileUrl)
@@ -72,10 +70,6 @@ class ProfileSettingActivity : AppCompatActivity() {
             finish()
         }
 
-        binding.cameraImg.setOnClickListener {
-            pickImageFromGallery(12,this@ProfileSettingActivity)
-        }
-
         binding.nameLinear.setOnClickListener {
             showBottomSheet(myModel?.fullName?:"Name not found",true)
         }
@@ -87,41 +81,7 @@ class ProfileSettingActivity : AppCompatActivity() {
 
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == 12 &&resultCode==Activity.RESULT_OK) {
-            uri=data!!.data!!
-            lifecycleScope.launch {
-                binding.profileImg.setImageURI(uri)
-                val progress= showProgressDialog("Changing...")
-                storageViewModel.deleteDocumentToFirebaseStorage(myModel!!.profileUrl)
-                val result=storageViewModel.uploadImageToFirebaseStorage(uri.toString())
-                result.whenSuccess {
-                    lifecycleScope.launch {
-                        val map=HashMap<String,Any>()
-                        map["profileUrl"]=it
-                        mainViewModel.changesProfileUrl = it
-                        val updateResult=mainViewModel.uploadMap("Users"+"/"+auth.currentUser!!.uid,map)
-                        updateResult.whenError {
-                            showErrorToast(it.message.toString())
-                            progress.dismiss()
-                        }
-                        updateResult.whenSuccess {
-                            showSuccessToast("Image changed successfully")
-                            progress.dismiss()
-                        }
-                    }
-                }
-                result.whenError {
-                    showErrorToast(it.message.toString())
-                    progress.dismiss()
-                }
-            }
-        }
-    }
-
-
-    fun showBottomSheet(data: String,from:Boolean) {
+    fun showBottomSheet(data: String,fromName:Boolean) {
         val bottomSheetDialog = BottomSheetDialog(this)
         val view = LayoutInflater.from(this).inflate(R.layout.bottom_sheet_with_edit_text, null)
         bottomSheetDialog.setContentView(view)
@@ -136,7 +96,7 @@ class ProfileSettingActivity : AppCompatActivity() {
 
         saveBtn.setOnClickListener {
             val text=edt.text.toString().trim()
-            if (from) {
+            if (fromName) {
                 if (text.isNotEmpty()){
                     binding.userNameTv.text=text
                     mainViewModel.changedName=text

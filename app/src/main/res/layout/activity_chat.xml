@@ -423,6 +423,7 @@
                     android:layout_width="@dimen/_20sdp"
                     android:layout_height="@dimen/_20sdp"
                     android:layout_gravity="center_vertical"
+                    android:visibility="gone"
                     android:layout_margin="@dimen/_5sdp"
                     android:src="@drawable/baseline_attach_file_24"
                     app:tint="#ffffff" />
@@ -434,6 +435,7 @@
                     android:layout_gravity="center_vertical"
                     android:layout_margin="@dimen/_5sdp"
                     android:src="@drawable/baseline_camera_alt_24"
+                    android:visibility="gone"
                     app:tint="#ffffff" />
             </LinearLayout>
 
@@ -445,7 +447,7 @@
                 android:padding="@dimen/_9sdp"
                 android:layout_marginStart="@dimen/_2sdp"
                 android:background="@drawable/circle"
-                android:src="@drawable/baseline_keyboard_voice_24"
+                android:src="@drawable/baseline_send_24"
                 app:tint="#EDFFFFFF" />
 
         </LinearLayout>

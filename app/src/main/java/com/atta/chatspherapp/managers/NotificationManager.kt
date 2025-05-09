@@ -62,6 +62,7 @@ class NotificationManager {
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setGroup(GROUP_KEY_CHAT)
                 .setGroupSummary(true)
+                .setAutoCancel(true)
                 .setContentIntent(pendingIntent)
                 .setDeleteIntent(dismissPendingIntent)
                 .build()

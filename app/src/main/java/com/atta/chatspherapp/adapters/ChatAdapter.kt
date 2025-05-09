@@ -1265,6 +1265,8 @@ class ChatAdapter(
                     angryImg.visibility = if (data.angry > 0) View.VISIBLE else View.GONE
                 }
             }
+
+
             is VideoReceiverViewHolder -> {
 
                 // Set click listeners
@@ -1361,6 +1363,7 @@ class ChatAdapter(
                         downloadFileImg.visibility = View.INVISIBLE
                         circularProgressIndicator.visibility = View.INVISIBLE
                     }
+
                 }
             }
 

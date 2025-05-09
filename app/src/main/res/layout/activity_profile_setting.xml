@@ -64,15 +64,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/cameraImg"
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
-                        android:layout_marginBottom="@dimen/_10sdp"
-                        android:src="@drawable/baseline_camera_alt_24"
-                        app:layout_constraintBottom_toBottomOf="@+id/profileImg"
-                        app:layout_constraintEnd_toEndOf="@+id/profileImg"
-                        app:tint="@color/very_light_grey" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <LinearLayout

@@ -119,15 +119,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/selectUserImage"
-                        android:layout_width="@dimen/_25sdp"
-                        android:layout_height="@dimen/_25sdp"
-                        android:elevation="@dimen/_10sdp"
-                        android:src="@drawable/baseline_camera_alt_24"
-                        app:layout_constraintBottom_toBottomOf="@+id/selectedImg"
-                        app:layout_constraintEnd_toEndOf="@+id/selectedImg"
-                        app:tint="@color/gray" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

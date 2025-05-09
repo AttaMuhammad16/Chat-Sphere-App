@@ -57,7 +57,6 @@ import com.atta.chatspherapp.utils.NewUtils.toTimeAgo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.messaging.FirebaseMessaging
-import com.infideap.drawerbehavior.AdvanceDrawerLayout
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -118,14 +117,14 @@ class MainActivity : AppCompatActivity() {
 
         toolbar=binding.toolbar2
         // drawer setup
-        val drawer=findViewById<AdvanceDrawerLayout>(R.id.drawer)
+        val drawer=findViewById<DrawerLayout>(R.id.drawer)
         toggle = ActionBarDrawerToggle(this, drawer, binding.toolbar2, R.string.open, R.string.close)
         toggle.drawerArrowDrawable.color = ContextCompat.getColor(this, R.color.white)
         binding.drawer.addDrawerListener(toggle)
         toggle.syncState()
-        drawer.setViewScale(Gravity.START, .8f);
-        drawer.setRadius(Gravity.START, 20.0f);
-        drawer.setViewElevation(Gravity.START, 1.0f);
+//        drawer.setViewScale(Gravity.START, .8f);
+//        drawer.setRadius(Gravity.START, 20.0f);
+//        drawer.setViewElevation(Gravity.START, 1.0f);
 
         drawer.addDrawerListener(object : DrawerLayout.DrawerListener {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
@@ -262,6 +261,7 @@ class MainActivity : AppCompatActivity() {
         if (!isLoading){
 
             binding.recyclerView.setData(sortedList, RecentChatSampleRowBinding::inflate) { binding, recentModel, position, holder ->
+
                 binding.profileImage.loadImageViaLink(recentModel.userModel.profileUrl)
 
                 binding.nameTv.text = recentModel.userModel.fullName
@@ -358,9 +358,7 @@ class MainActivity : AppCompatActivity() {
                 binding.toolBarTitle.setAnimationOnView(R.anim.slide_in_bottom,500)
                 animationApplied=true
             }
-
             return
-
         }
 
         binding.deleteImg.setOnClickListener {
