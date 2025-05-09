@@ -46,19 +46,24 @@ Hi there! I'm **Atta Muhammad**, an enthusiastic **Android App Developer** with 
 
 ---
 
-## 📸 Screenshots 
-
+<h3 align="center">🖼️ Chat Sphere Screenshots</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c1287307-9fcd-414e-890f-09ed086be9a3" width="30%">
-  <img src="https://github.com/user-attachments/assets/b3d036e7-6b30-4e44-89ee-0cb6bb2bc523" width="30%">
-  <img src="screenshots/screen3.png" width="30%">
+  <img src="https://github.com/user-attachments/assets/c1287307-9fcd-414e-890f-09ed086be9a3" width="30%" alt="chat_1">
+  <img src="https://github.com/user-attachments/assets/b3d036e7-6b30-4e44-89ee-0cb6bb2bc523" width="30%" alt="chat_2">
+  <img src="https://github.com/user-attachments/assets/28e09f46-2d1c-41a2-846c-d3d92d44115c" width="30%" alt="chat_3">
 </p>
 
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/37c12a66-49d7-499e-9156-08e480348d99" width="30%" alt="chat_4">
+  <img src="https://github.com/user-attachments/assets/3877aa2a-a449-4bfa-94a2-d49df2e2867f" width="30%" alt="chat_5">
+  <img src="https://github.com/user-attachments/assets/a9035add-ff9a-46d3-9383-5904506d1490" width="30%" alt="chat_6">
+</p>
 
-![chat_1](https://github.com/user-attachments/assets/c1287307-9fcd-414e-890f-09ed086be9a3) ![chat_2](https://github.com/user-attachments/assets/28e09f46-2d1c-41a2-846c-d3d92d44115c) ![chat_3](https://github.com/user-attachments/assets/b3d036e7-6b30-4e44-89ee-0cb6bb2bc523)![chat_4](https://github.com/user-attachments/assets/37c12a66-49d7-499e-9156-08e480348d99) ![chat_5](https://github.com/user-attachments/assets/3877aa2a-a449-4bfa-94a2-d49df2e2867f) ![chat_6](https://github.com/user-attachments/assets/a9035add-ff9a-46d3-9383-5904506d1490)
-![chat_7](https://github.com/user-attachments/assets/826219c4-bed6-417b-984d-d8e513a7ce98)
-![chat_8](https://github.com/user-attachments/assets/90447f35-831f-4063-88aa-a8050b29d636)
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/826219c4-bed6-417b-984d-d8e513a7ce98" width="30%" alt="chat_7">
+  <img src="https://github.com/user-attachments/assets/90447f35-831f-4063-88aa-a8050b29d636" width="30%" alt="chat_8">
+</p>
 
 
 
