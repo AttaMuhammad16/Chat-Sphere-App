@@ -8,6 +8,12 @@ Welcome to **Chat Sphere** – a simple yet powerful chat application that lets 
 
 ✅ Seamless user login  
 ✅ One-to-one real-time chat  
+✅ Reference messages just like whatsApp slide and reply 
+✅ Reaction on messages 
+✅ Click on reference message and move-to at that message
+✅ Online/Offine and Typing indicator
+✅ Can clear chat 
+✅ Block/Un-Block to the user  
 ✅ Secure message exchange via **Firebase**  
 ❌ (Temporarily removed) Image, video, and audio upload due to Firebase storage limitations
 
