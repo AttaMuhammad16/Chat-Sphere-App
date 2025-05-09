@@ -49,26 +49,21 @@ Hi there! I'm **Atta Muhammad**, an enthusiastic **Android App Developer** with 
 <h3 align="center">🖼️ Chat Sphere Screenshots</h3>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/c1287307-9fcd-414e-890f-09ed086be9a3" width="30%" alt="chat_1">
-  <img src="https://github.com/user-attachments/assets/b3d036e7-6b30-4e44-89ee-0cb6bb2bc523" width="30%" alt="chat_2">
-  <img src="https://github.com/user-attachments/assets/28e09f46-2d1c-41a2-846c-d3d92d44115c" width="30%" alt="chat_3">
+  <img src="https://github.com/user-attachments/assets/92a311c5-cbca-44ac-b240-28e06ef18313" width="30%" alt="chat1">
+  <img src="https://github.com/user-attachments/assets/1ca10a15-2adf-437b-aa2b-bc0ba100d462" width="30%" alt="chat2">
+  <img src="https://github.com/user-attachments/assets/b0c5e4c0-05f4-4e37-b307-1919f0997ff1" width="30%" alt="chat3">
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/37c12a66-49d7-499e-9156-08e480348d99" width="30%" alt="chat_4">
-  <img src="https://github.com/user-attachments/assets/3877aa2a-a449-4bfa-94a2-d49df2e2867f" width="30%" alt="chat_5">
-  <img src="https://github.com/user-attachments/assets/a9035add-ff9a-46d3-9383-5904506d1490" width="30%" alt="chat_6">
+  <img src="https://github.com/user-attachments/assets/02e1ba74-633c-4481-ade4-ca7ece2efa9c" width="30%" alt="chat4">
+  <img src="https://github.com/user-attachments/assets/c79e3ec6-e6c8-4d0a-9634-ea3a3630e2b1" width="30%" alt="chat5">
+  <img src="https://github.com/user-attachments/assets/7cbb5326-7975-4766-bd33-cc2f0b18e5df" width="30%" alt="chat6">
 </p>
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/826219c4-bed6-417b-984d-d8e513a7ce98" width="30%" alt="chat_7">
-  <img src="https://github.com/user-attachments/assets/90447f35-831f-4063-88aa-a8050b29d636" width="30%" alt="chat_8">
+  <img src="https://github.com/user-attachments/assets/2b733c13-a4d1-40b3-9671-c6b4c06d8ee9" width="30%" alt="chat7">
+  <img src="https://github.com/user-attachments/assets/a6f2e4b4-8567-498e-90d4-545ac728229d" width="30%" alt="chat8">
 </p>
-
-
-
-
-
 
 
 ---
